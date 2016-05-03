@@ -2,9 +2,9 @@
 /* jslint browser:true, node:true, esnext:true */
 'use strict';
 
-const lackey = require('./../../../../core/client/js'),
+const lackey = require('lackey-frontend'),
     treeParser = require('./../../../shared/treeparser'),
-    api = require('../api');
+    api = require('lackey-frontend/lib/api');
 
 let picker = lackey.select('[data-lky-author-picker]')[0],
     toUpdate = lackey.select('[data-lky-author]'),

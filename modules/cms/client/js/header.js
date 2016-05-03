@@ -19,7 +19,7 @@
 const
     Manager = require('./manager'),
     querystring = require('query-string'),
-    lackey = require('./../../../core/client/js');
+    lackey = require('lackey-frontend');
 
 Manager.init({
     controls: {

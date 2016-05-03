@@ -16,8 +16,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const lackey = require('../../../core/client/js'),
-    api = require('../../../cms/client/js/api');
+const lackey = require('lackey-frontend'),
+    api = require('lackey-frontend/lib/api');
 
 
 lackey.on('cms/cms/image:uploaded', function (data) {

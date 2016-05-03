@@ -18,7 +18,7 @@
 const
     should = require('should'),
     fs = require('fs'),
-    XMLHttpRequest = require('../../../../test/mockup/xhr'),
+    XMLHttpRequest = require('lackey-frontend/lbi/xhr'),
     atomus = require('atomus'),
     MODAL_TEMPLATE = fs.readFileSync(__dirname + '/mockups/modal.txt', 'utf8'),
     CONTENT_TEMPLATE = fs.readFileSync(__dirname + '/mockups/image.txt', 'utf8');
@@ -38,8 +38,8 @@ describe('modules/core/client/modal', () => {
             GLOBAL.top = window;
             GLOBAL.XMLHttpRequest = XMLHttpRequest;
 
-            template = require('../../client/js/template');
-            modal = require('../../client/js/modal');
+            template = require('lackey-frontend/lib/template');
+            modal = require('lackey-frontend/lib/modal');
 
             // cache modal template
 

@@ -33,7 +33,7 @@ describe('modules/core/client/template', () => {
             GLOBAL.window = window;
             GLOBAL.document = window.document;
             GLOBAL.XMLHttpRequest = XMLHttpRequest;
-            template = require('../../client/js/template');
+            template = require('lackey-frontend/lib/template');
             callback();
         });
     });

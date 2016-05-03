@@ -16,7 +16,7 @@
     See the License for the specific language governing permissions and
 */
 const
-    lackey = require('./../../../core/client/js'),
+    lackey = require('lackey-frontend'),
     LackeySchema = require('../../shared/content-blocks').LackeySchema,
     InlineSchema = require('../../shared/inline'),
     edit = require('prosemirror/dist/edit'),

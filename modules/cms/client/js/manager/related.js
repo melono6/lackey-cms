@@ -2,7 +2,7 @@
 /* jslint browser:true, node:true, esnext:true */
 'use strict';
 
-const lackey = require('./../../../../core/client/js');
+const lackey = require('lackey-frontend');
 
 let defContent;
 

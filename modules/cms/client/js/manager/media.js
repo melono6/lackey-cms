@@ -15,12 +15,10 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
 */
-const template = require('./../../../../core/client/js/template'),
-      lackey = require('./../../../../core/client/js'),
+const template = require('lackey-frontend/lib/template'),
+      lackey = require('lackey-frontend'),
       DummyImage = require('./dummy'),
-      api = require('./../api');
-
-require('filedrop');
+      api = require('lackey-frontend/lib/api');
 
 class MediaRepository {
       constructor(root, options) {
@@ -71,6 +69,7 @@ class MediaRepository {
 
             this._listeners = [];
             this.root = root;
+            /*
             this.zone = new window.FileDrop(lackey.hook('dropZone', root), {
                   multiple: false
             });
@@ -96,6 +95,7 @@ class MediaRepository {
                   console.log(xhr.responseText);
             });
             this.zone.event('upload', function () {});
+            */
             this.list();
       }
       select(id, url, type) {

@@ -17,13 +17,13 @@
     limitations under the License.
 */
 const
-    lackey = require('./../../../../core/client/js'),
+    lackey = require('lackey-frontend'),
     _ = require('lodash'),
     diff = require('jsondiffpatch'),
     diffFormatters = require('jsondiffpatch/src/main-formatters'),
-    api = require('../api'),
-    modal = require('./../../../../core/client/js/modal'),
-    template = require('./../../../../core/client/js/template'),
+    api = require('lackey-frontend/lib/api'),
+    modal = require('lackey-frontend/lib/modal'),
+    template = require('lackey-frontend/lib/template'),
     treeParser = require('./../../../shared/treeparser'),
     Structure = require('./structure'),
     MediaModalController = require('./media');

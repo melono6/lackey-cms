@@ -17,9 +17,9 @@
     limitations under the License.
 */
 
-const lackey = require('./../../../../core/client/js'),
-    modal = require('./../../../../core/client/js/modal'),
-    api = require('./../api');
+const lackey = require('lackey-frontend'),
+    modal = require('lackey-frontend/lib/modal'),
+    api = require('lackey-frontend/lib/api');
 
 class Node {
 

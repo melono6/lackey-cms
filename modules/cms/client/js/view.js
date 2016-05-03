@@ -18,7 +18,7 @@
 */
 const
     wysiwyg = require('./wysiwyg'),
-    lackey = require('./../../../core/client/js');
+    lackey = require('lackey-frontend');
 
 wysiwyg.init();
 
