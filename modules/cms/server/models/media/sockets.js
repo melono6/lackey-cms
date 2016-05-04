@@ -26,14 +26,110 @@ const mkdirp = require('mkdirp'),
     path = require('path'),
     SUtils = require(LACKEY_PATH).utils,
     fs = require('fs'),
-      mime = require('mime');
+    mime = require('mime'),
+    // brew install ffmpeg --with-libvpx  --with-theora --with-libogg --with-vorbis --with-libvorbis
+    ffmpeg = require('fluent-ffmpeg');
 
 let files = {};
 
-function postProcess(file, config) {
+
+function ffmpegConvert(source, destination) {
+    console.log('convert', source, destination);
+    let i = (new Date().getTime());
     return new Promise((resolve, reject) => {
-        resolve(mime.lookup(file.path));
+        ffmpeg(source, {
+                logger: console
+            })
+            .on('end', () => {
+                console.log('took ' + ((new Date()).getTime() - i) + ' seconds');
+                resolve();
+            })
+            .on('error', (error) => reject(error))
+            .output(destination)
+            .run();
     });
+}
+
+function ffmpegConvertWEBM(source, destination) {
+    console.log('convert', source, destination);
+    let i = (new Date().getTime());
+    return new Promise((resolve, reject) => {
+        ffmpeg(source, {
+                logger: console
+            })
+            .outputOptions([
+                '-b', '3900k',
+                '-acodec', 'libvorbis',
+                '-ab', '100k',
+                '-vpre', 'libvpx-720p',
+                '-f', 'webm'
+            ])
+            .on('end', () => {
+                console.log('took ' + ((new Date()).getTime() - i) + ' seconds');
+                resolve();
+            })
+            .on('error', (error) => reject(error))
+            .output(destination)
+            .run();
+    });
+}
+
+function thumbnail(source, destination) {
+    console.log('thumbnail', source, destination);
+    return new Promise((resolve, reject) => {
+        ffmpeg(source, {
+                logger: console
+            })
+            .on('end', () => resolve())
+            .on('error', (error) => reject(error))
+            .screenshots({
+                count: 1,
+                folder: destination,
+                fileName: 'thumbnail.png'
+            });
+    });
+}
+
+function convertVideo(filePath) {
+    let dirName = path.dirname(filePath),
+        baseName = path.basename(filePath);
+
+    return ffmpegConvert(filePath, dirName + '/' + baseName + '.converted.mp4')
+        .then(() => {
+            return ffmpegConvert(filePath, dirName + '/' + baseName + '.converted.ogg');
+        }).then(() => {
+            return thumbnail(filePath, dirName);
+        }).then(() => {
+            return ffmpegConvertWEBM(filePath, dirName + '/' + baseName + '.converted.webm');
+        }).then(() => {
+            console.log('done');
+            return [{
+                file: dirName + '/' + baseName + '.converted.mp4',
+                mime: 'video/mp4'
+            }, {
+                file: dirName + '/' + baseName + '.converted.webm',
+                mime: 'video/webm'
+            }, {
+                file: dirName + '/' + baseName + '.converted.ogg',
+                mime: 'video/ogg'
+            }, {
+                file: dirName + '/thumbnail.png',
+                mime: 'image/png'
+            }];
+        });
+
+}
+
+function postProcess(file) {
+    let fileMime = mime.lookup(file.path),
+        majorType = fileMime.split('/')[0];
+    if (majorType === 'video') {
+        return convertVideo(file.path, fileMime);
+    }
+    return Promise.resolve([{
+        file: file.path,
+        mime: fileMime
+    }]);
 }
 
 module.exports = (socket, config) => {
@@ -66,7 +162,7 @@ module.exports = (socket, config) => {
                 }
             } catch (ex) {}
 
-            fs.open(filePath, 'a', 755, (err, fd) => {
+            fs.open(filePath, 'a', 775, (err, fd) => {
                 if (err) {
                     console.error(err);
                     return;
@@ -83,7 +179,6 @@ module.exports = (socket, config) => {
     });
 
     function progress(file, guid) {
-        file.data = '';
         let place = file.downloaded / 524288,
             percent = file.downloaded / file.fileSize * 100,
             done = file.downloaded === file.fileSize;
@@ -99,6 +194,8 @@ module.exports = (socket, config) => {
                         guid: guid,
                         media: response
                     });
+                }, (error) => {
+                    console.log(error);
                 });
         }
         socket.emit('media.more-data', {
