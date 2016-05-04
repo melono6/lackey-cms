@@ -30,7 +30,7 @@ function cmsResourceRoutes(server, name, param, controller) {
     });
 }
 
-module.exports = (server) => {
+module.exports = (server, config) => {
 
     return SUtils
         .deps(require('../controllers'),

@@ -8,7 +8,7 @@ module.exports = SUtils.deps(
         SUtils.cmsMod('cms').model('taxonomy-type'),
         SUtils.cmsMod('cms').model('taxonomy'),
         SUtils.cmsMod('cms').model('template'),
-        SUtils.cmsMod('media').model('media'),
+        SUtils.cmsMod('cms').model('media'),
         SUtils.cmsMod('cms').model('content')
     )
     .promised((Role, User, TaxonomyType, Taxonomy, Template, Media, Content) => {

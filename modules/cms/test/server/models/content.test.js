@@ -102,7 +102,7 @@ describe('models/cms/server/models/content', () => {
 
     it('Serializes complex layouts', () => {
         return SUtils
-            .cmsMod('media')
+            .cmsMod('cms')
             .model('media')
             .then((Media) => {
                 return Media.generator({

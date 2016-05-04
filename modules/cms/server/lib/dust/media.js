@@ -163,7 +163,7 @@ module.exports = (dust) => {
 
       return chunk.map((injected) => {
 
-        return SUtils.cmsMod('media').model('media')
+        return SUtils.cmsMod('cms').model('media')
           .then((Media) => {
             return Media.findById(data.id);
           }).then((model) => {

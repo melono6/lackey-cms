@@ -24,7 +24,7 @@ const browser = require('../../lib/dust/editable').browser,
     toMarkdown = require('prosemirror/dist/markdown').toMarkdown,
     treeParser = require('../../../shared/treeparser'),
     SUtils = require(LACKEY_PATH).utils,
-    mediaModule = SUtils.cmsMod('media');
+    mediaModule = SUtils.cmsMod('cms');
 
 let mediaGenerator, Media;
 

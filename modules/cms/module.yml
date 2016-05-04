@@ -3,7 +3,6 @@ name : 'Lackey - CMS'
 require:
     - cms/core
     - cms/users
-    - cms/media
     - cms/i18n
 
 testStages: &routes

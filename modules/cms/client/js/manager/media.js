@@ -18,7 +18,9 @@
 const template = require('lackey-frontend/lib/template'),
       lackey = require('lackey-frontend'),
       DummyImage = require('./dummy'),
-      api = require('lackey-frontend/lib/api');
+      api = require('lackey-frontend/lib/api'),
+      ws = require('lackey-frontend/lib/socket'),
+      Upload = require('lackey-frontend/lib/upload');
 
 class MediaRepository {
       constructor(root, options) {
@@ -47,28 +49,30 @@ class MediaRepository {
                               self.list();
                         });
                   }
-                  if(options.filter) {
+                  if (options.filter) {
                         lackey.bind(options.filter, 'click', () => {
                               self.page = 1;
                               self.list();
                         });
                   }
-                  if(options.reset) {
+                  if (options.reset) {
                         lackey.bind(options.reset, 'click', () => {
-                              if(self.search) {
+                              if (self.search) {
                                     self.search.value = '';
                               }
                               self.page = 1;
                               self.list();
                         });
                   }
-                  if(options.filterInput) {
+                  if (options.filterInput) {
                         this.search = options.filterInput;
                   }
             }
 
             this._listeners = [];
             this.root = root;
+
+            this.zone = new Upload(lackey.hook('dropZone', root));
             /*
             this.zone = new window.FileDrop(lackey.hook('dropZone', root), {
                   multiple: false
@@ -111,10 +115,10 @@ class MediaRepository {
       }
       list() {
             let self = this,
-                query = this.search ? this.search.value : null,
-                url = '/cms/media?limit=10&sort=-createdAt&page=' + self.page;
+                  query = this.search ? this.search.value : null,
+                  url = '/cms/media?limit=10&sort=-createdAt&page=' + self.page;
 
-            if(query) {
+            if (query) {
                   url += '&q=' + encodeURIComponent(query);
             }
 

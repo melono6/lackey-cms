@@ -30,6 +30,7 @@ const editable = require('./server/lib/dust/editable'),
     list = require('./server/lib/dust/list'),
     taxonomy = require('./server/lib/dust/taxonomy'),
     hasContent = require('./server/lib/dust/has-content'),
+      socket = require('./server/models/media/sockets'),
     sitemap = require(LACKEY_PATH).sitemap;
 
 module.exports = (instance) => {
@@ -53,4 +54,6 @@ module.exports = (instance) => {
                 server.use(PageController.capture);
             });
     });
+
+    instance.addSocketware(socket);
 };

@@ -162,7 +162,7 @@ module.exports = SUtils.deps(
         _getAvatar() {
             let self = this;
             return SUtils
-                .cmsMod('media')
+                .cmsMod('cms')
                 .model('media')
                 .then((Media) => {
                     return Media
@@ -211,7 +211,7 @@ module.exports = SUtils.deps(
             console.log('_populateImage', imagePath);
             let self = this;
             return SUtils
-                .cmsMod('media')
+                .cmsMod('cms')
                 .model('media')
                 .then((Media) => {
                     return Media.generator(imagePath);
@@ -255,7 +255,7 @@ module.exports = SUtils.deps(
                 }, true);
 
                 return SUtils
-                    .cmsMod('media')
+                    .cmsMod('cms')
                     .model('media')
                     .then((Media) => {
 

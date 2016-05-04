@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const api = require('../../client/js/api'),
+const api = require('lackey-frontend/lib/api'),
     XMLHttpRequest = require('../../../../test/mockup/xhr'),
     should = require('should');
 

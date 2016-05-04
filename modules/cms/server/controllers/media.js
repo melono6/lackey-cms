@@ -25,7 +25,7 @@ const SUtils = require(LACKEY_PATH).utils,
     Uploads = require(LACKEY_PATH).uploads;
 
 module.exports = SUtils.deps(
-        SUtils.cmsMod('media').model('media'),
+        SUtils.cmsMod('cms').model('media'),
         SUtils.cmsMod('core').controller('crud')
     )
     .promised((Model, Crud) => {
