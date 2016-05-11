@@ -6,6 +6,7 @@ header {
     top: 0px;
     left: 0px;
     z-index: 1000;
+    position: fixed;
     button,
     label,
     a {
@@ -36,6 +37,12 @@ header {
                 border: none;
                 cursor: pointer;
             }
+            button {
+                font-size: 22px;
+                &[disabled] {
+                    color: #aaa;
+                }
+            }
             a[data-lky-hook="cms.actions.visibility"] {
                 i:before {
                     content: "\f070";
@@ -52,6 +59,22 @@ header {
                 height: inherit;
                 vertical-align: middle;
                 padding: 9px 10px;
+                [data-lky-hook="changes"] {
+                    font-size: 17px;
+                    display: block;
+                    height: inherit;
+                    vertical-align: middle;
+                    padding: 8px 7px;
+                    background-color: red;
+                    border-radius: 26px;
+                    color: white;
+                }
+                [data-lky-hook="changes-list"] {
+                    position: fixed;
+                    top: 50px;
+                    margin-left: -5px;
+                    background-color: black;
+                }
                 &.user {
                     background-color: $color-green;
                     color: $color-white;

@@ -17,9 +17,11 @@
     limitations under the License.
 */
 const
-    Manager = require('cms/client/js/manager'),
-    querystring = require('query-string'),
-    lackey = require('core/client/js');
+    //Manager = require('cms/client/js/manager'),
+    Manager = require('cms/client/js/manager/index.new.js');
+
+Manager.init();
+/*
 
 Manager.init({
     controls: {
@@ -61,4 +63,4 @@ lackey.bind('lky:viewIn', 'click', (event, hook) => {
     lackey.setCookie('lky-view-in', hook.getAttribute('data-lky-language'));
     window.location.reload();
     return false;
-});
+});*/

@@ -3,12 +3,14 @@
     font-size: 12px;
     @import "_vars";
     @import "_partials/header";
+    @import "_partials/autocomplete";
     @import "_partials/overlay";
     @import "_partials/treeview";
     @import "_partials/image-manager/main";
     @import "_partials/diff";
     @import "_partials/_structure/main";
     @import "_partials/_page-create";
+    @import "_partials/sidebar";
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -53,3 +55,5 @@ body {
     margin: 0px;
     padding: 0px;
 }
+
+@import "_partials/_growl";

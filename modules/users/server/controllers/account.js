@@ -1,4 +1,5 @@
 /* jslint node:true, esnext:true */
+/* global LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -19,16 +20,19 @@
 const mailer = require(LACKEY_PATH).mailer,
     configuration = require(LACKEY_PATH).configuration,
     SCli = require(LACKEY_PATH).cli,
+    SUtils = require(LACKEY_PATH).utils,
     __MODULE_NAME = 'lackey-cms/modules/user/server/controllers/account';
 
-module.exports = require('../models/user')
+module.exports = SUtils.cmsMod('core')
+    .model('user')
     .then((User) => {
         return {
             index: (req, res) => {
 
                 let data = {};
 
-                req.admin.getIdentities('email')
+                req.admin
+                    .getIdentities('email')
                     .then((emails) => {
                         data.emails = emails.map((email) => {
                             return {

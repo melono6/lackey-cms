@@ -18,9 +18,8 @@
     limitations under the License.
 */
 const template = require('core/client/js/template'),
-    lackey = require('core/client/js/index'),
+    lackey = require('core/client/js'),
     qs = require('query-string'),
-    _ = require('lodash'),
     api = require('cms/client/js/api'); // Todo: should move to core
 
 class Table {
@@ -93,7 +92,7 @@ class Table {
     }
 
     page(pageNumber) {
-        this.query(_.merge(this.filters(lackey.form(lackey.hook('filters', this._root))), {
+        this.query(lackey.merge(this.filters(lackey.form(lackey.hook('filters', this._root))), {
             offset: pageNumber * this._paging.perPage,
             limit: this._paging.perPage
         }));

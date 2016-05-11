@@ -15,7 +15,9 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
 */
-const lackey = require('core/client/js');
+const lackey = require('core/client/js'),
+      Upload = require('core/client/js/upload');
+
 
 class Media {
       static get manager() {
@@ -25,13 +27,21 @@ class Media {
             this._listeners = [];
             this.node = HTMLElement;
             this.attributes = {};
+            this.input = document.createElement('input');
+            this.input.setAttribute('type', 'file');
+            this.input.setAttribute('name', 'files[]');
+            this.input.setAttribute('multiple', '');
+            this.input.style.position = 'absolute';
+            this.input.style.marginLeft = '-1000px';
             if (this.node) {
+
                   this.content = HTMLElement.getAttribute('data-lky-content');
                   this.path = HTMLElement.getAttribute('data-lky-path');
                   this.variant = HTMLElement.getAttribute('data-lky-variant');
                   this.update = HTMLElement.getAttribute('data-lky-update');
                   this.updatePattern = HTMLElement.getAttribute('data-lky-update-pattern');
                   this.mediaType = HTMLElement.getAttribute('data-lky-media-type');
+
                   if (this.mediaType === 'hook' && !this.update) {
 
                         this.update = 'style.backgroundImage';
@@ -45,7 +55,9 @@ class Media {
                               listener(self);
                         });
                   }, this);
+
                   this.set(JSON.parse(HTMLElement.getAttribute('data-lky-media')));
+
             }
       }
       render() {
@@ -68,11 +80,25 @@ class Media {
                   this.node.parentNode.insertBefore(newTag, this.node);
                   this.node.parentNode.removeChild(this.node);
             }
+            if (this.upload) {
+                  this.upload.destroy();
+                  this.upload = null;
+            }
             this.node = newTag;
             this.node.addEventListener('click', this.onClick, true);
+            this.upload = new Upload(this.node);
+            this.upload.on('done', function (uploader, data) {
+                  if(data && data.length && data[0].data) {
+                        self.set(data[0].data);
+                        self.notify();
+                  }
+            });
+
+            this.node.style.display = 'block';
             if (this._listeners.length) {
                   newTag.style.cursor = 'pointer';
             }
+            this.node.appendChild(this.input);
       }
       renderVideo() {
             let videoTag = document.createElement('video'),
@@ -91,7 +117,7 @@ class Media {
                   if (source.media) {
                         sourceTag.setAttribute('media', source.media);
                   }
-                  if(source.type) {
+                  if (source.type) {
                         sourceTag.setAttribute('type', source.type);
                   }
                   videoTag.appendChild(sourceTag);

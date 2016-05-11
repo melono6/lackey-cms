@@ -19,7 +19,7 @@
 
 const lackey = require('core/client/js'),
     modal = require('core/client/js/modal'),
-    api = require('cms/client/js/api');
+    api = require('core/client/js/api');
 
 class Node {
 
@@ -35,7 +35,7 @@ class Node {
         });
     }
 
-    constructor(item, label, injectButtons) {
+    constructor(item, label) {
 
         this._item = item;
         this._label = label;
@@ -88,7 +88,6 @@ class Node {
         }
 
         this.node.appendChild(labelNode);
-        this.controls(injectButtons);
         this._list = document.createElement('ul');
         this.node.appendChild(this._list);
         this._nodes = [];
@@ -109,7 +108,6 @@ class Node {
         //this.button('Add block', 'fa-plus', this.add);
     }
     injected(buttons) {
-        console.log(buttons);
         let self = this;
         if (!this._toolbar) {
             this.toolbar();

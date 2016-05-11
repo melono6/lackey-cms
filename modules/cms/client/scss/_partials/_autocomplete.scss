@@ -1,0 +1,72 @@
+[data-lky-autocomplete] {
+    display: block;
+    -appearance: textfield;
+    padding: 1px;
+    overflow: hidden;
+    word-wrap: break-word;
+    cursor: text;
+    background-color: #fff;
+    border: 1px solid #a9a9a9;
+    box-shadow: 1px 1px 1px 0 #d3d3d3 inset;
+    height: 32px;
+    [data-lky-tags] {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        > li {
+            margin: 2px;
+            padding: 0 5px;
+            display: inline-block;
+            float: left;
+            font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+            height: 26px;
+            line-height: 25px;
+            border: 1px solid #acacac;
+            border-radius: 3px;
+            background: linear-gradient(to bottom, #f0f9ff 0, #cbebff 47%, #a1dbff 100%);
+        }
+    }
+    > input[type="text"] {
+        border: 0;
+        outline: 0;
+        margin: 2px;
+        padding: 0 0 0 5px;
+        float: left;
+        height: 26px;
+        font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    [data-lky-suggestions] {
+        margin-top: 33px;
+        margin-left: 0px;
+        position: absolute;
+        padding: 5px 0;
+        z-index: 999;
+        width: 50%;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, .2);
+        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        list-style-type: none;
+        max-height: 280px;
+        overflow-y: auto;
+        > li {
+            padding: 5px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #000;
+            background-color: #fff;
+
+            &[data-lky-selected] {
+                background-color: #000;
+                color: #fff;
+            }
+        }
+        &:empty {
+            display: none;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+<ul>
+    {#expose}
+        <li>
+            <h3>{label} {type}</h3>
+            <pre>{.|js|s}</pre>
+            {@path root=context path=path exposeType=type itemPath=path allowEmpty=1}
+                {@switch key=exposeType}
+                    Unknown type
+                    {:List}
+                        <ul>
+                            <li>
+                                <button data-lky-path="{itemPath}.-1" data-lky-action="block-add">+ add new block</button>
+                            </li>
+                        {#items}
+                            <li data-lky-component="{type}" data-lky-type="{template}">
+                                {@templateData template=template}
+                                    <h4>{name} {type} {$idx}</h4>
+                                    <img src="{thumb}"/>
+                                    <button data-lky-path="{itemPath}.{$idx}" data-lky-action="block-inspect">Edit</button>
+                                    <button data-lky-path="{itemPath}.{$idx}" data-lky-action="block-remove">Remove</button>
+                                {/templateData}
+                            </li>
+                            <li>
+                                <button data-lky-path="{itemPath}.{$idx}" data-lky-action="block-add">+ add new block</button>
+                            </li>
+                        {/items}
+                        </ul>
+                    {:Block}
+                            {@templateData template=template}
+                                    <h4>{name}</h4>
+                                    <img src="{thumb}"/>
+                                    <button data-lky-path="{itemPath}" data-lky-action="block-inspect">Edit</button>
+                            {/templateData}
+                    {:text}
+                            <img src="/img/cms/cms/blocks/text.png"/>
+                            <em>{@snippet source=./}</em><br/>
+                    {:Media}
+                            <img src="/img/cms/cms/blocks/image.png"/>
+                            <button data-lky-path="{itemPath}" data-lky-action="media-edit">Edit</button>
+                {/switch}
+            {/path}
+        </li>
+    {/expose}
+    <li></li>
+</ul>

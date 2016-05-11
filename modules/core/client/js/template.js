@@ -23,13 +23,21 @@ var
     iterate = require('core/shared/dust/iterate'),
     hashmap = require('core/shared/dust/hashmap'),
     list = require('core/shared/dust/list'),
-    path = require('core/shared/dust/path');
+    path = require('core/shared/dust/path'),
+    is = require('core/shared/dust/is'),
+    snippet = require('cms/client/js/snippet'),
+    caseSwitch = require('core/shared/dust/switch');
+
+//require('dustjs-linkedin/lib/compiler');
 
 engine.helpers = helpers.helpers;
 iterate(engine);
 hashmap(engine);
 list(engine);
 path(engine);
+is(engine);
+snippet(engine);
+caseSwitch(engine);
 
 function load(name) {
     return xhr.get('dust/' + name + '.js').then((template) => {
@@ -43,6 +51,8 @@ function load(name) {
 }
 
 engine.onLoad = function () {
+
+
     let templateName = arguments[0],
         callback;
     if (arguments.length > 2) {
@@ -93,11 +103,13 @@ function redraw(hook, vars, root) {
             .then((domNodes) => {
                 node.innerHTML = '';
                 domNodes.forEach((domNode) => node.appendChild(domNode));
+                return node;
             });
     }));
 }
 
 module.exports = {
     render: render,
-    redraw: redraw
+    redraw: redraw,
+    dust: engine
 };

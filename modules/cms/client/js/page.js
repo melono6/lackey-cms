@@ -18,5 +18,5 @@
 */
 require('cms/client/js/iframe');
 require('cms/client/js/view');
-require('cms/client/js/manager/author');
-require('cms/client/js/manager/related');
+//require('cms/client/js/manager/author');
+//require('cms/client/js/manager/related');

@@ -30,10 +30,11 @@ function cmsResourceRoutes(server, name, param, controller) {
     });
 }
 
-module.exports = (server) => {
+module.exports = (server, config) => {
 
     return SUtils
-        .deps(require('../controllers'),
+        .waitForAs('cms routes',
+            require('../controllers'),
             require('../controllers/content'),
             require('../controllers/taxonomy'),
             require('../controllers/taxonomy-type'),
@@ -45,7 +46,7 @@ module.exports = (server) => {
             require('../controllers/template'),
             require('../controllers/page')
         )
-        .promised((
+        .then((
             CMSController,
             ContentController,
             TaxonomyController,

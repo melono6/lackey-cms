@@ -1,4 +1,5 @@
 /* jslint node:true, esnext:true */
+/* globals LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -15,12 +16,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-if (!GLOBAL.LACKEY_PATH) {
-  /* istanbul ignore next */
-  GLOBAL.LACKEY_PATH = process.env.LACKEY_PATH || __dirname + '/../../../../../lib';
-}
-
 const SCli = require(LACKEY_PATH).cli,
+  SUtils = require(LACKEY_PATH).utils,
   treeParser = require('../../../shared/treeparser');
 
 module.exports = (dust) => {
@@ -80,10 +77,12 @@ module.exports.block = (config, injectedChunk, context, bodies, params, dust) =>
       SCli.debug('lackey-cms/modules/cms/server/lib/dust/block', 'has route');
       promise = promise
         .then(() => {
-          return require('../../models/content');
-        }).then((Content) => {
+          return SUtils.cmsMod('core').model('content');
+        })
+        .then((Content) => {
           return Content.findByRoute(config.route);
-        }).then((content) => {
+        })
+        .then((content) => {
           if (!content) {
             throw new Error('No referred document found ' + config.route);
           }

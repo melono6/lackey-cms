@@ -1,4 +1,5 @@
 /* jslint esnext:true, node:true */
+/* globals LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -20,12 +21,12 @@ const SCli = require(LACKEY_PATH).cli,
     SUtils = require(LACKEY_PATH).utils;
 
 module.exports = SUtils
-    .deps(
-        require('../models/content'),
-        require('../models/taxonomy'),
-        require('../models/taxonomy-type')
+    .waitForAs('pageCtrl',
+        SUtils.cmsMod('core').model('content'),
+        SUtils.cmsMod('core').model('taxonomy'),
+        SUtils.cmsMod('core').model('taxonomy-type')
     )
-    .promised((ContentModel, Taxonomy, TaxonomyType) => {
+    .then((ContentModel, Taxonomy, TaxonomyType) => {
 
         class PageController {
 
@@ -152,11 +153,9 @@ module.exports = SUtils
                     excludeTaxonomies;
 
                 return PageController.mapTaxonomyList(item.taxonomy || [], req, page).then((taxonomies) => {
-                    console.log('require', item.taxonomy, taxonomies);
                     includeTaxonomies = taxonomies;
                     return PageController.mapTaxonomyList(item.excludeTaxonomy || [], req, page);
                 }).then((taxonomies) => {
-                    console.log('exclude', item.excludeTaxonomy, taxonomies);
                     excludeTaxonomies = taxonomies;
                     let taxes = includeTaxonomies.filter((tax) => !!tax),
                         exTaxes = excludeTaxonomies.filter((tax) => !!tax),

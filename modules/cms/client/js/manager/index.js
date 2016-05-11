@@ -16,6 +16,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+
+module.exports = require('cms/client/js/manager/index.new');
+
+return;
+/*
 const
     lackey = require('core/client/js'),
     _ = require('lodash'),
@@ -168,10 +173,11 @@ let self,
                     document.body.removeChild(form);
                 });
         },
-        media: (media) => {
+        media: (media, event) => {
             return modal.open('cms/cms/image', {
                 node: media.node,
-                media: media.media
+                media: media.media,
+                event: event
             }, MediaModalController);
         },
         structure: (selector) => {
@@ -472,4 +478,4 @@ let self,
 
 self = LackeyPageManager;
 lackey.manager = LackeyPageManager;
-module.exports = LackeyPageManager;
+module.exports = LackeyPageManager;*/

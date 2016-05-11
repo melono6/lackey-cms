@@ -10,7 +10,7 @@ let picker = lackey.select('[data-lky-author-picker]')[0],
     toUpdate = lackey.select('[data-lky-author]'),
     users = {},
     defContent;
-
+picker = null; //TODO
 if (picker) {
     top.Lackey.manager.getDefault()
         .then((def) => {

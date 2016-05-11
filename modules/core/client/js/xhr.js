@@ -16,50 +16,51 @@
     limitations under the License.
 */
 
-var Promise = require('promise'),
-  XHR = {
-    ajax: function (path, method, data, raw) {
+let statuses = require('http-status');
 
-      return new Promise(function (resolve, reject) {
+var XHR = {
+  ajax: function (path, method, data, raw) {
 
-        var xhr = new XMLHttpRequest(),
-          httpMethod = method.toLowerCase();
+    return new Promise(function (resolve, reject) {
 
-        xhr.open(httpMethod, path);
-        if (httpMethod === 'post' || httpMethod === 'put') {
-          xhr.setRequestHeader('Content-type', 'application/json');
-        }
+      var xhr = new XMLHttpRequest(),
+        httpMethod = method.toLowerCase();
 
-        xhr.onreadystatechange = function () {
-          var DONE = 4, // readyState 4 means the request is done.
-            OK = 200; // status 200 is a successful return.
-          if (xhr.readyState === DONE) {
-            if (xhr.status === OK) {
-              resolve(xhr.responseText); // 'This is the returned text.'
-            } else if (xhr.status === '204') {
-              resolve(null);
-            } else {
-              reject(new Error('Error: ' + xhr.status)); // An error occurred during the request.
-            }
+      xhr.open(httpMethod, path);
+      if (httpMethod === 'post' || httpMethod === 'put') {
+        xhr.setRequestHeader('Content-type', 'application/json');
+      }
+
+      xhr.onreadystatechange = function () {
+        var DONE = 4, // readyState 4 means the request is done.
+          OK = 200; // status 200 is a successful return.
+        if (xhr.readyState === DONE) {
+          if (xhr.status === OK) {
+            resolve(xhr.responseText); // 'This is the returned text.'
+          } else if (xhr.status === '204') {
+            resolve(null);
+          } else {
+            reject(new Error('Error: ' + (xhr.status === 0 ? 'Network problem' : statuses[xhr.status]))); // An error occurred during the request.
           }
-        };
+        }
+      };
 
-        xhr.send(data ? (raw ? data : JSON.stringify(data)) : null);
+      xhr.send(data ? (raw ? data : JSON.stringify(data)) : null);
 
-      });
-    },
-    get: function (path, raw) {
-      return XHR.ajax(path, 'get', null, raw);
-    },
-    post: function (path, data, raw) {
-      return XHR.ajax(path, 'post', data, raw);
-    },
-    put: function (path, data, raw) {
-      return XHR.ajax(path, 'put', data, raw);
-    },
-    delete: function (path, raw) {
-      return XHR.ajax(path, 'delete', null, raw);
-    }
-  };
+    });
+  },
+  get: function (path, raw) {
+    return XHR.ajax(path, 'get', null, raw);
+  },
+  post: function (path, data, raw) {
+    return XHR.ajax(path, 'post', data, raw);
+  },
+  put: function (path, data, raw) {
+    return XHR.ajax(path, 'put', data, raw);
+  },
+  delete: function (path, raw) {
+    return XHR.ajax(path, 'delete', null, raw);
+  }
+};
 
 module.exports = XHR;

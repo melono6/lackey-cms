@@ -30,7 +30,7 @@ module.exports = Promise.resolve({
     },
 
     login: (req, res, next) => {
-        passport.authenticate('local', function (err, user, info) {
+        passport.authenticate('local', (err, user, info) => {
             if (err) {
                 /* istanbul ignore next */
                 res.status(400).error(err);
@@ -41,7 +41,7 @@ module.exports = Promise.resolve({
                 });
             } else {
                 // Remove sensitive data before login
-                req.login(user, function (error) {
+                req.login(user, (error) => {
                     if (error) {
                         /* istanbul ignore next */
                         res.status(400).error(error);

@@ -1,4 +1,5 @@
 /* jslint node:true, esnext:true */
+/* globals LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -16,24 +17,19 @@
     limitations under the License.
 */
 
-if (!GLOBAL.LACKEY_PATH) {
-    /* istanbul ignore next */
-    GLOBAL.LACKEY_PATH = process.env.LACKEY_PATH || __dirname + '/../../../../lib';
-}
-
 const SUtils = require(LACKEY_PATH).utils,
     humanize = require('humanize');
 
 module.exports = SUtils
-    .deps(
+    .waitForAs('lackey-cms/modules/cms/server/controllers',
         SUtils.cmsMod('core').model('activity-log'),
-        SUtils.cmsMod('users').model('role'),
+        SUtils.cmsMod('core').model('role'),
         SUtils.cmsMod('i18n').model('language'),
-        require('../models/template'),
+        SUtils.cmsMod('core').model('template'),
         require('../lib/serializer'),
         require('json2yaml')
     )
-    .promised((Activity, Role, Language, Template, Serializer, JSON2YAML) => {
+    .then((Activity, Role, Language, Template, Serializer, JSON2YAML) => {
 
         return {
             dashboard: (req, res) => {

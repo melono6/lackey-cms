@@ -1,4 +1,5 @@
 /* jslint esnext:true, node:true */
+/* globals LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -18,11 +19,13 @@
 
 const SUtils = require(LACKEY_PATH).utils;
 
-module.exports = SUtils.deps(
-        SUtils.cmsMod('users').model('user'),
+
+module.exports = SUtils
+    .waitForAs('usersController',
+        SUtils.cmsMod('core').model('user'),
         SUtils.cmsMod('core').controller('crud')
     )
-    .promised((Model, Crud) => {
+    .then((Model, Crud) => {
         class Controller extends Crud {
 
             static get model() {

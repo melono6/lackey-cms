@@ -1,4 +1,5 @@
 /* jslint node:true, esnext:true */
+/* globals LACKEY_PATH */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -15,14 +16,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-if (!GLOBAL.LACKEY_PATH) {
-  /* istanbul ignore next */
-  GLOBAL.LACKEY_PATH = process.env.LACKEY_PATH || __dirname + '/../../../../../lib';
-}
 
 const SUtils = require(LACKEY_PATH).utils,
   _ = require('lodash'),
   SCli = require(LACKEY_PATH).cli,
+
   treeParser = require('../../../shared/treeparser');
 
 
@@ -164,7 +162,7 @@ module.exports = (dust) => {
 
       return chunk.map((injected) => {
 
-        return SUtils.cmsMod('media').model('media')
+        return SUtils.cmsMod('core').model('media')
           .then((Media) => {
             return Media.findById(data.id);
           }).then((model) => {

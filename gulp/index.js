@@ -23,7 +23,8 @@ const sass = require('gulp-sass'),
     browserify = require('gulp-browserify'),
     nodemon = require('gulp-nodemon'),
     autoprefixer = require('gulp-autoprefixer'),
-    dust = require('gulp-dust');
+    dust = require('gulp-dust-2.7'),
+    plumber = require('gulp-plumber');
 
 module.exports = (gulp, projectDIR) => {
 
@@ -37,29 +38,38 @@ module.exports = (gulp, projectDIR) => {
         'lackey.watch'
     ]);
 
+    gulp.task('lackey.dev', [
+        'lackey.server',
+        'lackey.watch'
+    ]);
+
+    gulp.task('lackey.build', [
+        'lackey.cleanup',
+        'lackey.resources'
+    ]);
+
     gulp.task('lackey.resources', [
         'lackey.sass',
         'lackey.js',
         'lackey.img',
         'lackey.fonts',
         'lackey.dust'
-    ], () => {
-        console.log('resources done');
-    });
+    ]);
 
     gulp.task('lackey.watch', () => {
-        gulp.watch([
+        return gulp.watch([
             lackeyDIR + '/modules/*/client/**/*',
             lackeyDIR + '/modules/*/shared/**/*',
             projectDIR + '/modules/*/client/**/*',
-            projectDIR + '/modules/*/shared/**/*'
+            projectDIR + '/modules/*/shared/**/*',
+            projectDIR + '/node_modules'
         ], [
             'lackey.resources'
         ]);
     });
 
     gulp.task('lackey.server', function () {
-        nodemon({
+        return nodemon({
             script: lackeyDIR + '/lib/server/start.js',
             exec: 'node --harmony',
             ext: 'js yaml json',
@@ -67,7 +77,6 @@ module.exports = (gulp, projectDIR) => {
             debug: true,
             ignore: [
                 '*/htdocs/*',
-                'node_modules',
                 'modules/*/client/*'
             ],
             ignoreRoot: ['.git']
@@ -110,10 +119,11 @@ module.exports = (gulp, projectDIR) => {
     function sassTask(from, to) {
         return gulp
             .src(from + '/modules/*/client/scss/*.scss')
+            .pipe(plumber())
             .pipe(sass())
             .on('error', sass.logError)
             .pipe(autoprefixer({
-                browsers: ['last 2 versions']
+                browsers: ['last 2 versions', 'iOS >= 8', 'IE 9']
             }))
             .pipe(rename((path) => {
                 path.dirname = path.dirname.replace(/^([^\/]+)\/client\/scss/, '$1/');
@@ -129,10 +139,14 @@ module.exports = (gulp, projectDIR) => {
     function jsTask(from, to) {
         return gulp
             .src(from + '/modules/*/client/js/**/*.js')
+            .pipe(plumber())
             .pipe(browserify({
                 paths: [
-                    from + '/modules/'
-                ]
+                    from + '/modules/',
+                    'node_modules/',
+                    'node_modules/core/client/js/node_modules/'
+                ],
+                debug: true
             }))
             .pipe(rename((path) => {
                 path.dirname = path.dirname.replace(/^([^\/]+)\/client\/js/, '$1/');
@@ -148,29 +162,41 @@ module.exports = (gulp, projectDIR) => {
     function copyTask(from, to) {
         return gulp.src(from)
             .pipe(rename((path) => {
-                path.dirname = path.dirname.replace(/^([^\/]+)\/client\/([^\/]+)/, '$2/$1/');
+                path.dirname = path.dirname.replace(/^([^\/]+)\/client\/([^\/]+)/, '/$1/');
             }))
             .pipe(gulp.dest(htDocs + to));
     }
 
-    gulp.task('lackey.img.cms', () => copyTask(lackeyDIR + '/modules/*/client/img/**/*', '/cms'));
-    gulp.task('lackey.img.project', () => copyTask(projectDIR + '/modules/*/client/img/**/*', '/'));
-    gulp.task('lackey.fonts.cms', () => copyTask(lackeyDIR + '/modules/*/client/fonts/**/*', '/cms'));
-    gulp.task('lackey.fonts.project', () => copyTask(projectDIR + '/modules/*/client/fonts/**/*', '/'));
+    gulp.task('lackey.img.cms', () => copyTask(lackeyDIR + '/modules/*/client/img/**/*', '/img/cms'));
+    gulp.task('lackey.img.project', () => copyTask(projectDIR + '/modules/*/client/img/**/*', '/img'));
+    gulp.task('lackey.fonts.cms', () => copyTask(lackeyDIR + '/modules/*/client/fonts/**/*', '/fonts/cms'));
+    gulp.task('lackey.fonts.project', () => copyTask(projectDIR + '/modules/*/client/fonts/**/*', '/fonts'));
 
     function dustTask(from, to) {
         return gulp
-            .src(from + '/modules/*/(client|shared)/views/**/*.dust')
-            .pipe(dust())
+            .src([
+            from + '/modules/*/client/views/**/*.dust',
+            from + '/modules/*/shared/views/**/*.dust'
+        ])
+            .pipe(dust({
+                name: (file) => {
+                    let filePath = file.path;
+                    filePath = path.relative(from, filePath);
+                    filePath = filePath.replace(/^modules\/([^\/]+)\/(client|shared)\/views/, '$1');
+                    filePath = to.replace(/^\/dust\//, '') + '/' + filePath;
+                    filePath = filePath.replace(/\.dust$/, '');
+                    return filePath;
+                }
+            }))
             .pipe(rename((path) => {
-                path.dirname = path.dirname.replace(/^([^\/]+)\/(client|shared)\/views/, '$1/');
+                path.dirname = path.dirname.replace(/^([^\/]+)\/(client|shared)\/views/, '/$1/');
             }))
             .pipe(gulp.dest(
                 htDocs + to
             ));
     }
 
-    gulp.task('lackey.dust.cms', () => dustTask(lackeyDIR, '/views/cms'));
-    gulp.task('lackey.dust.project', () => dustTask(projectDIR, '/views'));
+    gulp.task('lackey.dust.cms', () => dustTask(lackeyDIR, '/dust/cms'));
+    gulp.task('lackey.dust.project', () => dustTask(projectDIR, '/dust'));
 
 };
