@@ -17,9 +17,9 @@
     limitations under the License.
 */
 const
-    Manager = require('./manager'),
+    Manager = require('cms/client/js/manager'),
     querystring = require('query-string'),
-    lackey = require('./../../../core/client/js');
+    lackey = require('core/client/js');
 
 Manager.init({
     controls: {

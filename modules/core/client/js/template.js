@@ -16,14 +16,14 @@
     limitations under the License.
 */
 var
-    xhr = require('./xhr'),
-    lackey = require('./index'),
+    xhr = require('core/client/js/xhr'),
+    lackey = require('core/client/js/index'),
     engine = require('dustjs-linkedin'),
     helpers = require('dustjs-helpers'),
-    iterate = require('../../shared/dust/iterate'),
-    hashmap = require('../../shared/dust/hashmap'),
-    list = require('../../shared/dust/list'),
-    path = require('../../shared/dust/path');
+    iterate = require('core/shared/dust/iterate'),
+    hashmap = require('core/shared/dust/hashmap'),
+    list = require('core/shared/dust/list'),
+    path = require('core/shared/dust/path');
 
 engine.helpers = helpers.helpers;
 iterate(engine);

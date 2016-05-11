@@ -16,8 +16,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const template = require('./template'),
-    lackey = require('./index');
+const template = require('core/client/js/template'),
+    lackey = require('core/client/js/index');
 
 class Modal {
     static open(name, vars, controller) {

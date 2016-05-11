@@ -17,16 +17,16 @@
     limitations under the License.
 */
 const
-    lackey = require('./../../../../core/client/js'),
+    lackey = require('core/client/js'),
     _ = require('lodash'),
     diff = require('jsondiffpatch'),
     diffFormatters = require('jsondiffpatch/src/main-formatters'),
-    api = require('../api'),
-    modal = require('./../../../../core/client/js/modal'),
-    template = require('./../../../../core/client/js/template'),
-    treeParser = require('./../../../shared/treeparser'),
-    Structure = require('./structure'),
-    MediaModalController = require('./media');
+    api = require('cms/client/js/api'),
+    modal = require('core/client/js/modal'),
+    template = require('core/client/js/template'),
+    treeParser = require('cms/shared/treeparser'),
+    Structure = require('cms/client/js/manager/structure'),
+    MediaModalController = require('cms/client/js/manager/media');
 
 let contents = {},
     cache = {},

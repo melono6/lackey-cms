@@ -17,8 +17,8 @@
     limitations under the License.
 */
 const
-    wysiwyg = require('./wysiwyg'),
-    lackey = require('./../../../core/client/js');
+    wysiwyg = require('cms/client/js/wysiwyg'),
+    lackey = require('core/client/js');
 
 wysiwyg.init();
 

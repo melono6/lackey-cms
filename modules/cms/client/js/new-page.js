@@ -15,8 +15,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-var lackey = require('./../../../core/client/js'),
-    api = require('./api');
+var lackey = require('core/client/js'),
+    api = require('cms/client/js/api');
 
 lackey.bind('lky:create', 'submit', function (event, hook) {
 

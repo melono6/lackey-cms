@@ -15,10 +15,10 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
 */
-const template = require('./../../../../core/client/js/template'),
-      lackey = require('./../../../../core/client/js'),
-      DummyImage = require('./dummy'),
-      api = require('./../api');
+const template = require('core/client/js/template'),
+      lackey = require('core/client/js'),
+      DummyImage = require('cms/client/js/manager/dummy'),
+      api = require('cms/client/js/api');
 
 require('filedrop');
 

@@ -16,11 +16,11 @@
     See the License for the specific language governing permissions and
 */
 const
-    lackey = require('./../../../core/client/js'),
-    LackeySchema = require('../../shared/content-blocks').LackeySchema,
-    InlineSchema = require('../../shared/inline'),
+    lackey = require('core/client/js'),
+    LackeySchema = require('cms/shared/content-blocks').LackeySchema,
+    InlineSchema = require('cms/shared/inline'),
     edit = require('prosemirror/dist/edit'),
-    Media = require('./media'),
+    Media = require('cms/client/js/media'),
     ProseMirror = edit.ProseMirror;
 
 //require('prosemirror/dist/inputrules/autoinput');

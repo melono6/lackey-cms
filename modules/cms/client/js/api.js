@@ -16,7 +16,7 @@
     limitations under the License.
 */
 
-const xhr = require('../../../core/client/js/xhr');
+const xhr = require('core/client/js/xhr');
 
 function parse(data, readAs) {
   let format = readAs || 'json';

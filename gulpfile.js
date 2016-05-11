@@ -71,8 +71,6 @@ gulp.task('pre-test:clean', () => {
 
 });
 
-
-
 gulp.task('pre-test', ['pre-test:clean'], function () {
     return gulp.src([
         'lib/**/*.js',
