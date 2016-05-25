@@ -362,8 +362,20 @@ module.exports = SUtils
                 builder.withoutIds(options.exlcudeIds);
 
                 return builder
-                    .run(options.page, options.limit, options.order)
+                    .run(options.requestor, options.page, options.limit, options.order)
                     .then((results) => results.map((result) => result.route));
+
+            }
+
+            canSee(user) {
+
+                let builder = new QueryBuilder();
+
+                builder.withId(this.id);
+
+                return builder
+                    .run(user, 0, 1)
+                    .then((results) => results.length > 0);
 
             }
         }

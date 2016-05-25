@@ -93,7 +93,6 @@ describe('modules/users/server/auth/strategies/github', function () {
     });
 
     it('Handles valid token for new User', function (next) {
-        console.log(123);
         var
             users = {
                 saveOAuthUserProfile: function (err, user, isNew, callback) {

@@ -169,7 +169,7 @@ module.exports = SUtils
                         return ContentModel
                             .complexQuery({
                                 includeTaxonomies: taxes,
-                                excludeTaxonomies: taxes,
+                                excludeTaxonomies: exTaxes,
                                 requireAuthor: author,
                                 limit: item.limit,
                                 page: pageNumber,
@@ -243,17 +243,26 @@ module.exports = SUtils
                     .findByRoute(route)
                     .then((page) => {
                         if (page) {
+                            return page
+                                .canSee(req.user ? req.user.id : null)
+                                .then((canSee) => {
+                                    if (!canSee) {
+                                        return res.error403(req);
+                                    }
+                                    if (req.__resFormat === 'yaml') {
+                                        return page.toYAML()
+                                            .then((yaml) => {
+                                                return res.yaml(yaml);
+                                            });
+                                    }
 
-                            if (req.__resFormat === 'yaml') {
-                                return page.toYAML()
-                                    .then((yaml) => {
-                                        return res.yaml(yaml);
-                                    });
-                            }
-
-                            return PageController.print(page, fullPath, res, req);
+                                    return PageController.print(page, fullPath, res, req);
+                                });
                         }
                         next();
+                    }, (error) => {
+                        console.error(error);
+                        next(error);
                     });
             }
         }

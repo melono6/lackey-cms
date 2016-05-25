@@ -354,6 +354,11 @@ module.exports = Schema
                         .references('id')
                         .inTable('taxonomy')
                         .onDelete('CASCADE');
+                    table.bigInteger('userId')
+                        .unsigned()
+                        .references('id')
+                        .inTable('users')
+                        .onDelete('CASCADE');
                     table.timestamp('createdAt').notNullable().defaultTo(knex.raw('now()'));
                     table.timestamp('updatedAt').notNullable().defaultTo(knex.raw('now()'));
                 });
@@ -419,7 +424,6 @@ module.exports = Schema
             })
             .then(() => {
                 SCli.debug(__MODULE_NAME, 'Schema applied');
-                console.log(true);
             });
 
     });
