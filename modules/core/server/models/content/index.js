@@ -350,49 +350,59 @@ module.exports = SUtils
                 return this.findOneBy('route', route);
             }
 
-            static getByTaxonomies(taxonomyIds, excludeTaxonomyIds, author, limit, page, order, excludeId) {
+            static getByTaxonomies(options) {
+
+                let includeTaxonomies = options.includeTaxonomies,
+                    excludeTaxonomies = options.excludeTaxonomies || [],
+                    requireAuthor = options.requireAuthor,
+                    limit = options.limit,
+                    page = options.page,
+                    order = options.order,
+                    excludeIds = options.excludeIds,
+                    requestor = options.requestor;
+
 
                 const INCLUDE_QUERY = `
-                id IN (
-                    SELECT id FROM content WHERE
-                        "templateId" IN (
-                            SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
-                        )
-                    UNION ALL
-                    SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-               )`;
+                    id IN (
+                        SELECT id FROM content WHERE
+                            "templateId" IN (
+                                SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
+                            )
+                        UNION ALL
+                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+                   )`;
                 const EXCLUDE_QUERY = `
-                id NOT IN (
-                    SELECT id FROM content WHERE "templateId" IN (
-                        SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
-                    )
-                    UNION ALL
-                    SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-                )`;
+                    id NOT IN (
+                        SELECT id FROM content WHERE "templateId" IN (
+                            SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
+                        )
+                        UNION ALL
+                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+                    )`;
                 const EXCLUDE_IDS_QUERY = `
-                id NOT IN ($1)
-                `;
+                        id NOT IN ($1)
+                    `;
                 const REQUIRE_AUTHOR_QUERY = `
-                "userId" IN ($1)
-            `;
+                        "userId" IN ($1)
+                    `;
 
                 let wheres = [],
                     query = 'SELECT route FROM content ';
 
-                if (taxonomyIds.length) {
-                    wheres.push(INCLUDE_QUERY.replace(/\$1/g, taxonomyIds.join(', ')));
+                if (includeTaxonomies.length) {
+                    wheres.push(INCLUDE_QUERY.replace(/\$1/g, includeTaxonomies.join(', ')));
                 }
 
-                if (excludeTaxonomyIds.length) {
-                    wheres.push(EXCLUDE_QUERY.replace(/\$1/g, excludeTaxonomyIds.join(', ')));
+                if (excludeTaxonomies.length) {
+                    wheres.push(EXCLUDE_QUERY.replace(/\$1/g, excludeTaxonomies.join(', ')));
                 }
 
-                if (excludeId) {
-                    wheres.push(EXCLUDE_IDS_QUERY.replace(/\$1/g, (Array.isArray(excludeId) ? excludeId.join(', ') : [excludeId])));
+                if (excludeIds) {
+                    wheres.push(EXCLUDE_IDS_QUERY.replace(/\$1/g, (Array.isArray(excludeIds) ? excludeIds.join(', ') : [excludeIds])));
                 }
 
-                if (author) {
-                    wheres.push(REQUIRE_AUTHOR_QUERY.replace(/\$1/g, (Array.isArray(author) ? author.join(', ') : [author.id ? author.id : author])));
+                if (requireAuthor) {
+                    wheres.push(REQUIRE_AUTHOR_QUERY.replace(/\$1/g, (Array.isArray(requireAuthor) ? requireAuthor.join(', ') : [requireAuthor.id ? requireAuthor.id : requireAuthor])));
                 }
 
                 if (wheres.length) {

@@ -95,12 +95,13 @@ module.exports = SUtils
 
                 res.edit(edit);
 
-                promise.then((result) => {
-                    res.print(path, result);
-                }, (error) => {
-                    console.error(error);
-                    res.error(error);
-                });
+                promise
+                    .then((result) => {
+                        res.print(path, result);
+                    }, (error) => {
+                        console.error(error);
+                        res.error(error);
+                    });
 
             }
 
@@ -135,7 +136,8 @@ module.exports = SUtils
 
                     let queryValue = PageController.parse(taxonomy, req, page);
                     if (!queryValue || !queryValue.length) return Promise.resolve(null);
-                    return PageController.taxonomyType(taxonomy.type)
+                    return PageController
+                        .taxonomyType(taxonomy.type)
                         .then((taxonomyTypeId) => {
                             return SCli
                                 .sql(Taxonomy.model.query()
@@ -152,33 +154,51 @@ module.exports = SUtils
                 let includeTaxonomies,
                     excludeTaxonomies;
 
-                return PageController.mapTaxonomyList(item.taxonomy || [], req, page).then((taxonomies) => {
-                    includeTaxonomies = taxonomies;
-                    return PageController.mapTaxonomyList(item.excludeTaxonomy || [], req, page);
-                }).then((taxonomies) => {
-                    excludeTaxonomies = taxonomies;
-                    let taxes = includeTaxonomies.filter((tax) => !!tax),
-                        exTaxes = excludeTaxonomies.filter((tax) => !!tax),
-                        pageNumber = item.page ? PageController.parse(item.page, req) : 0,
-                        author = (item.author && PageController.parse(item.author.if, req, page)) ? page.author : null;
-                    return ContentModel.getByTaxonomies(taxes, exTaxes, author, item.limit, pageNumber, item.order, item.excludeContentId ? page.id : null);
-                }).then((results) => {
-                    target[item.field] = results;
-                });
+                return PageController.mapTaxonomyList(item.taxonomy || [], req, page)
+                    .then((taxonomies) => {
+                        includeTaxonomies = taxonomies;
+                        return PageController.mapTaxonomyList(item.excludeTaxonomy || [], req, page);
+                    })
+                    .then((taxonomies) => {
+
+                        excludeTaxonomies = taxonomies;
+                        let taxes = includeTaxonomies.filter((tax) => !!tax),
+                            exTaxes = excludeTaxonomies.filter((tax) => !!tax),
+                            pageNumber = item.page ? PageController.parse(item.page, req) : 0,
+                            author = (item.author && PageController.parse(item.author.if, req, page)) ? page.author : null;
+                        return ContentModel
+                            .getByTaxonomies({
+                                includeTaxonomies: taxes,
+                                excludeTaxonomies: taxes,
+                                requireAuthor: author,
+                                limit: item.limit,
+                                page: pageNumber,
+                                order: item.order,
+                                excludeIds: item.excludeContentId ? page.id : null,
+                                requestor: req.user
+                            });
+
+                    })
+                    .then((results) => {
+                        target[item.field] = results;
+                    });
             }
 
             static populateTaxonomy(target, item, req) {
-                return PageController.taxonomyType(item.taxonomyType)
+                return PageController
+                    .taxonomyType(item.taxonomyType)
                     .then((taxonomyTypeId) => {
-                        return Taxonomy.findBy('taxonomyTypeId', taxonomyTypeId)
+                        return Taxonomy.
+                        findBy('taxonomyTypeId', taxonomyTypeId)
                             .then((list) => {
-                                target[item.field] = list.map((result) => {
-                                    let res = result.toJSON();
-                                    if (item.selected && res.name === PageController.parse(item.selected, req)) {
-                                        res.selected = true;
-                                    }
-                                    return res;
-                                });
+                                target[item.field] = list
+                                    .map((result) => {
+                                        let res = result.toJSON();
+                                        if (item.selected && res.name === PageController.parse(item.selected, req)) {
+                                            res.selected = true;
+                                        }
+                                        return res;
+                                    });
                             });
                     });
             }
