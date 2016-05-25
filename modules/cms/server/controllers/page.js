@@ -167,7 +167,7 @@ module.exports = SUtils
                             pageNumber = item.page ? PageController.parse(item.page, req) : 0,
                             author = (item.author && PageController.parse(item.author.if, req, page)) ? page.author : null;
                         return ContentModel
-                            .getByTaxonomies({
+                            .complexQuery({
                                 includeTaxonomies: taxes,
                                 excludeTaxonomies: taxes,
                                 requireAuthor: author,

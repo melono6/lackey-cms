@@ -34,9 +34,10 @@ module.exports = SUtils
         require('../taxonomy'),
         require('../template'),
         require('../knex'),
-        require(LACKEY_PATH).datasources.get('knex', 'default')
+        require('./querybuilder')
+
     )
-    .then((Taggable, User, Taxonomy, Template, knexSchema, knex) => {
+    .then((Taggable, User, Taxonomy, Template, knexSchema, QueryBuilder) => {
 
         SCli.debug(__MODULE_NAME, 'READY');
 
@@ -350,78 +351,20 @@ module.exports = SUtils
                 return this.findOneBy('route', route);
             }
 
-            static getByTaxonomies(options) {
+            static complexQuery(options) {
 
-                let includeTaxonomies = options.includeTaxonomies,
-                    excludeTaxonomies = options.excludeTaxonomies || [],
-                    requireAuthor = options.requireAuthor,
-                    limit = options.limit,
-                    page = options.page,
-                    order = options.order,
-                    excludeIds = options.excludeIds,
-                    requestor = options.requestor;
+                let requestor = options.requestor,
+                    builder = new QueryBuilder();
 
+                builder.withTaxonomies(options.includeTaxonomies);
+                builder.withoutTaxonomies(options.excludeTaxonomies);
+                builder.withAuthor(options.requireAuthor);
+                builder.withoutIds(options.exlcudeIds);
 
-                const INCLUDE_QUERY = `
-                    id IN (
-                        SELECT id FROM content WHERE
-                            "templateId" IN (
-                                SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
-                            )
-                        UNION ALL
-                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-                   )`;
-                const EXCLUDE_QUERY = `
-                    id NOT IN (
-                        SELECT id FROM content WHERE "templateId" IN (
-                            SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
-                        )
-                        UNION ALL
-                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-                    )`;
-                const EXCLUDE_IDS_QUERY = `
-                        id NOT IN ($1)
-                    `;
-                const REQUIRE_AUTHOR_QUERY = `
-                        "userId" IN ($1)
-                    `;
+                return builder
+                    .run(options.page, options.limit, options.order)
+                    .then((results) => results.map((result) => result.route));
 
-                let wheres = [],
-                    query = 'SELECT route FROM content ';
-
-                if (includeTaxonomies.length) {
-                    wheres.push(INCLUDE_QUERY.replace(/\$1/g, includeTaxonomies.join(', ')));
-                }
-
-                if (excludeTaxonomies.length) {
-                    wheres.push(EXCLUDE_QUERY.replace(/\$1/g, excludeTaxonomies.join(', ')));
-                }
-
-                if (excludeIds) {
-                    wheres.push(EXCLUDE_IDS_QUERY.replace(/\$1/g, (Array.isArray(excludeIds) ? excludeIds.join(', ') : [excludeIds])));
-                }
-
-                if (requireAuthor) {
-                    wheres.push(REQUIRE_AUTHOR_QUERY.replace(/\$1/g, (Array.isArray(requireAuthor) ? requireAuthor.join(', ') : [requireAuthor.id ? requireAuthor.id : requireAuthor])));
-                }
-
-                if (wheres.length) {
-                    query += ' WHERE ' + wheres.join(' AND ');
-                }
-
-                query += ' ORDER BY "createdAt" DESC ';
-
-                if (page > 0) {
-                    query += ' OFFSET ' + page * limit + ' ';
-                }
-
-                query += ' LIMIT ' + limit;
-
-                return knex
-                    .raw(query)
-                    .then((results) => {
-                        return results.rows.map((result) => result.route);
-                    });
             }
         }
         Content.generator = require('./generator');
