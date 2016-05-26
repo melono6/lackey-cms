@@ -56,6 +56,7 @@ module.exports = (instance) => {
             saveUninitialized: true,
             resave: true
         })], 'session');
+        app.decorateMiddleware([module.exports.setSession], 'setsession');
         app.decorateMiddleware([passport.initialize()], 'passport.initialize');
 
         app.decorateMiddleware([passport.session()], 'passport.session');
@@ -77,6 +78,12 @@ module.exports.acl = (req, res, next) => {
 module.exports.aclAdmin = (req, res, next) => {
     let policies = require('./server/policies/auth');
     policies.adminRoleAcl(req, res, next);
+};
+
+module.exports.setSession = (req, res, next) => {
+    req.session.userAgent = req.headers['user-agent'];
+    req.session.ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    return next();
 };
 
 module.exports.viewAs = (req, res, next) => {
