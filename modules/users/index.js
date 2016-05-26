@@ -18,7 +18,7 @@
 */
 
 const session = require('express-session'),
-    PostgresStore = require('connect-session-knex')(session),
+    PostgresStore = require('./server/lib/connect-session-knex')(session),
     passport = require('passport'),
     SCli = require(LACKEY_PATH).cli,
     SUtils = require(LACKEY_PATH).utils,
