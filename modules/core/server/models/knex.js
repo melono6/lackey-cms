@@ -76,6 +76,33 @@ module.exports = Schema
                 });
             })
             //
+            // TABLE sessions
+            //
+            //
+            .then(() => {
+                return Schema.table(knex, 'sessions', (table) => {
+                    table.string('sid');
+                    table.json('sess').notNullable();
+                    table.timestamp('updatedAt').notNullable();
+                    table.unique(['sid']);
+                });
+            })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'userId', (table) => {
+                    table.bigInteger('userId');
+                });
+            })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'device', (table) => {
+                    table.string('device');
+                });
+            })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'ipAddress', (table) => {
+                    table.string('ipAddress');
+                });
+            })
+            //
             // TABLE roles
             //
             .then(() => {
