@@ -102,6 +102,11 @@ module.exports = Schema
                     table.string('ipAddress');
                 });
             })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'userAgent', (table) => {
+                    table.string('userAgent');
+                });
+            })
             //
             // TABLE roles
             //

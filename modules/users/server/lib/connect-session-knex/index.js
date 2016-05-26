@@ -132,14 +132,16 @@ module.exports = function(connect) {
 		var now = new Date().getTime();
 		var expired = maxAge ? now + maxAge : now + oneDay;
         var userId = 0;
-        if(sess.passport) {
+        if (sess.passport) {
             userId = sess.passport.user;
         }
+        var userAgent = sess.userAgent || '';
+        var ipAddress = sess.ipAddress || '';
 
 		sess = JSON.stringify(sess);
 
-		var postgresfastq = 'with new_values (sid, expired, sess, "userId") as (' +
-		'  values (?, ?::timestamp with time zone, ?::json, ?::bigint)' +
+		var postgresfastq = 'with new_values (sid, expired, sess, "userId", "userAgent", "ipAddress") as (' +
+		'  values (?, ?::timestamp with time zone, ?::json, ?::bigint, ?, ?)' +
 		'), ' +
 		'upsert as ' +
 		'( ' +
@@ -147,13 +149,15 @@ module.exports = function(connect) {
 		'    sid = nv.sid, ' +
 		'    expired = nv.expired, ' +
 		'    sess = nv.sess, ' +
-        '    "userId" = "nv"."userId" ' +
+        '    "userId" = "nv"."userId", ' +
+        '    "userAgent" = "nv"."userAgent", ' +
+        '    "ipAddress" = "nv"."ipAddress" ' +
 		'  from new_values nv ' +
 		'  where cs.sid = nv.sid ' +
 		'  returning cs.* ' +
 		')' +
-		'insert into ' + self.tablename + ' (sid, expired, sess, "userId") ' +
-		'select sid, expired, sess, "userId" ' +
+		'insert into ' + self.tablename + ' (sid, expired, sess, "userId", "userAgent", "ipAddress") ' +
+		'select sid, expired, sess, "userId", "userAgent", "ipAddress" ' +
 		'from new_values ' +
 		'where not exists (select 1 from upsert up where up.sid = new_values.sid)';
 
@@ -161,7 +165,7 @@ module.exports = function(connect) {
 
         // postgresql optimized query
         return self.ready.then(function () {
-            return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId ])
+            return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId, userAgent, ipAddress ])
             .asCallback(fn);
         });
 
