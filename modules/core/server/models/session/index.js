@@ -33,9 +33,10 @@ module.exports = SUtils
     .waitForAs(
         __MODULE_NAME,
         SUtils.cmsMod('core').model('objection'),
+        SUtils.cmsMod('core').model('user'),
         KNEX
     )
-    .then((ObjectionWrapper) => {
+    .then((ObjectionWrapper, User) => {
 
         SCli.debug(__MODULE_NAME, 'READY');
 
@@ -45,53 +46,31 @@ module.exports = SUtils
                 return '/cms/session';
             }
 
-
             static get model() {
                 return Session;
             }
 
             toJSON() {
                 return {
-                    name: this.name,
-                    label: this.label
+                    sid: this.sid,
+                    sess: JSON.parse(this.sess),
+                    updatedAt: this.updatedAt
                 };
             }
 
-            get label() {
-                return this._doc.label;
-            }
-
-            set label(value) {
-                this._doc.label = value;
-            }
-
-            get acl() {
-                return this._doc.acl;
-            }
-
-            set acl(value) {
-                this._doc.acl = value;
-            }
-
-            static removeAll() {
-                lighweights = {};
-                return super.removeAll();
-            }
-
             _populate() {
+                let self = this;
+
                 return super
                     ._populate()
-                    .then((self) => {
-                        if (typeof self._doc.acl === 'string') {
-                            self._doc.acl = JSON.parse(self._doc.acl);
-                        }
-                        return self;
+                    .then(() => {
+                        return User.findById(self._doc.userId);
+                    })
+                    .then((user) => {
+                        self._user = user;
                     });
             }
-
         }
 
-        return Session
-            .reload()
-            .then(() => Session);
+        return Session;
     });
