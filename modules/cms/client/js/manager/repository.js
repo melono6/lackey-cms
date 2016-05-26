@@ -22,6 +22,7 @@ const api = require('cms/client/js/api'),
 
 diff.formatters = require('jsondiffpatch/src/formatters');
 diff.formatters.console = require('jsondiffpatch/src/formatters/console');
+diff.formatters.html.hideUnchanged();
 
 function deepClone(object) {
     return JSON.parse(JSON.stringify(object));
@@ -104,6 +105,11 @@ Repository.prototype.set = function (type, id, value) {
     this.emit('changed', {
         type: type,
         id: id
+    });
+};
+
+Repository.prototype.notify = function() {
+    this.emit('changed', {
     });
 };
 

@@ -71,7 +71,7 @@ module.exports = (gulp, projectDIR) => {
     gulp.task('lackey.server', function () {
         return nodemon({
             script: lackeyDIR + '/lib/server/start.js',
-            exec: 'node --harmony',
+            exec: 'node --harmony --debug',
             ext: 'js yaml json',
             stdout: true,
             debug: true,

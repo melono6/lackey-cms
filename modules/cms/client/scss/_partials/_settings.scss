@@ -1,0 +1,163 @@
+[data-lky-component="settings"] {
+    position: absolute;
+    top: $header-height;
+    left: 0px;
+    transform: translateX(-100%);
+    transition: transform $speed;
+    pointer-events: none;
+    box-shadow: 3px 23px 23px -2px rgba(0, 0, 0, 0.52);
+    &[data-lky-open] {
+        transform: none;
+        pointer-events: all;
+    }
+    height: calc(100% - 75px);
+    [data-lky-hook="settings.breadcrumbs"] {
+        height: $settings-breadcrumb-height;
+        line-height: $settings-breadcrumb-height;
+        width: 100%;
+        color: $color-white;
+        text-transform: uppercase;
+        background-color: $color-background-highlight;
+    }
+    [data-lky-hook="settings.pick"] {
+        width: $settings-pick-width;
+        background-color: $color-background;
+        height: 100%;
+        float: left;
+        > ul {
+            padding: 0px;
+            margin: 0px;
+            > li {
+                display: block;
+                height: $item-height;
+                line-height: $item-height;
+                padding-left: $item-height;
+                text-aling: left;
+                border-bottom: 1px solid $color-washed;
+                cursor: pointer;
+                > a {
+                    color: $color-white;
+                    pointer-events: none;
+                    text-transform: uppercase;
+                    text-decoration: none;
+                }
+            }
+        }
+    }
+    label {
+        margin: 5px 0px 15px;
+        display: block;
+        color: $color-background-highlight;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 500;
+        > span {
+            display: block;
+
+            padding: 0px 0px 5px;
+        }
+        > input,
+        select {
+            border: 1px solid $color-background-highlight;
+            border-radius: 3px;
+            display: block;
+            width: 100%;
+            text-transform: none;
+            font-weight: normal;
+            padding: 5px;
+            color: $color-light-gray;
+        }
+    }
+    [data-lky-hook="settings.meta"],
+    [data-lky-hook="settings.dimensions"],
+    [data-lky-hook="settings.taxonomy"],
+    [data-lky-hook="settings.blocks"],
+    [data-lky-hook="settings.diff"] {
+        width: 0px;
+        background-color: white;
+        color: $color-black;
+        height: 100%;
+        float: left;
+        transition: width $speed;
+        overflow-x: hidden;
+        overflow-y: auto;
+        > div {
+            height: 100%;
+            width: $settings-edit-width;
+            > ul {
+                padding: 0px;
+                margin: 0px;
+            }
+        }
+    }
+    [data-lky-hook="settings.diff"] {
+        > aside {
+            padding: 50px;
+        }
+    }
+    [data-lky-hook="settings.meta"] {
+        > div > ul {
+            padding: 50px;
+            list-style: none;
+        }
+    }
+    [data-lky-hook="settings.taxonomy"] {
+        > div {
+            padding: 50px;
+            width: #{$settings-edit-width - 100px};
+        }
+    }
+    &[data-lky-edit="meta"] {
+        [data-lky-hook="settings.open.meta"] {
+            background-color: $color-background-accent;
+        }
+        [data-lky-hook="settings.meta"] {
+            width: $settings-edit-width;
+        }
+    }
+    &[data-lky-edit="dimensions"] {
+        [data-lky-hook="settings.open.dimensions"] {
+            background-color: $color-background-accent;
+        }
+        [data-lky-hook="settings.dimensions"] {
+            width: $settings-edit-width;
+        }
+    }
+    &[data-lky-edit="taxonomy"] {
+        [data-lky-hook="settings.open.taxonomy"] {
+            background-color: $color-background-accent;
+        }
+        [data-lky-hook="settings.taxonomy"] {
+            width: $settings-edit-width;
+        }
+    }
+    &[data-lky-edit="blocks"] {
+        [data-lky-hook="settings.open.blocks"] {
+            background-color: $color-background-accent;
+        }
+        [data-lky-hook="settings.blocks"] {
+            width: $settings-edit-width;
+        }
+    }
+    &[data-lky-edit="diff"] {
+        [data-lky-hook="settings.open.diff"] {
+            background-color: $color-background-accent;
+        }
+        [data-lky-hook="settings.diff"] {
+            width: #{$settings-edit-width*2};
+        }
+    }
+}
+
+[data-lky-hook="settings.overlay"] {
+    position: fixed;
+    top: $header-height;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    background-color: $color-background-highlight;
+    transform: transition;
+    transition: transform $speed, opacity $speed;
+}

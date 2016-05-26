@@ -41,7 +41,9 @@ let locale = 'en',
  */
 function Manager() {
 
-    let self = this;
+    let self = this,
+        overlay = lackey
+        .hook('settings.overlay');
 
     Object.defineProperty(this, 'current', {
         /**
@@ -66,6 +68,14 @@ function Manager() {
     this.stack = new Stack(this.repository);
     this.stack.on('transition', lackey.as(this.onStackChange, this));
 
+
+    overlay.addEventListener('mousewheel', (e) => {
+        if (e.srcElement === overlay) {
+            let content = lackey.hook('iframe', top.document.body).contentDocument.body;
+            content.scrollTop = (e.wheelDelta * -1) + content.scrollTop;
+        }
+    }, true);
+
     this.setupUI();
 
 }
@@ -87,14 +97,6 @@ Manager.prototype._loadCurrent = function () {
     this._current = api
         .read('/cms/content?route=' + loc)
         .then((data) => data.data[0].id);
-};
-
-Manager.prototype.clearActions = function () {
-    if (this._changeUI) {
-        this._changeUI.destroy();
-        this._changeUI = null;
-    }
-    this._toolsNode.innerHTML = '';
 };
 
 Manager.prototype.setAction = function (options) {
@@ -229,15 +231,53 @@ Manager.prototype.onChanged = function () {
  */
 Manager.prototype.onStackChange = function () {};
 
-let structureOpen = null;
-
 Manager.prototype.onViewStructure = function () {
 
-    if (structureOpen) {
-        structureOpen();
-        structureOpen = null;
-        return;
+    lackey.hook('header.settings').setAttribute('disabled', '');
+
+    let
+        self = this,
+        promise;
+
+    if (this.stack.length) {
+        promise = this.stack.clear();
+    } else {
+
+        promise = this
+            .current
+            .then((current) => {
+                let structureController = new StructureUI({
+                    type: 'content',
+                    id: current.id,
+                    context: () => Promise.resolve(self.current),
+                    settings: (context) => Promise.resolve(context.props),
+                    settingsDictionary: (context) => {
+                        if (typeof context.template === 'string') {
+                            return StructureUI
+                                .readTemplate(context.template)
+                                .then((template) => template.props);
+                        }
+                        return context.template.props;
+                    },
+                    expose: (context) => {
+                        return StructureUI
+                            .readTemplate(context.template)
+                            .then((template) => template.expose || []);
+                    },
+                    stack: self.stack
+                }, this.repository);
+                structureController.on('changed', lackey.as(self.onStructureChange, self));
+                return self.stack.inspectStructure(structureController);
+            });
     }
+
+    promise.then(() => {
+        lackey.hook('header.settings').removeAttribute('disabled', '');
+    });
+
+    /*lackey
+        .hook('main-area')
+        .setAttribute('data-settings-open', 'true');
 
     let structureController,
         self = this;
@@ -245,7 +285,7 @@ Manager.prototype.onViewStructure = function () {
     this
         .current
         .then((current) => {
-            self.stack.append('cms/cms/structure', {
+            self.stack.append('cms/cms/settings', {
                 type: 'content',
                 id: current.id,
                 context: () => Promise.resolve(self.current),
@@ -265,16 +305,26 @@ Manager.prototype.onViewStructure = function () {
                 },
                 stack: self.stack
             }, (rootNode, vars, resolve) => {
-                structureOpen = resolve;
+                setTimeout(() => {
+                    rootNode.setAttribute('data-lky-open', '');
+                }, 0);
+                structureOpen = () => {
+                    rootNode.addEventListener('transitionend', () => {
+                        resolve();
+                        structureOpen = null;
+                    }, false);
+                    rootNode.removeAttribute('data-lky-open');
+                };
                 structureController = new StructureUI(rootNode, vars);
                 structureController.on('changed', lackey.as(self.onStructureChange, self));
                 structureController.on('properties-changed', lackey.as(self.onPagePropertiesChanged, self));
             });
-        });
+        });*/
 
 };
 
 Manager.prototype.onStructureChange = function () {
+    this.repository.notify();
     this.preview();
 };
 
@@ -286,25 +336,6 @@ Manager.prototype.onPagePropertiesChanged = function (event) {
         .then(lackey.as(this.preview, this));
 };
 
-Manager.prototype.onViewability = function () {
-
-    let self = this;
-
-    return this.current
-        .then((current) => {
-
-            return modal
-                .open('cms/cms/viewability', {}, (rootNode, vars, resolve) => {
-                    let viewabilityController = new ViewabilityUI(rootNode, {
-                        taxonomy: current.taxonomies,
-                        state: current.state
-                    }, resolve);
-                    viewabilityController.on('taxonomy-changed', lackey.as(self.onTaxonomyChange, self));
-                    viewabilityController.on('publish-state-changed', lackey.as(self.onPublishStateChange, self));
-                });
-        })
-        .then(() => {});
-};
 
 Manager.prototype.update = function (type, id, handler) {
     let self = this;
@@ -323,44 +354,10 @@ Manager.prototype.updateCurrent = function (handler) {
         });
 };
 
-Manager.prototype.onPublishStateChange = function (event) {
-    return this.updateCurrent(function (content) {
-        content.state = event.data;
-    });
-};
-
-Manager.prototype.onTaxonomyChange = function (event) {
-    return this.updateCurrent(function (content) {
-        content.taxonomies = event.data;
-    });
-};
-
 Manager.prototype.setupUI = function () {
-    this._actionsNode = lackey.hook('cms.actions');
-    this._toolsNode = lackey.hook('cms.tools');
-    this
-        .current
-        .then((current) => {
-            this.setAction({
-                handler: lackey.as(this.onViewStructure, this),
-                class: 'fa fa-cog'
-            });
-            this.setAction({
-                handler: lackey.as(this.onViewability, this),
-                class: current.state === 'published' ? 'fa fa-eye' : 'fa fa-eye-slash'
-            });
-            this.setAction({
-                handler: () => {
-                    let path = document.location.href.replace(/^([^:]+):\/\/([^\/]+)\/admin/, '$1://$2');
-                    if (path.match(/^([^:]+):\/\/([^\/]+)$/)) {
-                        path += '/';
-                    }
-                    window.open(path + '.json');
-                },
-                class: 'fa fa-code'
-            });
-        });
-    this._changeUI = new ChangeUI(this._actionsNode, this.repository);
+
+    lackey.hook('header.settings').addEventListener('click', lackey.as(this.onViewStructure, this), true);
+    this._changeUI = new ChangeUI(this.repository);
 };
 
 

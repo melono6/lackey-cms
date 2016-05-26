@@ -310,6 +310,8 @@ module.exports = Database
                             fn = operand === 'or' ? 'orWhere' : 'where';
                         Object.keys(query).forEach((key) => {
 
+                            console.log(key, query[key]);
+
                             if (key === '$or') {
                                 cur = cur.andWhere(function () {
                                     let self2 = this;
@@ -321,8 +323,16 @@ module.exports = Database
                                         }
                                     });
                                 });
+                            } else if (query[key] === null) {
+                                cur = cur.whereNull(key);
                             } else if (typeof query[key] === 'object') {
-                                cur = cur[fn](key, query[key].operator, query[key].value);
+                                if (Array.isArray(query[key].$in)) {
+                                    cur = cur.whereIn(key, query[key].$in);
+                                } else if (query[key].$ne) {
+                                    cur = cur.whereNot(key, query[key].$ne);
+                                } else {
+                                    cur = cur[fn](key, query[key].operator, query[key].value);
+                                }
                             } else {
                                 cur = cur[fn](key, query[key]);
                             }

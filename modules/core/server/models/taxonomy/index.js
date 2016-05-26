@@ -158,8 +158,9 @@ module.exports = SUtils
 
             static _preQuery(query) {
 
+                let promise = Promise.resolve(query);
                 if (query.type) {
-                    return TaxonomyType.query({
+                    promise = TaxonomyType.query({
                             name: query.type
                         })
                         .then((types) => {
@@ -173,8 +174,30 @@ module.exports = SUtils
 
                         });
                 }
+                if (query.restrictive === '0' || query.restrictive === '1') {
+                    let innerQuery = {
+                        restrictive: true
+                    };
+                    if (query.restrictive !== '1') {
+                        innerQuery = {
+                            $or: [{
+                                restrictive: null,
+                            }, {
+                                restrictive: false
+                            }]
+                        };
+                    }
+                    promise = TaxonomyType.query(innerQuery)
+                        .then((types) => {
+                            query.taxonomyTypeId = {
+                                $in: types.map((type) => type.id)
+                            };
+                            delete query.restrictive;
+                            return query;
+                        });
+                }
 
-                return Promise.resolve(query);
+                return promise;
 
             }
 

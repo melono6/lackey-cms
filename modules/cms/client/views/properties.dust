@@ -1,4 +1,11 @@
 
+  <li>
+      <label data-lky-switch>
+        <input type="checkbox">
+        <span></span>
+      </label>
+    </div>
+  </li>
 {#dictionary}
   <li>
     <label>

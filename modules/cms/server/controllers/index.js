@@ -53,6 +53,8 @@ module.exports = SUtils
                     iframePath = iframePath + '/';
                 }
 
+                iframePath = req.__host + iframePath;
+
                 Template.getOfType('variant')
                     .then((_variants) => {
                         variants = _variants;
@@ -60,6 +62,7 @@ module.exports = SUtils
                     })
                     .then((languages) => {
                         res.edit(req.user && req.user.getACL('edit').length > 0);
+                        res.js('/js/cms/cms/header.js');
                         res.print('cms/cms/iframe', {
                             page: iframePath,
                             variants: variants.map((variant) => {

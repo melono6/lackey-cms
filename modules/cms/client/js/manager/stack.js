@@ -18,6 +18,7 @@
 */
 const emit = require('cms/client/js/emit'),
     template = require('core/client/js/template'),
+    StructureUI = require('cms/client/js/manager/structure.ui.js'),
     lackey = require('core/client/js');
 /**
  * @module lackey-cms/modules/cms/client/manager
@@ -55,23 +56,44 @@ function Stack(repository) {
 
     Object.defineProperty(this, 'node', {
         get: function () {
-            return lackey.select('[data-lky-sidebar]', top.document.body)[0];
+            return lackey.select('[data-lky-hook="main-area"]', top.document.body)[0];
         }
     });
 
-    this.node.addEventListener('mousewheel', (e) => {
+    /*this.node.addEventListener('mousewheel', (e) => {
         if (e.srcElement === self.node) {
             let content = lackey.hook('iframe', top.document.body).contentDocument.body;
             content.scrollTop = (e.wheelDelta * -1) + content.scrollTop;
         }
-    }, true);
+    }, true);*/
 }
+
+Stack.prototype.inspectStructure = function (structureController) {
+
+    lackey.hook('main-area').setAttribute('data-lky-settings-open', 'true');
+
+    let self = this,
+        promise = structureController
+        .buildUI()
+        .then((element) => {
+            self.node.appendChild(element);
+            return structureController.fadeIn();
+        });
+
+    this._stack.push(structureController);
+
+    return promise;
+};
+
+
 
 /**
  * Adds new item on top of the stack
  * @param {Object} item
  */
 Stack.prototype.append = function (templatePath, vars, controller) {
+
+    throw new Error('dxeprecated');
 
     let node = this.node,
         root,
@@ -106,16 +128,28 @@ Stack.prototype.append = function (templatePath, vars, controller) {
  * Removes item from top of the stack
  */
 Stack.prototype.pop = function () {
+
     let item = this._stack.pop();
-    if (item) {
-        item();
+
+    if (!item) {
+        return Promise.resolve();
     }
+    return item.remove();
+
 };
 
 Stack.prototype.clear = function () {
-    while (this._stack.length) {
-        this._stack.pop()();
-    }
+    let self = this;
+
+    return this
+        .pop()
+        .then(() => {
+            if (self._stack.length) {
+                return self.pop();
+            }
+            lackey.hook('main-area').removeAttribute('data-lky-settings-open');
+            return true;
+        });
 };
 
 emit(Stack.prototype);

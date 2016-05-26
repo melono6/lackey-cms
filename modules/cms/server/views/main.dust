@@ -11,12 +11,58 @@
         {/stylesheets}
     </head>
     <body>
-        <div class="lackey-cms">
-            {>"cms/cms/partials/header"/}
-            {+body /}
-        </div>
+        <body data-lky-hook="lackey">
+        <aside data-lky-hook="menu">
+            <section data-lky-hook="menu.logo">
+                Lackey.io
+            </section>
+            <ul data-lky-hook="menu.items">
+                <li>
+                    <a href="/cms/users">Users</a>
+                </li>
+                <li>
+                    <a href="/cms/media">Media</a>
+                </li>
+                <li>
+                    <a href="/cms/taxonomy">Tags</a>
+                </li>
+                <li>
+                    <a href="/cms/content">Pages</a>
+                </li>
+                <li data-class="divider"></li>
+                <li>
+                    <a href="http://lackey.io">Updates</a>
+                </li>
+                <li>
+                    <a href="/cms/terms">Terms</a>
+                </li>
+            </ul>
+            <section data-lky-hook="menu.footer">
+            </section>
+        </aside>
+        <main data-lky-hook="main-area">
+            <header data-lky-hook="header">
+                <button data-lky-hook="header.hamburger" onclick="document.body.setAttribute('data-lky-open', document.body.getAttribute('data-lky-open') === 'true' ? '' : 'true')">
+                    <div class="hamburger-box">
+                      <div class="hamburger-inner"></div>
+                    </div>
+                </button>
+                <button data-lky-hook="header.settings">Settings</button>
+                <button data-lky-hook="header.publish">Publish</button>
+                <div data-lky-hook="header.user">
+                    <img src="{admin.image.source}"/>
+                    <span data-lky-hook="header.user.name">{admin.name}</span>
+                    <span data-lky-hook="header.user.acting">Acting as: Admin</span>
+                </div>
+                <button data-lky-hook="header.cancel">Cancel</button>
+                <button data-lky-hook="header.save">Save</button>
+            </header>
+            {+body/}
+        </main>
+        <div data-lky-hook="menu.overlay"></div>
         {#javascripts}
             <script type="text/javascript" src="{.}"></script>
         {/javascripts}
+    </body>
     </body>
 </html>

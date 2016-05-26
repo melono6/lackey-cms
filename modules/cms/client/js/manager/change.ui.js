@@ -20,7 +20,7 @@ const lackey = require('core/client/js'),
     template = require('core/client/js/template'),
     emit = require('cms/client/js/emit'),
     growl = require('cms/client/js/growl'),
-      path = require('path');
+    path = require('path');
 
 
 /**
@@ -33,27 +33,18 @@ const lackey = require('core/client/js'),
  * @param {Repository} repository
  * @param {Object}
  */
-function ChangeUI(parentNode, repository) {
-
-    this._nodes = [];
+function ChangeUI(repository) {
     this.repository = repository;
-
-    template
-        .render('cms/cms/header.actions')
-        .then((nodes) => nodes.forEach((node) => {
-            this._nodes.push(node);
-            parentNode.appendChild(node);
-        }))
-        .then(lackey.as(this.bindUI, this, [parentNode]));
+    this.bindUI();
 }
 
 emit(ChangeUI.prototype);
 
-ChangeUI.prototype.bindUI = function (parentNode) {
-    this._save = lackey.hook('save', parentNode);
-    this._cancel = lackey.hook('cancel', parentNode);
-    this._changes = lackey.hook('changes', parentNode);
-    this._changesList = lackey.hook('changes-list', parentNode);
+ChangeUI.prototype.bindUI = function () {
+    this._save = lackey.hook('header.save');
+    this._cancel = lackey.hook('header.cancel');
+    //this._changes = lackey.hook('changes', parentNode);
+    //this._changesList = lackey.hook('changes-list', parentNode);
 
     this._changeHandler = lackey.as(this.onChange, this);
     this.repository.on('changed', this._changeHandler);
@@ -92,7 +83,7 @@ ChangeUI.prototype.onChange = function () {
         changesCount = keys.length;
 
     if (changesCount > 0) {
-        this._changes.innerText = changesCount;
+        /*this._changes.innerText = changesCount;
         this._changesList.innerHTML = '';
         keys.forEach((key) => {
             let li = document.createElement('li'),
@@ -124,7 +115,7 @@ ChangeUI.prototype.onChange = function () {
             li.appendChild(span);
             li.appendChild(button);
             this._changesList.appendChild(li);
-        });
+        });*/
         this.uiUpdate('active', 'active', 'active');
     } else {
         this.uiUpdate('disabled', 'disabled', 'hidden');
@@ -134,8 +125,8 @@ ChangeUI.prototype.onChange = function () {
 ChangeUI.prototype.uiUpdate = function (save, cancel, changes) {
     this.state(this._save, save);
     this.state(this._cancel, cancel);
-    this.state(this._changes, changes);
-    this.state(this._changesList, changes);
+    //this.state(this._changes, changes);
+    //this.state(this._changesList, changes);
 };
 
 ChangeUI.prototype.state = function (element, state) {

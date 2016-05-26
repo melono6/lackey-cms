@@ -16,12 +16,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const emit = require('cms/client/js/emit'),
+const Emitter = require('cms/client/js/emitter').Emitter,
     lackey = require('core/client/js'),
     template = require('core/client/js/template'),
     modal = require('core/client/js/modal'),
     api = require('cms/client/js/api'),
-    MediaModalController = require('cms/client/js/manager/media');
+    formatters = require('jsondiffpatch/src/formatters'),
+    MediaModalController = require('cms/client/js/manager/media'),
+    Autocomplete = require('cms/client/js/controls/autocomplete');
 
 let cache = {};
 
@@ -74,8 +76,268 @@ template.dust.helpers.templateData = function (chunk, context, bodies, params) {
 };
 
 /**
- * @module lackey-cms/modules/cms/client/manager
+ * @class
  */
+class StructureUI extends Emitter {
+    /**
+     * @constructs lackey-cms/modules/cms/client/manager/StructureUI
+     * @param {HTMLElement} rootNode
+     * @param {object}   vars
+     * @param {object} vars.settings
+     * @param {object} vars.context
+     * @param {object} vars.content
+     * @param {object} vars.expose
+     * @param {object} vars.settingsDictionary
+     * @param {function} vars.pullLatest
+     */
+    constructor(options, repository) {
+            super();
+            this.options = options;
+            this._onRepositoryChanged = lackey.as(this.onRepositoryChanged, this);
+            this.repository = repository;
+            this.repository.on('changed', this._onRepositoryChanged);
+
+        }
+        /**
+         * Builds UI
+         * @returns {Promise<HTMLElement}
+         */
+    buildUI() {
+        let self = this;
+        return template
+            .render('cms/cms/settings', this.options || {})
+            .then((nodes) => {
+                self.node = nodes[0];
+
+                lackey
+                    .select([
+                        '[data-lky-hook="settings.open.meta"]',
+                        '[data-lky-hook="settings.open.dimensions"]',
+                        '[data-lky-hook="settings.open.taxonomy"]',
+                        '[data-lky-hook="settings.open.blocks"]',
+                        '[data-lky-hook="settings.open.diff"]'
+                    ], self.node)
+                    .forEach((element) => {
+                        element.addEventListener('click', lackey.as(self.toggle, self), true);
+                    });
+                return self.drawMeta();
+            })
+            .then(() => {
+                return self.drawTaxonomy();
+            })
+            .then(() => {
+                self.onRepositoryChanged();
+
+                let diffToggle = lackey
+                    .select('[data-lky-hook="settings.diff"] input', self.node)[0];
+
+                if(document.body.className.toString().match(/jsondiffpatch-unchanged-hidden/)) {
+                    diffToggle.setAttribute('checked', true);
+                } else {
+                    diffToggle.removeAttribute('checked');
+                }
+                diffToggle.addEventListener('change', (event) => {
+                    if(diffToggle.checked) {
+                        formatters.html.hideUnchanged();
+                    } else {
+                        formatters.html.showUnchanged();
+                    }
+                });
+                return self.node;
+            });
+    }
+
+    onRepositoryChanged() {
+        lackey
+            .select('[data-lky-hook="settings.diff"] div', this.node)[0]
+            .innerHTML = this.repository.visualDiff();
+    }
+
+    drawTaxonomy() {
+        let self = this;
+        return this.options
+            .context()
+            .then((context) => {
+
+                let
+                    tagsNode = lackey.hook('tags', this.node),
+                    restrictionNode = lackey.hook('restricitons', this.node),
+                    taxes = context.taxonomies || [],
+                    tags = taxes.filter((tax) => !tax.type || !tax.type.restrictive),
+                    restrictive = taxes.filter((tax) => tax.type && tax.type.restrictive),
+                    options = {
+                        createNew: false,
+                        separators: [
+                            13,
+                            20
+                        ],
+                        formatLabel: (item) => {
+                            return (item.type ? item.type.label + ': ' : '') + item.label;
+                        },
+                        equals: (item, term) => {
+                            return item.label === term;
+                        }
+
+                    },
+                    tagsControl = new Autocomplete(tagsNode, lackey.merge(options, {
+                        query: (text) => {
+                            return api
+                                .read('/cms/taxonomy?restrictive=0&name=' + encodeURI(text + '%'))
+                                .then((data) => data.data);
+                        },
+                        value: tags
+                    })),
+                    restrictiveControl = new Autocomplete(restrictionNode, lackey.merge(options, {
+                        query: (text) => {
+                            return api
+                                .read('/cms/taxonomy?restrictive=1&name=' + encodeURI(text + '%'))
+                                .then((data) => data.data);
+                        },
+                        value: restrictive
+                    })),
+                    handler = () => {
+
+                        return self.options
+                            .context()
+                            .then((context) => {
+                                context.taxonomies = [].concat(tagsControl.value, restrictiveControl.value);
+                                console.log(context.taxonomies);
+                                self.emit('changed');
+                            });
+                    };
+                tagsControl.on('changed', handler);
+                restrictiveControl.on('changed', handler);
+            });
+    }
+
+    drawMeta() {
+        let self = this,
+            settings,
+            context,
+            metaNode = lackey.select('[data-lky-template="cms/cms/properties"]', self.node)[0];
+
+        return this.options
+            .context()
+            .then((ctx) => {
+                context = ctx;
+                return self.options.settings(ctx);
+            })
+            .then((stgs) => {
+                settings = stgs;
+                return self.options.settingsDictionary(context);
+            })
+            .then((dictionary) => {
+                return template
+                    .redraw(metaNode, self.mapDictionary({
+                        values: settings,
+                        dictionary: dictionary
+                    }));
+            })
+            .then(() => {
+                lackey.select(['input', 'select'], metaNode)
+                    .forEach((input) => {
+                        input.addEventListener('change', () => {
+                            settings[input.name] = input.value;
+                            self.emit('changed', settings);
+                        }, true);
+                    });
+            });
+    }
+
+    toggle(event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        let toOpen = event.target.getAttribute('data-lky-open'),
+            current = this.node.getAttribute('data-lky-edit');
+
+        if (current === toOpen) {
+            this.node.removeAttribute('data-lky-edit');
+        } else {
+            this.node.setAttribute('data-lky-edit', toOpen);
+        }
+    }
+
+    /**
+     * Makes fade in animation
+     * @returns {Promise}
+     */
+    fadeIn() {
+        return new Promise((resolve) => {
+            let self = this,
+                handler = () => {
+                    self.node.removeEventListener('transitionend', handler, false);
+                    resolve();
+                };
+            setTimeout(() => {
+                self.node.addEventListener('transitionend', handler, false);
+                self.node.setAttribute('data-lky-open', '');
+            }, 0);
+        });
+    }
+
+    /**
+     * Makes fade out animation
+     * @returns {Promise}
+     */
+    remove() {
+        this.repository = repository;
+        this.repository.off('changed', this._onRepositoryChanged);
+        return new Promise((resolve) => {
+
+            let self = this,
+                handler = () => {
+                    self.node.removeEventListener('transitionend', handler, false);
+                    self.node.parentNode.removeChild(self.node);
+                    resolve();
+                };
+            self.node.addEventListener('transitionend', handler, false);
+            self.node.removeAttribute('data-lky-open');
+        });
+    }
+
+    mapDictionary(data) {
+        data.dictionary = Object
+            .keys(data.dictionary)
+            .map((key) => {
+                let value = data.dictionary[key];
+                if (Array.isArray(value)) {
+                    return {
+                        type: 'select',
+                        name: key,
+                        label: key,
+                        items: value.map((item) => {
+                            if (typeof item === 'string') {
+                                return {
+                                    label: item,
+                                    value: item
+                                };
+                            }
+                            item.label = item.label || item.value;
+                            return item;
+                        })
+                    };
+                }
+                return {
+                    label: key,
+                    name: key,
+                    type: value
+                };
+            });
+        return data;
+    };
+
+}
+
+
+
+module.exports = StructureUI;
+
+
+
+/**
+ * @module lackey-cms/modules/cms/client/manager
 
 /**
  * @constructs lackey-cms/modules/cms/client/manager/StructureUI
@@ -87,7 +349,6 @@ template.dust.helpers.templateData = function (chunk, context, bodies, params) {
  * @param {object} vars.expose
  * @param {object} vars.settingsDictionary
  * @param {function} vars.pullLatest
- */
 function StructureUI(rootNode, vars) {
 
     this._node = rootNode;
@@ -370,4 +631,4 @@ StructureUI.prototype.drawSections = function () {
 
 emit(StructureUI.prototype);
 StructureUI.readTemplate = readTemplate;
-module.exports = StructureUI;
+module.exports = StructureUI;*/

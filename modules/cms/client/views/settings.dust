@@ -1,0 +1,60 @@
+<aside data-lky-component="settings">
+    <section data-lky-hook="settings.breadcrumbs">
+        Blocks / Block Settings
+    </section>
+    <section data-lky-hook="settings.pick">
+        <div data-lky-hook="settings.presentation"></div>
+        <ul>
+            <li data-lky-hook="settings.open.meta" data-lky-open="meta">
+                <a href="#">Meta</a>
+            </li>
+            <li data-lky-hook="settings.open.dimensions" data-lky-open="dimensions">
+                <a href="#">Dimensions</a>
+            </li>
+            <li data-lky-hook="settings.open.taxonomy" data-lky-open="taxonomy">
+                <a href="#">Tags &amp; Privacy</a>
+            </li>
+            <li data-lky-hook="settings.open.blocks" data-lky-open="blocks">
+                <a href="#">Blocks</a>
+            </li>
+            <li data-lky-hook="settings.open.diff" data-lky-open="diff">
+                <a href="#">Diff</a>
+            </li>
+        </ul>
+    </section>
+    <section data-lky-hook="settings.meta">
+        <div>
+            <ul data-lky-template="cms/cms/properties"></ul>
+        </div>
+    </section>
+    <section data-lky-hook="settings.dimensions">
+        <div>
+        Dimensions
+        </div>
+    </section>
+    <section data-lky-hook="settings.taxonomy">
+        <div>
+            <label>Tags</label>
+            <div data-lky-hook="tags"></div>
+            <label>Restrictions</label>
+            <div data-lky-hook="restricitons"></div>
+        </div>
+    </section>
+    <section data-lky-hook="settings.blocks">
+        <div>
+        Blocks
+        </div>
+    </section>
+    <section data-lky-hook="settings.diff">
+        <aside>
+            Hide unchanged
+            <label data-lky-switch>
+            <input type="checkbox">
+            <span></span>
+          </label>
+        </aside>
+        <div>
+
+        </div>
+    </section>
+</aside>

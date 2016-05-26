@@ -197,6 +197,9 @@ Autocomplete.prototype.selectIndex = function (index) {
     if (this._selected) {
         this._suggestions.childNodes[this._selectedIndex].removeAttribute('data-lky-selected');
     }
+    if(!this._suggestions.childNodes[index]) {
+        return;
+    }
     this._selected = this._suggestions.childNodes[index]._item;
     this._selectedIndex = index;
     this._suggestions.childNodes[index].setAttribute('data-lky-selected', '');

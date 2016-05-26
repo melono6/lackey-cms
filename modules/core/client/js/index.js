@@ -254,7 +254,7 @@ lackey = {
         return lackey;
     },
     merge: function () {
-        var args = [].prototype.slice.apply(arguments),
+        var args = Array.prototype.slice.apply(arguments),
             result = args.shift(),
             i, p, obj;
         for (i = 0; i < args.length; i++) {

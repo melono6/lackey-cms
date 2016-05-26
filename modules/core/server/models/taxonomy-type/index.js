@@ -65,11 +65,16 @@ module.exports = SUtils
                 return this._doc.label;
             }
 
+            get restrictive() {
+                return this._doc.restrictive;
+            }
+
             toJSON() {
                 return {
                     id: this.id,
                     name: this._doc.name,
-                    label: this._doc.label
+                    label: this._doc.label,
+                    restrictive: this._doc.restrictive
                 };
             }
 
