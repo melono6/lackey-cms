@@ -1,7 +1,8 @@
 'use strict';
 var util = require('util');
 
-var oneDay = 86400000;
+var oneDay = 86400000,
+    parse = require('user-agent-parser');
 
 module.exports = function(connect) {
 
@@ -137,11 +138,14 @@ module.exports = function(connect) {
         }
         var userAgent = sess.userAgent || '';
         var ipAddress = sess.ipAddress || '';
+        var os = userAgent != '' ? parse(userAgent).os.name : '';
+        var browser = userAgent != '' ? parse(userAgent).browser.name : '';
+        var device = userAgent != '' ? parse(userAgent).device.name : '';
 
 		sess = JSON.stringify(sess);
 
-		var postgresfastq = 'with new_values (sid, expired, sess, "userId", "userAgent", "ipAddress") as (' +
-		'  values (?, ?::timestamp with time zone, ?::json, ?::bigint, ?, ?)' +
+		var postgresfastq = 'with new_values (sid, expired, sess, "userId", "userAgent", "ipAddress", browser, os, device) as (' +
+		'  values (?, ?::timestamp with time zone, ?::json, ?::bigint, ?, ?, ?, ?, ?)' +
 		'), ' +
 		'upsert as ' +
 		'( ' +
@@ -151,13 +155,16 @@ module.exports = function(connect) {
 		'    sess = nv.sess, ' +
         '    "userId" = "nv"."userId", ' +
         '    "userAgent" = "nv"."userAgent", ' +
-        '    "ipAddress" = "nv"."ipAddress" ' +
+        '    "ipAddress" = "nv"."ipAddress", ' +
+        '    browser = nv.browser, ' +
+        '    os = nv.os, ' +
+        '    device = nv.device ' +
 		'  from new_values nv ' +
 		'  where cs.sid = nv.sid ' +
 		'  returning cs.* ' +
 		')' +
-		'insert into ' + self.tablename + ' (sid, expired, sess, "userId", "userAgent", "ipAddress") ' +
-		'select sid, expired, sess, "userId", "userAgent", "ipAddress" ' +
+		'insert into ' + self.tablename + ' (sid, expired, sess, "userId", "userAgent", "ipAddress", browser, os, device) ' +
+		'select sid, expired, sess, "userId", "userAgent", "ipAddress", browser, os, device ' +
 		'from new_values ' +
 		'where not exists (select 1 from upsert up where up.sid = new_values.sid)';
 
@@ -165,7 +172,7 @@ module.exports = function(connect) {
 
         // postgresql optimized query
         return self.ready.then(function () {
-            return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId, userAgent, ipAddress ])
+            return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId, userAgent, ipAddress, browser, os, device ])
             .asCallback(fn);
         });
 

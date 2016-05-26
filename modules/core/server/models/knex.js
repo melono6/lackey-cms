@@ -107,6 +107,16 @@ module.exports = Schema
                     table.string('userAgent');
                 });
             })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'browser', (table) => {
+                    table.string('browser');
+                });
+            })
+            .then(() => {
+                return Schema.addColumn(knex, 'sessions', 'os', (table) => {
+                    table.string('os');
+                });
+            })
             //
             // TABLE roles
             //

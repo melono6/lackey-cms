@@ -102,7 +102,8 @@
     "socket.io-client": "^1.4.6",
     "tween.js": "^16.3.4",
     "twitter": "1.2.5",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "user-agent-parser": "^0.6.0"
   },
   "devDependencies": {
     "async": "^1.5.2",
