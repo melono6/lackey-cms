@@ -23,44 +23,7 @@ module.exports = function(connect) {
 			date = new Date();
 		}
 
-		return isMySQL(knex) ? date.toISOString().slice(0, 19).replace('T', ' ') : date.toISOString();
-	}
-
-	/*
-	* Return dialect-aware type name for timestamp
-	* @return {String} type name for timestamp
-	* @api private
-	*/
-	function timestampTypeName(knex) {
-		return isMySQL(knex) ? 'DATETIME' : knex.client.dialect === 'postgresql' ? 'timestamp with time zone' : 'timestamp';
-	}
-
-	/*
-	 * Return condition for filtering by expiration
-	 * @return {String} expired sql condition string
-	 * @api private
-	 */
-	function expiredCondition(knex) {
-		return isSqlite3(knex) ? 'datetime(?) <= datetime(expired)' :
-			'CAST(? as '+timestampTypeName(knex)+') <= expired';
-	}
-
-	/*
-	* Returns true if the specified knex instance is using sqlite3.
-	* @return {bool}
-	* @api private
-	*/
-	function isSqlite3(knex) {
-		return knex.client.dialect === 'sqlite3';
-	}
-
-	/*
-	* Returns true if the specified knex instance is using sqlite3.
-	* @return {bool}
-	* @api private
-	*/
-	function isMySQL(knex) {
-		return ['mysql', 'mariasql', 'mariadb'].indexOf(knex.client.dialect) > -1;
+		return date.toISOString();
 	}
 
 	/*
@@ -71,8 +34,7 @@ module.exports = function(connect) {
 	function dbCleanup(store) {
 		return store.ready.then(function () {
 			// sqlite3 date condition is a special case.
-			var condition = isSqlite3(store.knex) ? 'datetime(expired) < datetime(?)' :
-				'expired < CAST(? as ' + timestampTypeName(store.knex) + ')';
+			var condition = 'expired < CAST(? as timestamp with time zone)';
 			return store.knex(store.tablename).del()
 			.whereRaw(condition, dateAsISO(store.knex));
 		});
@@ -110,11 +72,7 @@ module.exports = function(connect) {
 				return self.knex.schema.createTable(self.tablename, function (table) {
 					table.string('sid').primary();
 					table.json('sess').notNullable();
-					if (['mysql', 'mariasql'].indexOf(self.knex.client.dialect) > -1) {
-						table.dateTime('expired').notNullable();
-					} else {
-						table.timestamp('expired').notNullable();
-					}
+				    table.timestamp('expired').notNullable();
 				});
 			}
 			return exists;
@@ -139,7 +97,7 @@ module.exports = function(connect) {
 	KnexStore.prototype.get = function(sid, fn) {
 		var self = this;
 		return self.ready.then(function () {
-			var condition = expiredCondition(self.knex);
+			var condition = 'CAST(? as timestamp with time zone) <= expired';
 			return self.knex
 			.select('sess')
 			.from(self.tablename)
@@ -199,61 +157,14 @@ module.exports = function(connect) {
 		'from new_values ' +
 		'where not exists (select 1 from upsert up where up.sid = new_values.sid)';
 
-		var sqlitefastq = 'insert or replace into ' + self.tablename + ' (sid, expired, sess) values (?, ?, ?);';
-
-		var mysqlfastq = 'insert into ' + self.tablename + ' (sid, expired, sess) values (?, ?, ?) on duplicate key update expired=values(expired), sess=values(sess);';
-
 		var dbDate = dateAsISO(self.knex, expired);
 
-		if (self.knex.client.dialect === 'sqlite3') {
-			// sqlite optimized query
-			return self.ready.then(function () {
-				return self.knex.raw(sqlitefastq, [sid, dbDate, sess ])
-				.then(function (result) {
-					return [1];
-				})
-				.asCallback(fn);
-			});
-		} else if (self.knex.client.dialect === 'postgresql' && parseFloat(self.knex.client.version) >= 9.2) {
-			// postgresql optimized query
-			return self.ready.then(function () {
-				return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId ])
-				.asCallback(fn);
-			});
-		} else if (['mysql', 'mariasql'].indexOf(self.knex.client.dialect) > -1) {
-			// mysql/mariaDB optimized query
-			return self.ready.then(function () {
-				return self.knex.raw(mysqlfastq, [sid, dbDate, sess ])
-				.asCallback(fn);
-			});
-		} else {
-			return self.ready.then(function () {
-				return self.knex.transaction(function (trx) {
-					return trx.select('*')
-					.forUpdate()
-					.from(self.tablename)
-					.where('sid', '=', sid)
-					.then(function (foundKeys) {
-						if (foundKeys.length === 0) {
-							return trx.from(self.tablename)
-							.insert({
-								sid: sid,
-								expired: dbDate,
-								sess: sess
-							});
-						} else {
-							return trx(self.tablename)
-							.where('sid', '=', sid)
-							.update({
-								expired: dbDate,
-								sess: sess
-							});
-						}
-					});
-				})
-				.asCallback(fn)
-			});
-		}
+        // postgresql optimized query
+        return self.ready.then(function () {
+            return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId ])
+            .asCallback(fn);
+        });
+
 	};
 
 
@@ -267,7 +178,7 @@ module.exports = function(connect) {
 	 */
 	KnexStore.prototype.touch = function(sid, sess, fn) {
 		if (sess && sess.cookie && sess.cookie.expires) {
-			var condition = expiredCondition(this.knex);
+			var condition = 'CAST(? as timestamp with time zone) <= expired';
 
 			return this.knex(this.tablename)
 				.where('sid', '=', sid)
