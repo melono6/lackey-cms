@@ -13,7 +13,7 @@ module.exports = function(connect) {
 	/*
 	* Return datastore appropriate string of the current time
 	* @api private
-	* @return {String} 
+	* @return {String}
 	*/
 	function dateAsISO(knex, aDate) {
 		var date;
@@ -173,22 +173,29 @@ module.exports = function(connect) {
 		var maxAge = sess.cookie.maxAge;
 		var now = new Date().getTime();
 		var expired = maxAge ? now + maxAge : now + oneDay;
+        var userId = 0;
+        if(sess.passport) {
+            userId = sess.passport.user;
+        }
+
 		sess = JSON.stringify(sess);
-		var postgresfastq = 'with new_values (sid, expired, sess) as (' +
-		'  values (?, ?::timestamp with time zone, ?::json)' +
+
+		var postgresfastq = 'with new_values (sid, expired, sess, "userId") as (' +
+		'  values (?, ?::timestamp with time zone, ?::json, ?::bigint)' +
 		'), ' +
 		'upsert as ' +
 		'( ' +
 		'  update ' + self.tablename + ' cs set ' +
 		'    sid = nv.sid, ' +
 		'    expired = nv.expired, ' +
-		'    sess = nv.sess ' +
+		'    sess = nv.sess, ' +
+        '    "userId" = "nv"."userId" ' +
 		'  from new_values nv ' +
 		'  where cs.sid = nv.sid ' +
 		'  returning cs.* ' +
 		')' +
-		'insert into ' + self.tablename + ' (sid, expired, sess) ' +
-		'select sid, expired, sess ' +
+		'insert into ' + self.tablename + ' (sid, expired, sess, "userId") ' +
+		'select sid, expired, sess, "userId" ' +
 		'from new_values ' +
 		'where not exists (select 1 from upsert up where up.sid = new_values.sid)';
 
@@ -210,7 +217,7 @@ module.exports = function(connect) {
 		} else if (self.knex.client.dialect === 'postgresql' && parseFloat(self.knex.client.version) >= 9.2) {
 			// postgresql optimized query
 			return self.ready.then(function () {
-				return self.knex.raw(postgresfastq, [sid, dbDate, sess ])
+				return self.knex.raw(postgresfastq, [sid, dbDate, sess, userId ])
 				.asCallback(fn);
 			});
 		} else if (['mysql', 'mariasql'].indexOf(self.knex.client.dialect) > -1) {
