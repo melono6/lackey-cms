@@ -44,7 +44,8 @@ module.exports = (server, config) => {
             require('../controllers/role'),
             require('../controllers/user'),
             require('../controllers/template'),
-            require('../controllers/page')
+            require('../controllers/page'),
+            require('../controllers/session')
         )
         .then((
             CMSController,
@@ -57,7 +58,8 @@ module.exports = (server, config) => {
             RoleController,
             UserController,
             TemplateController,
-            PageController
+            PageController,
+            SessionController
         ) => {
 
             server.route('/admin*')
@@ -99,6 +101,7 @@ module.exports = (server, config) => {
             cmsResourceRoutes(server, 'user', 'user', UserController);
             cmsResourceRoutes(server, 'role', 'role', RoleController);
             cmsResourceRoutes(server, 'template', 'template', TemplateController);
+            cmsResourceRoutes(server, 'session', 'session', SessionController);
 
         });
 };
