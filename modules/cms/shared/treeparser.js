@@ -164,8 +164,6 @@ module.exports.insertAfter = (root, path, value) => {
         parent.splice(index, 0, value);
         this.set(root, parentPath, parent);
     }
-
-    console.log(root);
 };
 
 module.exports.remove = (root, path) => {

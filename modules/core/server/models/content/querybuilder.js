@@ -20,28 +20,44 @@
 */
 
 const INCLUDE_QUERY = `
-                    id IN (
-                        SELECT id FROM content WHERE
-                            "templateId" IN (
-                                SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
-                            )
-                        UNION ALL
-                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-                   )`,
+        id IN (
+            SELECT id FROM content WHERE
+                "templateId" IN (
+                    SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
+                )
+            UNION ALL
+            SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+       )`,
     EXCLUDE_QUERY = `
-                    id NOT IN (
-                        SELECT id FROM content WHERE "templateId" IN (
-                            SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
-                        )
-                        UNION ALL
-                        SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
-                    )`,
+        id NOT IN (
+            SELECT id FROM content WHERE "templateId" IN (
+                SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
+            )
+            UNION ALL
+            SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+        )`,
     EXCLUDE_IDS_QUERY = `
-                        id NOT IN ($1)
-                    `,
+            id NOT IN ($1)
+        `,
     REQUIRE_AUTHOR_QUERY = `
-                        "userId" IN ($1)
-                    `;
+            "userId" IN ($1)
+        `,
+    RESTRICT_FOR_USER = `
+        SELECT taxonomy.id FROM "taxonomyType"
+            JOIN taxonomy ON "taxonomyTypeId" = "taxonomyType".id
+            WHERE restrictive = true
+            AND taxonomy.id NOT IN (
+                /* TAXONOMIES */
+                SELECT "taxonomyId" FROM "userToTaxonomy" WHERE "taxonomyUserId" = $1
+                UNION ALL
+                SELECT "taxonomyId" FROM "roleToTaxonomy" JOIN "acl" ON "roleToTaxonomy"."roleId" = "acl"."roleId" AND "acl"."userId" = $1
+            )
+        `,
+    RESTRICT_FOR_ALL = `
+        SELECT taxonomy.id FROM "taxonomyType"
+            JOIN taxonomy ON "taxonomyTypeId" = "taxonomyType".id
+            WHERE restrictive = true
+        `;
 
 module.exports = require(LACKEY_PATH)
     .datasources.get('knex', 'default')
@@ -81,32 +97,48 @@ module.exports = require(LACKEY_PATH)
                 }
             }
 
+            withId(id) {
+                this._wheres.push('"id" = ' + id);
+            }
 
-            run(page, limit, order) {
 
-                let query = 'SELECT route FROM content ';
+            run(user, page, limit, order) {
 
-                if (this._wheres.length) {
-                    query += ' WHERE ' + this._wheres.join(' AND ');
-                }
+                let self = this;
 
-                query += ' ORDER BY "createdAt" DESC ';
+                return this
+                    .getRestrictives(user ? (user.id ? user.id : user) : null)
+                    .then((excludeRestrictives) => {
 
-                if (page > 0) {
-                    query += ' OFFSET ' + page * limit + ' ';
-                }
+                        self.withoutTaxonomies(excludeRestrictives);
 
-                query += ' LIMIT ' + limit;
 
-                console.log('=====================');
-                console.log(query);
-                console.log('=====================');
+                        let query = 'SELECT route FROM content ';
+
+                        if (self._wheres.length) {
+                            query += ' WHERE ' + self._wheres.join(' AND ');
+                        }
+
+                        query += ' ORDER BY "createdAt" DESC ';
+
+                        if (page > 0) {
+                            query += ' OFFSET ' + page * limit + ' ';
+                        }
+
+                        query += ' LIMIT ' + limit;
+
+                        return knex.raw(query)
+                    })
+                    .then((results) => results.rows);
+            }
+
+            getRestrictives(userId) {
+
+                let query = userId ? RESTRICT_FOR_USER.replace(/\$1/g, userId) : RESTRICT_FOR_ALL;
 
                 return knex
                     .raw(query)
-                    .then((results) => {
-                        return results.rows;
-                    });
+                    .then((results) => results.rows.map((row) => row.id));
             }
         }
         return ContentQueryBuilder;
