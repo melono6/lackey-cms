@@ -76,19 +76,23 @@ class CRUDController {
 
     // List
     static list(req, res) {
-        let restParams = req.getRESTQuery(true),
-            self = this;
-
-        this.model.table(restParams.query, this.tableConfig, restParams.options).then((data) => {
-            try {
-                self.mapActions(this.actions, data.columns, data.rows);
-            } catch (e) {
-                console.error(e);
-                res.error(e);
-            }
+        let restParams = req.getRESTQuery(true);
+        this.__list(restParams)
+            .then((data)=> {
             res.api(data);
         }, (error) => {
             res.error(req, error);
+        });
+    }
+
+    static __list(options) {
+        let self = this;
+
+        return this.model
+            .table(options.query, this.tableConfig, options.options)
+            .then((data) => {
+                self.mapActions(this.actions, data.columns, data.rows);
+                return data;
         });
     }
 
@@ -169,7 +173,6 @@ class CRUDController {
         }, (error) => {
             res.error(req, error);
         });
-
     }
 
     static method(methodName, param) {

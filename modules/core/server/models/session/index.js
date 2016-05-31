@@ -37,7 +37,6 @@ module.exports = SUtils
         KNEX
     )
     .then((ObjectionWrapper, User) => {
-
         SCli.debug(__MODULE_NAME, 'READY');
 
         class SessionModel extends Model {
@@ -58,13 +57,13 @@ module.exports = SUtils
 
             toJSON() {
                 return {
-                    sid: this.sid,
-                    sess: JSON.parse(this.sess),
-                    expired: this.expired,
-                    browser: this.browser,
-                    os: this.os,
-                    device: this.device,
-                    ipAddress: this.ipAddress
+                    sid: this._doc.sid,
+                    sess: this._doc.sess,
+                    expired: this._doc.expired,
+                    browser: this._doc.browser,
+                    os: this._doc.os,
+                    device: this._doc.device,
+                    ipAddress: this._doc.ipAddress
                 };
             }
 

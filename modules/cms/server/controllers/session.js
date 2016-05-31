@@ -53,6 +53,49 @@ module.exports =  SUtils
                 };*/
             }
 
+            static list(req, res) {
+                console.log('test');
+                let restParams = req.getRESTQuery(true);
+                restParams.options.sort = {
+                    sid: 1
+                };
+                this.__list(restParams)
+                    .then((data)=> {
+                    res.api(data);
+                }, (error) => {
+                    res.error(req, error);
+                });
+            }
+
+            static table(req, res) {
+                let restParams = req.getRESTQuery(true),
+                    self = this;
+
+                this.model.table(restParams.query, this.tableConfig, {
+                    format: 'table',
+                    sort: {
+                        sid: 1
+                    }
+                }).then((data) => {
+                    try {
+                        self.mapActions(this.actions, data.columns, data.rows);
+                    } catch (e) {
+                        res.error(e);
+                    }
+                    res.send({
+                        template: 'cms/cms/tableview',
+                        javascripts: [
+                            'js/cms/cms/table.js'
+                        ],
+                        data: {
+                            table: data
+                        }
+                    });
+                }, (error) => {
+                    res.error(req, error);
+                });
+            }
+
         }
 
         return Promise.resolve(Controller);

@@ -88,9 +88,9 @@
                         <dd>
                             {#data.sessions}
                             <div class="">
-                                {_doc.ipAddress} - {_doc.browser} - {_doc.os}
+                                {_doc.ipAddress} - {_doc.browser} - {_doc.os} &nbsp;
                                 {@eq key="{_doc.sid}" value="{data.currentSession}"}
-                                    (current session) 
+                                    (current session)
                                 {:else}
                                     <a href="{!/sessions/delete/{_doc.sid}!}">delete</a>
                                 {/eq}
