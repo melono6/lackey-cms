@@ -32,7 +32,7 @@ module.exports =  SUtils
             }
 
             static get field() {
-                return 'session';
+                return 'sessionModel';
             }
 
             static get tableConfig() {

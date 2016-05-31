@@ -55,6 +55,25 @@ module.exports = SUtils
                 return SessionModel;
             }
 
+            static findById(id) {
+                SCli.debug(__MODULE_NAME, 'findById', this.model.tableName, id);
+                if (!id) {
+                    return Promise.resolve(null);
+                }
+                return this.findOneBy('sid', id);
+            }
+
+            remove() {
+                let self = this;
+
+                return SCli.sql(self.constructor.model
+                    .query()
+                    .where('sid', self._doc.sid)
+                    .del()
+                ).then((result) => result);
+            }
+
+
             toJSON() {
                 return {
                     sid: this._doc.sid,

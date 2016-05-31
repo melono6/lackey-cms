@@ -61,6 +61,12 @@ function validPass(pass) { // TODO: move to backend
     return true;
 }
 
+lackey.bind('.sess-rm', 'click', (event, hook) => {
+    event.preventDefault();
+
+    api.delete('/cms/session/' + hook.getAttribute('data-id'));
+});
+
 lackey.bind('lky:password', 'submit', (event, hook) => {
     event.preventDefault();
     event.cancelBubble = true;
