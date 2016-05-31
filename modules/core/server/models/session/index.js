@@ -40,6 +40,12 @@ module.exports = SUtils
 
         SCli.debug(__MODULE_NAME, 'READY');
 
+        class SessionModel extends Model {
+            static get tableName() {
+                return 'sessions';
+            }
+        }
+
         class Session extends ObjectionWrapper {
 
             static get api() {
@@ -47,27 +53,29 @@ module.exports = SUtils
             }
 
             static get model() {
-                return Session;
+                return SessionModel;
             }
 
             toJSON() {
                 return {
                     sid: this.sid,
                     sess: JSON.parse(this.sess),
-                    updatedAt: this.updatedAt
+                    expired: this.expired,
+                    browser: this.browser,
+                    os: this.os,
+                    device: this.device,
+                    ipAddress: this.ipAddress
                 };
             }
 
             _populate() {
                 let self = this;
 
-                return super
-                    ._populate()
-                    .then(() => {
-                        return User.findById(self._doc.userId);
-                    })
+                return User
+                    .findById(self._doc.userId)
                     .then((user) => {
                         self._user = user;
+                        return self;
                     });
             }
         }

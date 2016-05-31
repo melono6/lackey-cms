@@ -23,9 +23,11 @@ const mailer = require(LACKEY_PATH).mailer,
     SUtils = require(LACKEY_PATH).utils,
     __MODULE_NAME = 'lackey-cms/modules/user/server/controllers/account';
 
-module.exports = SUtils.cmsMod('core')
-    .model('user')
-    .then((User) => {
+module.exports = SUtils.waitForAs(__MODULE_NAME,
+        SUtils.cmsMod('core').model('user'),
+        SUtils.cmsMod('core').model('session')
+    )
+    .then((User, Session) => {
         return {
             index: (req, res) => {
 
@@ -40,6 +42,14 @@ module.exports = SUtils.cmsMod('core')
                                 confirmed: email.confirmed
                             };
                         });
+                        return data;
+                    })
+                    .then((data) => {
+                        return Session.findBy('userId', req.admin._doc.id);
+                    })
+                    .then((sessions) => {
+                        data.sessions = sessions;
+
                         res.js('js/cms/users/account.js');
                         res.print('cms/users/account', data);
                     });
