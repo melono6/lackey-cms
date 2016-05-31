@@ -49,6 +49,7 @@ module.exports = SUtils.waitForAs(__MODULE_NAME,
                     })
                     .then((sessions) => {
                         data.sessions = sessions;
+                        data.currentSession = req.session.id;
 
                         res.js('js/cms/users/account.js');
                         res.print('cms/users/account', data);
