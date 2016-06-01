@@ -2,5 +2,37 @@
 @import "_vars";
 @import "_partials/_growl";
 @import "_partials/_structure";
+@import "_partials/_blocks";
 @import "_partials/_autocomplete";
 @import "_partials/_diff";
+[data-lky-busy] {
+    opacity: 0;
+    pointer-events: none;
+}
+
+[data-lky-btn],
+[data-lky-btn-inverted] {
+    border-radius: 30px;
+    border: none;
+    font-size: 13px;
+    padding: 8px 10px;
+    text-decoration: none;
+}
+
+[data-lky-btn] {
+    background: $color-lackey-light-blue;
+    color: white;
+}
+
+[data-lky-btn-inverted] {
+    color: $color-lackey-light-blue;
+    background: white;
+}
+
+[data-lky-input] {
+    border: 1px solid $color-background-highlight;
+    color: $color-light-gray;
+    border-radius: 4px;
+    padding: 8px 10px;
+    width: 250px;
+}

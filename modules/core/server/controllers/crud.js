@@ -78,11 +78,11 @@ class CRUDController {
     static list(req, res) {
         let restParams = req.getRESTQuery(true);
         this.__list(restParams)
-            .then((data)=> {
-            res.api(data);
-        }, (error) => {
-            res.error(req, error);
-        });
+            .then((data) => {
+                res.api(data);
+            }, (error) => {
+                res.error(req, error);
+            });
     }
 
     static __list(options) {
@@ -93,7 +93,7 @@ class CRUDController {
             .then((data) => {
                 self.mapActions(this.actions, data.columns, data.rows);
                 return data;
-        });
+            });
     }
 
     // ById
@@ -116,7 +116,7 @@ class CRUDController {
             output = action;
         if (matches) {
             matches.forEach((match) => {
-                if(match === '{id}') {
+                if (match === '{id}') {
                     output = action.replace(match, row.id);
                     return;
                 }
@@ -139,7 +139,7 @@ class CRUDController {
                     let action = JSON.parse(JSON.stringify(_action));
                     if (action.href) {
                         action.href = self.populateAction(action.href, row, columns);
-                    } else if(action.api) {
+                    } else if (action.api) {
                         action.api = self.populateAction(action.api, row, columns);
                     }
                     return action;
@@ -153,26 +153,33 @@ class CRUDController {
         let restParams = req.getRESTQuery(true),
             self = this;
 
-        this.model.table(restParams.query, this.tableConfig, {
-            format: 'table'
-        }).then((data) => {
-            try {
-                self.mapActions(this.actions, data.columns, data.rows);
-            } catch (e) {
-                res.error(e);
-            }
-            res.send({
-                template: 'cms/cms/tableview',
-                javascripts: [
-                    'js/cms/cms/table.js'
-                ],
-                data: {
-                    table: data
+        this.model
+            .table(restParams.query, this.tableConfig, {
+                format: 'table'
+            })
+            .then((data) => {
+                try {
+                    self.mapActions(this.actions, data.columns, data.rows);
+                } catch (e) {
+                    res.error(e);
                 }
+                res.send({
+                    title: self.title || self.field,
+                    create: self.model.createLink,
+                    template: 'cms/cms/tableview',
+                    javascripts: [
+                        'js/cms/cms/table.js'
+                    ],
+                    stylesheets: [
+                        'css/cms/cms/table.css'
+                    ],
+                    data: {
+                        table: data
+                    }
+                });
+            }, (error) => {
+                res.error(req, error);
             });
-        }, (error) => {
-            res.error(req, error);
-        });
     }
 
     static method(methodName, param) {

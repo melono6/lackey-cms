@@ -27,28 +27,6 @@ const Emitter = require('cms/client/js/emitter').Emitter,
 
 let cache = {};
 
-function readTemplate(templatePath, index) {
-    if (typeof templatePath === 'object') {
-        return Promise.resolve(templatePath);
-    }
-    cache[templatePath] = cache[templatePath] || api
-        .read('/cms/template?path=' + encodeURI(templatePath) + '&limit=1')
-        .then((data) => {
-            let ctx = {};
-            if (data && data.data && data.data.length) {
-                ctx = data.data[0];
-            }
-            return ctx;
-
-        });
-
-    return cache[templatePath]
-        .then((ctx) => {
-            ctx.$idx = index;
-            return ctx;
-        });
-}
-
 /**
  * Dust helper to pull Template data
  * @param   {Chunk} chunk
@@ -64,7 +42,8 @@ template.dust.helpers.templateData = function (chunk, context, bodies, params) {
         index = context.get('$idx');
 
     return chunk.map((injectedChunk) => {
-        readTemplate(templatePath, index)
+        StructureUI
+            .readTemplate(templatePath, index)
             .then((data) => {
                 injectedChunk
                     .render(bodies.block, context.push(data))
@@ -79,6 +58,30 @@ template.dust.helpers.templateData = function (chunk, context, bodies, params) {
  * @class
  */
 class StructureUI extends Emitter {
+
+    static readTemplate(templatePath, index) {
+        if (typeof templatePath === 'object') {
+            return Promise.resolve(templatePath);
+        }
+        cache[templatePath] = cache[templatePath] || api
+            .read('/cms/template?path=' + encodeURI(templatePath) + '&limit=1')
+            .then((data) => {
+                let ctx = {};
+                if (data && data.data && data.data.length) {
+                    ctx = data.data[0];
+                }
+                return ctx;
+
+            });
+
+        return cache[templatePath]
+            .then((ctx) => {
+                ctx.$idx = index;
+                return ctx;
+            });
+    }
+
+
     /**
      * @constructs lackey-cms/modules/cms/client/manager/StructureUI
      * @param {HTMLElement} rootNode
@@ -126,24 +129,52 @@ class StructureUI extends Emitter {
                 return self.drawTaxonomy();
             })
             .then(() => {
+                return self.drawSections();
+            })
+            .then(() => {
                 self.onRepositoryChanged();
 
                 let diffToggle = lackey
                     .select('[data-lky-hook="settings.diff"] input', self.node)[0];
 
-                if(document.body.className.toString().match(/jsondiffpatch-unchanged-hidden/)) {
+                if (document.body.className.toString().match(/jsondiffpatch-unchanged-hidden/)) {
                     diffToggle.setAttribute('checked', true);
                 } else {
                     diffToggle.removeAttribute('checked');
                 }
                 diffToggle.addEventListener('change', (event) => {
-                    if(diffToggle.checked) {
+                    if (diffToggle.checked) {
                         formatters.html.hideUnchanged();
                     } else {
                         formatters.html.showUnchanged();
                     }
                 });
                 return self.node;
+            });
+    }
+
+    drawSections() {
+        let context,
+            self = this,
+            expose;
+        return this.options
+            .context()
+            .then((ctx) => {
+                context = ctx;
+                return self.options.expose(ctx);
+            })
+            .then((expose) => {
+                return template.redraw('sections', {
+                    context: context,
+                    expose: expose
+                }, self.node);
+            })
+            .then(() => {
+                /*
+                    lackey.bind('[data-lky-action="media-edit"]', 'click', lackey.as(self.editMedia, self), self._node);
+                    lackey.bind('[data-lky-action="block-add"]', 'click', lackey.as(self.addBlock, self), self._node);
+                    lackey.bind('[data-lky-action="block-remove"]', 'click', lackey.as(self.removeBlock, self), self._node);
+                    lackey.bind('[data-lky-action="block-inspect"]', 'click', lackey.as(self.editBlock, self), self._node);*/
             });
     }
 
@@ -201,7 +232,6 @@ class StructureUI extends Emitter {
                             .context()
                             .then((context) => {
                                 context.taxonomies = [].concat(tagsControl.value, restrictiveControl.value);
-                                console.log(context.taxonomies);
                                 self.emit('changed');
                             });
                     };
@@ -282,8 +312,8 @@ class StructureUI extends Emitter {
      * @returns {Promise}
      */
     remove() {
-        this.repository = repository;
         this.repository.off('changed', this._onRepositoryChanged);
+        this.repository = null;
         return new Promise((resolve) => {
 
             let self = this,

@@ -24,6 +24,7 @@ module.exports = (dust) => {
         let type = params.type,
             key = params.key,
             equals = typeof key === type;
+
         if (type === 'array') {
             equals = Array.isArray(key);
         }

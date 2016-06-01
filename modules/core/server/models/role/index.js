@@ -131,7 +131,8 @@ module.exports = SUtils
             toJSON() {
                 return {
                     name: this.name,
-                    label: this.label
+                    label: this.label,
+                    acl: this.acl
                 };
             }
 

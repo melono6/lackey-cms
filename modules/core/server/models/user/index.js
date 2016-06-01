@@ -646,6 +646,33 @@ module.exports = SUtils
             }
 
             /**
+             * Checks permission
+             * @param   {string} perm
+             * @param   {string} method
+             * @returns {Promise<boolean>}
+             */
+            isAllowed(perm, method) {
+                let roles = this.roles.map((role) => role.name);
+
+                return SUtils
+                    .cmsMod('users')
+                    .policy('auth')
+                    .then((policy) => {
+                        return new Promise((resolve, reject) => {
+                            policy
+                                .ACL
+                                .areAnyRolesAllowed(roles, perm, method || '*', (err, isAllowed) => {
+                                    if (err) {
+                                        return reject(err);
+                                    }
+                                    resolve(isAllowed);
+                                });
+                        });
+                    });
+
+            }
+
+            /**
              * Checks, if user has specific role
              * TODO improve using join
              * @param   {string} role

@@ -7,6 +7,7 @@ $color-blue: #3cd4f2;
 $color-purple: #9322e8;
 $color-dark-gray: #575757;
 $color-light-gray: lighten($color-dark-gray, 30%);
+$color-lightest-gray: lighten($color-dark-gray, 60%);
 $color-white: #FAFBFC;
 $color-black: #333;
 $color-background: #385573;
@@ -33,3 +34,19 @@ $settings-edit-width: 340px;
 $settings-breadcrumb-height: 63px;
 $switch-width: 25px;
 $switch-height: 20px;
+
+$color-lackey-blue: #00ABFC;
+$color-lackey-light-blue: #00CBFF;
+$color-lackey-ligher-blue: #ACEEFF;
+$color-lackey-gray: #3A5675;
+$color-lackey-light-gray: #6F8BAC;
+$color-lackey-dark-gray: #1E3B5E;
+$color-lackey-darker-gray: #0B223E;
+
+$default-font-family: 'Roboto', sans-serif;
+$default-font-size: 14px;
+$table-font-size: 13px;
+$default-header-font-family: "Geomanist", sans-serif;
+$header-1-font-size: 65px;
+$header-2-font-size: 34px;
+$header-3-font-size: 18px;

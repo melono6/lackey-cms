@@ -82,7 +82,6 @@ describe('modules/users/server/auth/strategies/github', function () {
         dbsInit(() => {
             try {
                 strategy = require('../../../../server/auth/dynamic-strategies/github');
-                console.log(strategy);
             } catch (e) {
                 console.error(e);
                 console.error(e.stack);

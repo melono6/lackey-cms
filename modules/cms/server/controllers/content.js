@@ -38,15 +38,12 @@ module.exports = SUtils.waitForAs('contentCtrl',
             static get tableConfig() {
                 return {
                     createdAt: {
-                        label: 'Created at'
+                        label: 'Created at',
+                        date: true
                     },
                     author: {
                         label: 'Author',
                         parse: 'return arguments[0] ? arguments[0].name : \'\''
-                    },
-                    name: {
-                        label: 'name',
-                        like: true
                     },
                     route: {
                         label: 'Route'
@@ -58,7 +55,7 @@ module.exports = SUtils.waitForAs('contentCtrl',
                     type: {
                         name: 'Type'
                     },
-                    status: {
+                    state: {
                         name: 'Status'
                     }
                 };
@@ -151,6 +148,7 @@ module.exports = SUtils.waitForAs('contentCtrl',
 
                         res.send({
                             template: 'cms/cms/page-create',
+                            stylesheets: ['css/cms/cms/table.css'],
                             javascripts: [
                                 'js/cms/cms/new-page.js'
                             ],

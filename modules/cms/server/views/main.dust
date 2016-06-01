@@ -18,7 +18,7 @@
             </section>
             <ul data-lky-hook="menu.items">
                 <li>
-                    <a href="/cms/users">Users</a>
+                    <a href="/cms/user">Users</a>
                 </li>
                 <li>
                     <a href="/cms/media">Media</a>
@@ -27,7 +27,7 @@
                     <a href="/cms/taxonomy">Tags</a>
                 </li>
                 <li>
-                    <a href="/cms/content">Pages</a>
+                    <a href="/cms/content">Content</a>
                 </li>
                 <li data-class="divider"></li>
                 <li>

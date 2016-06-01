@@ -68,10 +68,25 @@ module.exports = (gulp, projectDIR) => {
         ]);
     });
 
-    gulp.task('lackey.server', function () {
+    gulp.task('lackey.server.dev', function () {
         return nodemon({
             script: lackeyDIR + '/lib/server/start.js',
             exec: 'node --harmony --debug',
+            ext: 'js yaml json',
+            stdout: true,
+            debug: true,
+            ignore: [
+                '*/htdocs/*',
+                'modules/*/client/*'
+            ],
+            ignoreRoot: ['.git']
+        });
+    });
+
+     gulp.task('lackey.server', function () {
+        return nodemon({
+            script: lackeyDIR + '/lib/server/start.js',
+            exec: 'node --harmony',
             ext: 'js yaml json',
             stdout: true,
             debug: true,

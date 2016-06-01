@@ -1,7 +1,19 @@
 {#table.rows}
 <tr>
+    <td></td>
     {#columns}
-    <td>{value}</td>
+    <td>
+        {@is key=value type="array"}
+            {#value}
+                {>"cms/core/table-value" value=./}
+                {@math key=$idx method="add" operand=1}
+                    {@lt value=value.length},{/lt}
+                {/math}
+            {/value}
+        {:else}
+            {>"cms/core/table-value" value=value/}
+        {/is}
+    </td>
     {/columns}
     <td>
         {#actions}
@@ -19,5 +31,6 @@
             {/href}
         {/actions}
     </td>
+    <td></td>
 </tr>
 {/table.rows}

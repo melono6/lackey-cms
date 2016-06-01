@@ -50,56 +50,69 @@ module.exports = SUtils
 
             static print(page, fullPath, res, req, preview) {
 
-                let path, edit = req.user && req.user.getACL('edit').length > 0,
-                    javascripts = req.user ? [
-                                    preview ? 'js/cms/cms/preview.js' : 'js/cms/cms/page.js'
-                                ] : [],
+                let
+                    path,
+                    user = req.user,
                     stylesheets = [],
                     pageJson = page.toJSON(),
+                    isAllowed,
                     data = {
                         route: fullPath,
                         content: pageJson
                     },
-                    promise = Promise.resolve(data);
+                    javascripts,
+                    promise = (user ? user.isAllowed('/admin*', 'get') : Promise.resolve(false));
 
-                if (page.state !== 'published' && !edit) {
-                    return res.error403(req);
-                }
+                return promise
+                    .then((allowed) => {
+                        isAllowed = allowed;
 
-                if (pageJson.template) {
-                    if (pageJson.template.javascripts) {
-                        javascripts = javascripts.concat(pageJson.template.javascripts);
-                    }
-                    if (pageJson.template.stylesheets) {
-                        stylesheets = stylesheets.concat(pageJson.template.stylesheets);
-                    }
+                        javascripts = allowed ? [
+                            preview ? 'js/cms/cms/preview.js' : 'js/cms/cms/page.js'
+                        ] : [];
 
-                    if (pageJson.template.populate && pageJson.template.populate.length) {
-                        promise = PageController.populate(data, pageJson.template.populate, req, page);
-                    }
-                }
+                        if (page.state !== 'published' && !isAllowed) {
+                            return Promise.reject('403');
+                        }
 
-                res.css(stylesheets);
-                res.js(javascripts);
+                        if (pageJson.template) {
+                            if (pageJson.template.javascripts) {
+                                javascripts = javascripts.concat(pageJson.template.javascripts);
+                            }
+                            if (pageJson.template.stylesheets) {
+                                stylesheets = stylesheets.concat(pageJson.template.stylesheets);
+                            }
 
-                path = page.getTemplatePath();
+                            if (pageJson.template.populate && pageJson.template.populate.length) {
+                                return PageController.populate(data, pageJson.template.populate, req, page);
+                            }
+                        }
 
-                SCli.debug('lackey-cms/modules/cms/server/controllers/page', path);
-
-                if (req.query.variant && req.query.variant) {
-                    if (req.user && req.user.getACL('viewInContext')) {
-                        path = ['~/core/variant', 'cms/cms/variant'];
-                        res.variant(req.query.variant);
-                    }
-                }
-
-                res.edit(edit);
-
-                promise
+                        return data;
+                    })
                     .then((result) => {
+
+                        res.css(stylesheets);
+                        res.js(javascripts);
+
+                        path = page.getTemplatePath();
+
+                        SCli.debug('lackey-cms/modules/cms/server/controllers/page', path);
+
+                        if (req.query.variant && req.query.variant) {
+                            if (req.user && req.user.getACL('viewInContext')) {
+                                path = ['~/core/variant', 'cms/cms/variant'];
+                                res.variant(req.query.variant);
+                            }
+                        }
+
+                        res.edit(isAllowed);
                         res.print(path, result);
                     }, (error) => {
                         console.error(error);
+                        if (error === '403') {
+                            return res.error403(req);
+                        }
                         res.error(error);
                     });
 

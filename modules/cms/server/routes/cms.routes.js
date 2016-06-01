@@ -20,7 +20,7 @@ const SUtils = require(LACKEY_PATH).utils;
 function cmsResourceRoutes(server, name, param, controller) {
     server.route('/cms/' + name).get(server.aclAdmin, controller.method('table'));
 
-    server.crud('/api/cms/' + name, param, [server.acl], {
+    server.crud('/api/cms/' + name, param, [/*server.acl*/], {
         list: controller.method('list'),
         create: controller.method('create'),
         read: controller.method('read'),
@@ -72,9 +72,6 @@ module.exports = (server, config) => {
 
             server.route('/cms/export/all')
                 .get( /*server.aclAdmin, */ CMSController.serialize);
-
-            server.route('/cms/content/:content_id')
-                .get(server.aclAdmin, ContentController.cmsEdit);
 
             server.route('/api/cms/content/:content_id/taxonomy/:taxonomyTypeName/:taxonomyName')
                 .delete(server.aclAdmin, ContentController.method('removeTaxonomy'));

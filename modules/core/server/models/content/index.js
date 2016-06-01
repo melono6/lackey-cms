@@ -103,6 +103,10 @@ module.exports = SUtils
                 return '/cms/content';
             }
 
+            static get createLink() {
+                return '/cms/content/create';
+            }
+
             static get taxonomyRelationModel() {
                 return ContentToTaxonomy;
             }
@@ -157,6 +161,28 @@ module.exports = SUtils
                         self.taxonomies = taxonomies;
                         return self;
                     });
+            }
+
+            static _preQuery(query, options) {
+                if (options.textSearch) {
+                    query.$or = [{
+                        route: {
+                            operator: 'like',
+                            value: '%' + options.textSearch + '%'
+                        }
+                        }, {
+                        state: {
+                            operator: 'like',
+                            value: '%' + options.textSearch + '%'
+                        }
+                        }, {
+                        type: {
+                            operator: 'like',
+                            value: '%' + options.textSearch + '%'
+                        }
+                        }];
+                }
+                return super._preQuery(query, options);
             }
 
             _preSave() {

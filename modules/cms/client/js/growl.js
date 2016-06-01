@@ -35,7 +35,7 @@ module.exports = function (config) {
             setTimeout(() => {
                 top.document.body.removeChild(div);
             }, 500);
-        }, 500);
+        }, 1500);
     }, 0);
 
 

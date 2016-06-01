@@ -41,9 +41,8 @@
         </div>
     </section>
     <section data-lky-hook="settings.blocks">
-        <div>
-        Blocks
-        </div>
+        <div data-lky-hook="sections" data-lky-template="cms/cms/structure/sections">
+            </div>
     </section>
     <section data-lky-hook="settings.diff">
         <aside>

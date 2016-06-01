@@ -1,0 +1,7 @@
+<div data-lky-block {?locked}data-lky-locked{/locked}>
+    <img data-lky-icon src="{thumb}"/>
+    <div>
+        <img data-lky-bin src="/img/cms/cms/svg/bin.svg"/>
+        <img data-lky-cog src="/img/cms/cms/svg/cog.svg"/>
+    </div>
+</div>

@@ -229,6 +229,11 @@ module.exports = Schema
                     table.json('expose');
                 });
             })
+            .then(() => {
+                return Schema.addColumn(knex, 'template', 'prefix', (table) => {
+                    table.string('prefix');
+                });
+            })
             //
             // TABLE content
             // .userId -> users.id

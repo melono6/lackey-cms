@@ -40,5 +40,12 @@
         float: right;
         height: $header-height;
     }
+    [data-lky-hook="header.user"] {
+        img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50px;
+        }
+    }
     @import "./hamburger";
 }

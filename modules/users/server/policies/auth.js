@@ -69,6 +69,8 @@ exports.setRoleAcl = (role, path, methods) => {
     roleACL.allow(role, amendedPath, methods);
 };
 
+exports.ACL = roleACL;
+
 exports.roleAcl = exports.generateIsAllowed(roleACL, 'user');
 exports.adminRoleAcl = exports.generateIsAllowed(roleACL, 'admin');
 

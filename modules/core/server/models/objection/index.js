@@ -32,7 +32,6 @@ SCli.debug(__MODULE_NAME, 'REQUIRED');
 
 module.exports = Database
     .then((knex) => {
-        SCli.debug(__MODULE_NAME, 'Got  DB');
         return knex
             .schema
             .dropTableIfExists('objection')
@@ -46,6 +45,9 @@ module.exports = Database
             })
             .then(() => {
 
+                /**
+                 * @class
+                 */
                 class ObjectionModel extends Model {
 
                     static get tableName() {
@@ -54,6 +56,12 @@ module.exports = Database
 
                 }
 
+                /**
+                 * Handle any error
+                 * @param   {Error}   outerError
+                 * @param   {object} instance
+                 * @returns {Error}
+                 */
                 function handleError(outerError, instance) {
                     return function (error, silent) {
                         SCli.debug(__MODULE_NAME, 'ERROR', error.message);
@@ -70,50 +78,70 @@ module.exports = Database
                     };
                 }
 
+                /**
+                 * @class
+                 */
                 class ObjectionWrapper {
 
+                    /**
+                     * @param {object} data
+                     */
                     constructor(data) {
                         this._doc = data || {};
                     }
 
+                    /**
+                     * @returns {object}
+                     */
                     toJSON() {
                         return JSON.parse(JSON.stringify(this._doc));
                     }
 
+                    /**
+                     * Saves instance
+                     * @param   {object} options
+                     * @returns {Promise}
+                     */
                     save(options) {
                         SCli.debug(__MODULE_NAME, 'save', this.constructor.model.tableName);
                         let self = this,
                             hook = new Error(),
                             cached = _.cloneDeep(this._doc);
 
-                        return this._preSave(options)
+                        return this
+                            ._preSave(options)
                             .then(() => {
                                 return self._filter();
                             })
                             .then(() => {
                                 if (!self._doc.id) {
-                                    return SCli.sql(self.constructor.model
-                                        .query()
-                                        .insertAndFetch(self._doc)
-                                    ).then((result) => {
-                                        SCli.debug(__MODULE_NAME, 'created', self.constructor.model.tableName);
-                                        return result;
+                                    return SCli
+                                        .sql(self.constructor.model
+                                            .query()
+                                            .insertAndFetch(self._doc)
+                                        )
+                                        .then((result) => {
+                                            SCli.debug(__MODULE_NAME, 'created', self.constructor.model.tableName);
+                                            return result;
 
-                                    }, handleError(new Error(), self));
+                                        }, handleError(new Error(), self));
                                 }
                                 self._doc.updatedAt = new Date();
-                                return SCli.sql(self.constructor.model
-                                    .query()
-                                    .updateAndFetchById(self.id, self._doc)
-                                ).then((result) => {
-                                    SCli.debug(__MODULE_NAME, 'saved', self.constructor.model.tableName);
-                                    return result;
-                                }, handleError(hook, self));
+                                return SCli
+                                    .sql(self.constructor.model
+                                        .query()
+                                        .updateAndFetchById(self.id, self._doc)
+                                    )
+                                    .then((result) => {
+                                        SCli.debug(__MODULE_NAME, 'saved', self.constructor.model.tableName);
+                                        return result;
+                                    }, handleError(hook, self));
                             })
                             .then((data) => {
                                 self._doc = data;
                                 return self._postSave(cached);
-                            }).then(() => {
+                            })
+                            .then(() => {
                                 return self._populate();
                             });
                     }
@@ -225,16 +253,18 @@ module.exports = Database
                         SCli.debug(__MODULE_NAME, 'findBy', this.model.tableName, field, value);
                         let Self = this,
                             hook = new Error();
-                        return SCli.sql(this.model
-                            .query()
-                            .where(field, value)
-                        ).then((result) => {
-                            SCli.debug(__MODULE_NAME, 'findBy', this.model.tableName, JSON.stringify(result));
-                            return Promise.all(result.map((data) => Self.factory(data)));
-                        }, (err) => {
-                            handleError(hook)(err, true);
-                            return null;
-                        });
+                        return SCli
+                            .sql(this.model
+                                .query()
+                                .where(field, value)
+                            )
+                            .then((result) => {
+                                SCli.debug(__MODULE_NAME, 'findBy', this.model.tableName, JSON.stringify(result));
+                                return Promise.all(result.map((data) => Self.factory(data)));
+                            }, (err) => {
+                                handleError(hook)(err, true);
+                                return null;
+                            });
                     }
 
                     /**
@@ -246,19 +276,21 @@ module.exports = Database
                         SCli.debug(__MODULE_NAME, 'findOneBy', this.model.tableName, field, value);
                         let Self = this,
                             hook = new Error();
-                        return SCli.sql(this.model
-                            .query()
-                            .where(field, value)
-                        ).then((result) => {
-                            if (!result || !result.length) {
+                        return SCli
+                            .sql(this.model
+                                .query()
+                                .where(field, value)
+                            )
+                            .then((result) => {
+                                if (!result || !result.length) {
+                                    return null;
+                                }
+                                SCli.debug(__MODULE_NAME, 'findOneBy', this.model.tableName, JSON.stringify(result[0]));
+                                return Self.factory(result[0]);
+                            }, (err) => {
+                                handleError(hook)(err, true);
                                 return null;
-                            }
-                            SCli.debug(__MODULE_NAME, 'findOneBy', this.model.tableName, JSON.stringify(result[0]));
-                            return Self.factory(result[0]);
-                        }, (err) => {
-                            handleError(hook)(err, true);
-                            return null;
-                        });
+                            });
                     }
 
                     static findByIds(ids) {
@@ -270,15 +302,17 @@ module.exports = Database
 
                         let Self = this,
                             hook = new Error();
-                        return SCli.sql(this.model
-                            .query()
-                            .whereIn('id', ids)
-                        ).then((result) => {
-                            if (!result) {
-                                return null;
-                            }
-                            return Promise.all(result.map((data) => Self.factory(data)));
-                        }, handleError(hook));
+                        return SCli
+                            .sql(this.model
+                                .query()
+                                .whereIn('id', ids)
+                            )
+                            .then((result) => {
+                                if (!result) {
+                                    return null;
+                                }
+                                return Promise.all(result.map((data) => Self.factory(data)));
+                            }, handleError(hook));
                     }
 
                     /**
@@ -288,11 +322,13 @@ module.exports = Database
                     static find() {
                         SCli.debug(__MODULE_NAME, 'find', this.model.tableName);
                         let Self = this;
-                        return SCli.sql(this.model
-                            .query()
-                        ).then((results) => {
-                            return Promise.all(results.map((result) => Self.factory(result)));
-                        }, handleError(new Error()));
+                        return SCli
+                            .sql(this.model
+                                .query()
+                            )
+                            .then((results) => {
+                                return Promise.all(results.map((result) => Self.factory(result)));
+                            }, handleError(new Error()));
                     }
 
                     static factory(data) {
@@ -308,21 +344,21 @@ module.exports = Database
                         let cur = cursor,
                             self = this,
                             fn = operand === 'or' ? 'orWhere' : 'where';
-                        Object.keys(query).forEach((key) => {
 
-                            console.log(key, query[key]);
+                        Object.keys(query).forEach((key) => {
 
                             if (key === '$or') {
                                 cur = cur.andWhere(function () {
                                     let self2 = this;
                                     query.$or.forEach((condition, index) => {
                                         if (index === 0) {
-                                            self2 = self.where(self2, condition);
+                                            cur = self.where(cur, condition);
                                         } else {
-                                            self2 = self.where(self2, condition, 'or');
+                                            cur = self.where(cur, condition, 'or');
                                         }
                                     });
                                 });
+
                             } else if (query[key] === null) {
                                 cur = cur.whereNull(key);
                             } else if (typeof query[key] === 'object') {
@@ -348,14 +384,16 @@ module.exports = Database
                         if (query) {
                             cursor = this.where(cursor, query);
                         }
-                        return SCli.sql(
-                            cursor
-                        ).then((result) => {
-                            if (result && result.length) {
-                                return +result[0].count;
-                            }
-                            return -1;
-                        });
+                        return SCli
+                            .sql(
+                                cursor
+                            )
+                            .then((result) => {
+                                if (result && result.length) {
+                                    return +result[0].count;
+                                }
+                                return -1;
+                            });
                     }
 
                     static queryWithCount(query, populate, options) {
@@ -368,62 +406,65 @@ module.exports = Database
                             });
                         }
 
-                        return self.count(query).then((count) => {
-                            total = count;
-                            return self.query(query, populate, options);
-                        }).then((results) => {
-                            return {
-                                paging: {
-                                    limit: options.limit,
-                                    offset: options.offset,
-                                    sort: options.sort,
-                                    total: total,
-                                    filters: query
-                                },
-                                data: results
-                            };
-                        });
+                        return self
+                            .count(query)
+                            .then((count) => {
+                                total = count;
+                                return self.query(query, populate, options);
+                            })
+                            .then((results) => {
+                                return {
+                                    paging: {
+                                        limit: options.limit,
+                                        offset: options.offset,
+                                        sort: options.sort,
+                                        total: total,
+                                        filters: query
+                                    },
+                                    data: results
+                                };
+                            });
                     }
 
                     static query(query, populate, options) {
+
                         let self = this;
-                        return new Promise((resolve, reject) => {
-                            if (!self.model) {
-                                return reject('This model doesn\'t supply mongo model reference for shared methods');
-                            }
+                        SCli.debug(__MODULE_NAME, 'query', this.model.tableName);
+                        if (!self.model) {
+                            return Promise.reject('This model doesn\'t supply mongo model reference for shared methods');
+                        }
 
-                            let cursor = self
-                                .model
-                                .query();
+                        let cursor = self
+                            .model
+                            .query();
 
-                            if (options) {
-                                if (options.sort) {
-                                    Object.keys(options.sort).forEach((key) => {
-                                        cursor = cursor.orderBy(key, options.sort[key] >= 0 ? 'asc' : 'desc');
-                                    });
-                                }
-                                if (options.offset) {
-                                    cursor = cursor.offset(options.offset);
-                                }
-                                if (options.limit) {
-                                    cursor = cursor.limit(options.limit);
-                                }
-                            }
+                        console.log('Query', cursor.toString());
 
-                            cursor = self.where(cursor, query);
-
-                            SCli
-                                .sql(cursor)
-                                .then((documents) => {
-                                    Promise.all(documents.map((doc) => {
-                                        return Promise.resolve(self.factory(doc));
-                                    })).then((docs) => {
-                                        resolve(docs);
-                                    }, (err) => {
-                                        reject(err);
-                                    });
+                        if (options) {
+                            if (options.sort) {
+                                Object.keys(options.sort).forEach((key) => {
+                                    cursor = cursor.orderBy(key, options.sort[key] >= 0 ? 'asc' : 'desc');
                                 });
-                        });
+                            }
+                            if (options.offset) {
+                                cursor = cursor.offset(options.offset);
+                            }
+                            if (options.limit) {
+                                cursor = cursor.limit(options.limit);
+                            }
+                        }
+
+                        cursor = self.where(cursor, query);
+
+                        return SCli
+                            .sql(cursor)
+                            .then((documents) => {
+                                return Promise
+                                    .all(documents.map((doc) => {
+                                        return self.factory(doc);
+                                    }));
+                            });
+
                     }
 
                     static parseLike(value) {
@@ -453,6 +494,8 @@ module.exports = Database
                      */
                     static table(inputQuery, columns, options) {
 
+                        SCli.debug(__MODULE_NAME, 'table');
+
                         let
                             query,
                             self = this,
@@ -480,11 +523,15 @@ module.exports = Database
                             });
                         }
 
-                        return this._preQuery(inputQuery, options)
+                        return this
+                            ._preQuery(inputQuery, options)
                             .then((q) => {
                                 query = q;
                                 return this.count(inputQuery);
-                            }).then((count) => {
+                            })
+                            .then((count) => {
+
+                                console.log('COUNT', count);
 
                                 if (options) {
                                     if (options.limit) {
@@ -524,8 +571,9 @@ module.exports = Database
                                     queryOptions.textSearch = options.textSearch;
                                 }
 
-                                return this.query(query, populate, queryOptions);
-                            }).then((data) => {
+                                return self.query(query, populate, queryOptions);
+                            })
+                            .then((data) => {
 
                                 let rows = data.map((content) => {
                                     return content.toJSON();
@@ -572,8 +620,26 @@ module.exports = Database
                                             let value = row[column],
                                                 parse;
                                             if (columnsList[column].parse) {
-                                                parse = new Function('val', columnsList[column].parse); //eslint-disable-line no-new-func
-                                                value = parse(value);
+                                                try {
+                                                    parse = new Function('val', columnsList[column].parse); //eslint-disable-line no-new-func
+                                                    value = parse(value);
+
+                                                } catch (ex) {
+                                                    console.error(ex);
+                                                }
+                                            }
+
+                                            if (value && columnsList[column].link) {
+                                                value = {
+                                                    href: value,
+                                                    label: columnsList[column].linkText || value
+                                                };
+                                            }
+
+                                            if (value && columnsList[column].date) {
+                                                value = {
+                                                    date: value
+                                                };
                                             }
 
                                             if (value !== undefined) {

@@ -20,13 +20,14 @@
 
 const
     SUtils = require(LACKEY_PATH).utils,
-editable = require('./server/lib/dust/editable'),
+    editable = require('./server/lib/dust/editable'),
     image = require('./server/lib/dust/media'),
     error = require('./server/lib/dust/error'),
     embed = require('./server/lib/dust/embed'),
     attr = require('./server/lib/dust/attr'),
     block = require('./server/lib/dust/block'),
     list = require('./server/lib/dust/list'),
+    is = require('./../core/shared/dust/is'),
     taxonomy = require('./server/lib/dust/taxonomy'),
     hasContent = require('./server/lib/dust/has-content'),
     tweet = require('./server/lib/dust/tweet'),
@@ -48,6 +49,7 @@ module.exports = (instance) => {
     instance.addDustHelper(taxonomy);
     instance.addDustHelper(hasContent);
     instance.addDustHelper(tweet);
+    instance.addDustHelper(is);
 
     sitemap.addSource(() => {
         return require('./server/controllers/content')

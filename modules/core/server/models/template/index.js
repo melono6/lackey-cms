@@ -106,6 +106,11 @@ module.exports = SUtils
                 return this._doc.expose || [];
             }
 
+            get prefix() {
+                return this._doc.prefix || '';
+            }
+
+
             static selectable() {
                 SCli.debug('lackey-cms/modules/cms/server/models/template', 'selectable', this.model.tableName);
                 let Self = this;
@@ -130,7 +135,8 @@ module.exports = SUtils
                     selectable: this._doc.selectable || false,
                     populate: this._doc.populate || [],
                     expose: this._doc.expose || [],
-                    thumb: this._doc.thumb || null
+                    thumb: this._doc.thumb || null,
+                    prefix: this._doc.prefix || ''
                 };
             }
 

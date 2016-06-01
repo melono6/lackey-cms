@@ -11,29 +11,6 @@ sharedACLS: &sharedACLS
 init:
     # System roles
     Role:
-        - &role_developer
-            name: developer
-            label: 'Developer'
-            acl:
-                /session:
-                    - get
-                /api/account/confirm-email:
-                    - post
-                cms: '*'
-                debug: '*'
-                viewas: '*'
-        -   name : admin
-            label: 'Admin'
-            acl:
-                /session:
-                    - get
-                /api/account/confirm-email:
-                    - post
-                cms: '*'
-                viewas:
-                    - 'gold'
-                    - 'silver'
-                    - 'guest'
         -
             name: gold
             label: 'Gold Member'
@@ -55,7 +32,7 @@ init:
             password: 'password'
             stages: *testStages
             roles:
-                - *role_developer
+                - developer
 
 
 

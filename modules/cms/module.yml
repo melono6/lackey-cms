@@ -8,22 +8,6 @@ require:
     - cms/users
     - cms/i18n
 
-acls: &routes
-    /admin*: # ADMIN IFRAME
-        - get
-    /cms*: # CMS LAYER
-        - get
-        - post
-    /cms/preview: # PREVIEW PAGE
-        - post
-    /api/cms/*: # API ENDPOINTS
-        - get
-        - delete
-        - post
-        - put
-    viewInVariant: '*' # VIEWING IN VARIANT
-    edit: '*' # EDITING CONTENT
-
 ##
 ## INITIAL DATA
 ##
@@ -31,9 +15,28 @@ init:
     # SYSTEM ROLES
     Role:
         -   name: developer
-            acl: *routes
-        -   name : admin
-            acl: *routes
+            acl:
+                /admin*: # ADMIN IFRAME
+                    - get
+                /cms*: # CMS LAYER
+                    - get
+                    - post
+                /cms/preview: # PREVIEW PAGE
+                    - post
+                /api/cms/*: # API ENDPOINTS
+                    - get
+                    - delete
+                    - post
+                    - put
+                viewInVariant: '*' # VIEWING IN VARIANT
+                /session:
+                    - get
+                /api/account/confirm-email:
+                    - post
+                edit: '*' # EDITING CONTENT
+                cms: '*'
+                debug: '*'
+                viewas: '*'
 
     # DEFAULT SYSTEM PAGES
     Content:

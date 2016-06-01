@@ -37,21 +37,21 @@ module.exports = SUtils
             }
 
             static get tableConfig() {
-                return null;/*{
+                return {
                     name: {
                         label: 'Name',
                         like: true
                     },
-                    label: {
-                        label: 'Label',
-                        like: true
+                    roles: {
+                        label: 'Roles',
+                        parse: 'return arguments[0] ? arguments[0].map(function(r) { return r.label;}) : \'\''
                     },
-                    type: {
-                        name: 'Type',
-                        parse: 'return arguments[0] ? arguments[0].label : \'\''
+                    route: {
+                        label: 'Profile Page',
+                        link: true,
+                        linkText: 'View'
                     }
-
-                };*/
+                };
             }
 
 

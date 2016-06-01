@@ -21,13 +21,15 @@
 const SCli = require(LACKEY_PATH).cli,
     Generator = require(LACKEY_PATH).generator;
 
-let Taxonomy, taxonomyTypeGenerator;
+
+function taxonomyType(data) {
+    return require('../taxonomy-type/generator')(data);
+}
 
 module.exports = (data) => {
     return require('./index')
-        .then((taxonomy) => {
-            Taxonomy = taxonomy;
-            taxonomyTypeGenerator = require('../taxonomy-type/generator');
+        .then((Taxonomy) => {
+
 
 
             if (typeof data === 'string') {
@@ -38,25 +40,27 @@ module.exports = (data) => {
             function next() {
                 SCli.debug('lackey/modules/cms/server/models/taxonomy/generator', 'Ensure that taxonomy  ' + data.name + ' exists');
                 return Taxonomy.getByName(data.name).then((tax) => {
-                    if (!tax) {
-                        return Taxonomy.create(data);
-                    }
-                    if (Generator.override('Taxonomy') && tax.diff(data)) {
-                        return tax.save();
-                    }
-                    return tax;
-                }).then((tax) => {
-                    SCli.debug('lackey/modules/cms/server/models/taxonomy/generator', 'Ensured that taxonomy ' + data.name + ' exists');
-                    return tax;
-                });
+                        if (!tax) {
+                            return Taxonomy.create(data);
+                        }
+                        if (Generator.override('Taxonomy') && tax.diff(data)) {
+                            return tax.save();
+                        }
+                        return tax;
+                    })
+                    .then((tax) => {
+                        SCli.debug('lackey/modules/cms/server/models/taxonomy/generator', 'Ensured that taxonomy ' + data.name + ' exists');
+                        return tax;
+                    });
             }
 
             if (data.type && !data.type.id) {
-                return taxonomyTypeGenerator(data.type).then((type) => {
-                    data.taxonomyTypeId = type.id;
-                    delete data.type;
-                    return next();
-                });
+                return taxonomyType(data.type)
+                    .then((type) => {
+                        data.taxonomyTypeId = type.id;
+                        delete data.type;
+                        return next();
+                    });
 
             }
             return next();
@@ -75,22 +79,26 @@ module.exports.parse = (data) => {
         return Promise.resolve(feed);
     }
     return Promise.all(Object.keys(feed).map((typeName) => {
-        return taxonomyTypeGenerator({
-            name: typeName
-        }).then((taxonomyType) => {
-            return Promise.all(feed[typeName].map((taxonomyName) => {
-                return module.exports({
-                    taxonomyTypeId: taxonomyType.id,
-                    name: taxonomyName
-                }).then((taxonomy) => {
-                    taxonomies.push(taxonomy.id);
-                });
-            }));
+            return taxonomyType({
+                name: typeName
+            }).then((taxonomyType) => {
+                return Promise
+                    .all(feed[typeName]
+                        .map((taxonomyName) => {
+                            return module.exports({
+                                    taxonomyTypeId: taxonomyType.id,
+                                    name: taxonomyName
+                                })
+                                .then((taxonomy) => {
+                                    taxonomies.push(taxonomy.id);
+                                });
+                        }));
 
+            });
+        }))
+        .then(() => {
+            return taxonomies;
         });
-    })).then(() => {
-        return taxonomies;
-    });
 };
 
 Generator.registerMapper('Taxonomy', module.exports);
