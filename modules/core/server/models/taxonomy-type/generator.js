@@ -35,15 +35,19 @@ module.exports = (data) => {
 
             SCli.debug('lackey/modules/cms/server/models/taxonomy-type/generator', 'Ensure that taxonomy type ' + data.name + ' exists');
             return TaxonomyType.getByName(data.name);
-        }).then((type) => {
+        })
+        .then((type) => {
             if (!type) {
                 return TaxonomyType.create(data);
             }
+
             if (Generator.override('TaxonomyType') && typeof data !== 'string' && type.diff(data)) {
+                SCli.debug('lackey/modules/cms/server/models/taxonomy-type/generator', 'Override ' + data.name);
                 return type.save();
             }
             return type;
-        }).then((type) => {
+        })
+        .then((type) => {
             SCli.debug('lackey/modules/cms/server/models/taxonomy-type/generator', 'Ensured that taxonomy type ' + data.name + ' exists');
             return type;
         });
