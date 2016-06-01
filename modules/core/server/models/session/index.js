@@ -63,6 +63,11 @@ module.exports = SUtils
                 return this.findOneBy('sid', id);
             }
 
+            static removeAll(userId, sid) {
+                return SCli.sql(this.model.query().delete().where('userId', userId).whereNot('sid', sid));
+            }
+
+
             remove() {
                 let self = this;
 

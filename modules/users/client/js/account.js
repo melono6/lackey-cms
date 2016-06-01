@@ -64,7 +64,29 @@ function validPass(pass) { // TODO: move to backend
 lackey.bind('.sess-rm', 'click', (event, hook) => {
     event.preventDefault();
 
-    api.delete('/cms/session/' + hook.getAttribute('data-id'));
+    api.delete('/cms/session/' + hook.getAttribute('data-id'))
+        .then((response) => {
+            hook.parentNode.parentNode.removeChild(hook.parentNode);
+        }, (error) => {
+
+        });
+});
+
+lackey.bind('.sess-rmAll', 'click', (event, hook) => {
+    event.preventDefault();
+
+    api.delete('/cms/session')
+        .then((response) => {
+            var items = document.querySelectorAll('.sessionItem'),
+                i;
+            for (i = 0; i < items.length; i += 1) {
+                if (!items[i].classList.contains('current')) {
+                    items[i].parentNode.removeChild(items[i]);
+                }
+            }
+        }, (error) => {
+
+        });
 });
 
 lackey.bind('lky:password', 'submit', (event, hook) => {

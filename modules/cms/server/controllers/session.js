@@ -67,6 +67,17 @@ module.exports =  SUtils
                 });
             }
 
+            static removeAll(req, res) {
+                let self = this;
+
+                this.model.removeAll(req.session.passport.user, req.session.id)
+                    .then((result) => {
+                        res.api(result);
+                    }, (error) => {
+                        res.error(req, error);
+                    });
+            }
+
             static table(req, res) {
                 let restParams = req.getRESTQuery(true),
                     self = this;

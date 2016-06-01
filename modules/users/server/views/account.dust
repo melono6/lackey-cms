@@ -87,7 +87,7 @@
                         <dt>Sessions</dt>
                         <dd>
                             {#data.sessions}
-                            <div class="">
+                            <div class="sessionItem {@eq key="{_doc.sid}" value="{data.currentSession}"}current{/eq}">
                                 {_doc.ipAddress} - {_doc.browser} - {_doc.os} &nbsp;
                                 {@eq key="{_doc.sid}" value="{data.currentSession}"}
                                     (current session)
@@ -98,7 +98,7 @@
                             {/data.sessions}
 
                             <div>
-                                <button class="btn btn-sm btn-warning">Delete All Sesssions</button>
+                                <button class="btn btn-sm btn-warning sess-rmAll">Delete All Sesssions</button>
                             </div>
 
                         </dd>

@@ -73,6 +73,9 @@ module.exports = (server, config) => {
             server.route('/cms/export/all')
                 .get( /*server.aclAdmin, */ CMSController.serialize);
 
+            server.route('/api/cms/session')
+                .delete( server.aclAdmin, SessionController.method('removeAll'));
+
             server.route('/api/cms/content/:content_id/taxonomy/:taxonomyTypeName/:taxonomyName')
                 .delete(server.aclAdmin, ContentController.method('removeTaxonomy'));
 
