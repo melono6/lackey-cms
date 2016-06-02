@@ -44,31 +44,39 @@ module.exports = (data) => {
 
             function next() {
                 SCli.debug('lackey/modules/cms/server/models/content/generator', 'Ensure that Content ' + data.type + ' ' + data.route + ' exists');
-                return serializer.deserialize(data).then((input) => {
-                    return Content.getByTypeAndRoute(input.type, input.route).then((content) => {
-                        if (!content) {
-                            return Content.create(input);
-                        }
-                        SCli.debug('lackey/modules/cms/server/models/content/generator', 'Found content', content.type, content.route);
-                        if (Generator.override('Content') && content.diff(input)) {
-                            return content.save();
-                        }
-                        return content;
-                    }).then((result) => {
-                        SCli.debug('lackey/modules/cms/server/models/content/generator', 'Ensured that Content ' + data.route + ' exists');
-                        return result;
+
+                return serializer
+                    .deserialize(data)
+                    .then((input) => {
+
+                        return Content
+                            .getByTypeAndRoute(input.type, input.route)
+                            .then((content) => {
+                                if (!content) {
+                                    return Content.create(input);
+                                }
+                                SCli.debug('lackey/modules/cms/server/models/content/generator', 'Found content', content.type, content.route);
+                                if (Generator.override('Content') && content.diff(input)) {
+                                    return content.save();
+                                }
+                                return content;
+                            })
+                            .then((result) => {
+                                SCli.debug('lackey/modules/cms/server/models/content/generator', 'Ensured that Content ' + data.route + ' exists');
+                                return result;
+                            });
                     });
-                });
             }
 
             function fetchAuthor() {
                 if (!data.author) {
                     return next();
                 }
-                return userGenerator(data.author).then((author) => {
-                    data.author = author.id;
-                    return next();
-                });
+                return userGenerator(data.author)
+                    .then((author) => {
+                        data.author = author.id;
+                        return next();
+                    });
             }
 
             function fetchTaxonomy() {

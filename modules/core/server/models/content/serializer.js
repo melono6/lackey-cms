@@ -38,9 +38,11 @@ module.exports.deserializeText = (text) => {
     return browser.then((window) => {
         return treeParser
             .then((tree) => {
-                tree
-                    .walk(parseFrom(window.LackeySchema, text.replace(/\\n/g, '  '), 'markdown')
-                        .toJSON());
+                let md = parseFrom(window.LackeySchema, text.replace(/\\n/g, '  '), 'markdown'),
+                    json = md.toJSON(),
+                    output = tree
+                    .walk(json);
+                return output;
             });
     });
 };

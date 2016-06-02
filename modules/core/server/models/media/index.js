@@ -130,7 +130,8 @@ module.exports = SUtils
                                     res.once('data', chunk => {
                                         try {
                                             res.destroy();
-                                            resolve(fileType(chunk).mime);
+                                            let m = fileType(chunk);
+                                            resolve(m ? m.mime : 'image/jpeg');
                                         } catch (e) {
                                             reject(e);
                                         }
