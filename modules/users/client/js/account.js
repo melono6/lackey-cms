@@ -72,12 +72,17 @@ lackey.bind('.sess-rm', 'click', (event, hook) => {
         });
 });
 
+lackey.bind('.sess-rmCurrent', 'click', (event, hook) => {
+    event.preventDefault();
+    window.location = '/logout';
+});
+
 lackey.bind('.sess-rmAll', 'click', (event, hook) => {
     event.preventDefault();
 
     api.delete('/cms/session')
         .then((response) => {
-            var items = document.querySelectorAll('.sessionItem'),
+            var items = document.querySelectorAll('.active-sessions .session'),
                 i;
             for (i = 0; i < items.length; i += 1) {
                 if (!items[i].classList.contains('current')) {
