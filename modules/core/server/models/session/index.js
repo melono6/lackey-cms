@@ -91,13 +91,33 @@ module.exports = SUtils
                 };
             }
 
+            _humanTimestamp(timestamp) {
+                let time = Math.round(((new Date() - timestamp) / 60000 ));
+
+                if (time < 30) {
+                    return time + ' minutes ago';
+                } else if (time < 60) {
+                    return 'less than an hour ago';
+                } else if (time < 1440) {
+                    return Math.round(time / 60) + ' hours ago';
+                } else {
+                    return Math.round(time / 1440) + ' days ago';
+                }
+            }
+
             _populate() {
-                let self = this;
+                let self = this,
+                    lastActive = self._doc.expired;
+
+                lastActive.setDate(lastActive.getDate() - 1);
+                self._doc.lastActive = lastActive;
+                self._doc.humanLastActive = this._humanTimestamp(lastActive);
 
                 return User
                     .findById(self._doc.userId)
                     .then((user) => {
                         self._user = user;
+
                         return self;
                     });
             }
