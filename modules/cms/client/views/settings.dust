@@ -1,7 +1,8 @@
 <aside data-lky-component="settings">
     <section data-lky-hook="settings.breadcrumbs">
-        Blocks / Block Settings
+        <!-- later -->
     </section>
+    <section data-lky-hook="settings.back"></section>
     <section data-lky-hook="settings.pick">
         <div data-lky-hook="settings.presentation"></div>
         <ul>

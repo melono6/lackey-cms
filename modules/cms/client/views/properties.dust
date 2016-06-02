@@ -1,24 +1,19 @@
-
-  <li>
-      <label data-lky-switch>
-        <input type="checkbox">
-        <span></span>
-      </label>
-    </div>
-  </li>
 {#dictionary}
   <li>
     <label>
       <span>{label}</span>
-      {@eq key=type value="select"}
-        <select name="{name}">
-          {#items}
-            <option value="{value}" {@path root=values path=name eq=value}selected{/path}>{label}</option>
-          {/items}
-        </select>
-      {:else}
-        <input type="{type}" class="form-control" value="{@path root=values path=name/}" name="{name}"/>
-      {/eq}
+      {@switch key=type}
+          <input type="{type}" class="form-control" value="{@path root=values path=name/}" name="{name}"/>
+        {:article}
+          <input type="text" readonly class="form-control" value="{@path root=values path=name/}">
+          <button data-lky-btn data-name="{name}" data-lky-hook="action:pick-article" data-value="{@path root=values path=name/}">Change</button>
+        {:select}
+          <select name="{name}">
+            {#items}
+              <option value="{value}" {@path root=values path=name eq=value}selected{/path}>{label}</option>
+            {/items}
+          </select>
+      {/switch}
     </label>
   </li>
 {/dictionary}

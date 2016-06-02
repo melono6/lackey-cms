@@ -23,7 +23,9 @@ const Emitter = require('cms/client/js/emitter').Emitter,
     api = require('cms/client/js/api'),
     formatters = require('jsondiffpatch/src/formatters'),
     MediaModalController = require('cms/client/js/manager/media'),
-    Autocomplete = require('cms/client/js/controls/autocomplete');
+    Autocomplete = require('cms/client/js/controls/autocomplete'),
+    treeParser = require('cms/shared/treeparser'),
+    __MODULE_NAME = 'lackey-cms/modules/cms/client/js/manager/structure.ui';
 
 let cache = {};
 
@@ -94,23 +96,56 @@ class StructureUI extends Emitter {
      * @param {function} vars.pullLatest
      */
     constructor(options, repository) {
-            super();
-            this.options = options;
-            this._onRepositoryChanged = lackey.as(this.onRepositoryChanged, this);
-            this.repository = repository;
-            this.repository.on('changed', this._onRepositoryChanged);
+        super();
+        this.options = options;
+        this.options.settings = options.settings || this.defaultSettings;
+        this.options.settingsDictionary = options.settingsDictionary || this.defaultDictionary;
+        this.options.expose = options.expose || this.defaultExpose;
 
+        this._onRepositoryChanged = lackey.as(this.onRepositoryChanged, this);
+        this.repository = repository;
+        this.repository.on('changed', this._onRepositoryChanged);
+
+    }
+
+    get metaNode() {
+        return lackey.select('[data-lky-template="cms/cms/properties"]', this.node)[0];
+    }
+
+    defaultExpose(context) {
+        return StructureUI
+            .readTemplate(context.template)
+            .then((template) => template.expose || []);
+
+    }
+
+    defaultSettings(context) {
+        return Promise.resolve(context.props);
+    }
+
+    defaultDictionary(context) {
+        if (typeof context.template === 'string') {
+            return StructureUI
+                .readTemplate(context.template)
+                .then((template) => template.props);
         }
-        /**
-         * Builds UI
-         * @returns {Promise<HTMLElement}
-         */
+        return context.template.props;
+    }
+
+    /**
+     * Builds UI
+     * @returns {Promise<HTMLElement}
+     */
     buildUI() {
         let self = this;
         return template
             .render('cms/cms/settings', this.options || {})
             .then((nodes) => {
                 self.node = nodes[0];
+
+                lackey.bind('[data-lky-hook="settings.back"]', 'click', () => {
+                    self.options.stack.pop();
+                }, self.node);
 
                 lackey
                     .select([
@@ -169,13 +204,56 @@ class StructureUI extends Emitter {
                     expose: expose
                 }, self.node);
             })
-            .then(() => {
-                /*
-                    lackey.bind('[data-lky-action="media-edit"]', 'click', lackey.as(self.editMedia, self), self._node);
-                    lackey.bind('[data-lky-action="block-add"]', 'click', lackey.as(self.addBlock, self), self._node);
-                    lackey.bind('[data-lky-action="block-remove"]', 'click', lackey.as(self.removeBlock, self), self._node);
-                    lackey.bind('[data-lky-action="block-inspect"]', 'click', lackey.as(self.editBlock, self), self._node);*/
+            .then((root) => {
+                lackey.bind('[data-lky-cog]', 'click', lackey.as(self.inspect, self), root[0]);
             });
+    }
+
+    inspect(event, hook) {
+
+        let path = hook.getAttribute('data-lky-path'),
+            templatePath = hook.getAttribute('data-lky-template'),
+            structureController,
+            context,
+            data,
+            self = this;
+
+        this.collapse();
+
+        return this
+            .options
+            .context()
+            .then((ctx) => {
+                context = ctx;
+                return StructureUI
+                    .readTemplate(templatePath);
+            })
+            .then((template) => {
+
+                data = treeParser.get(context, path);
+                if (!data) {
+                    data = {};
+                    treeParser.set(context, path, data);
+                }
+
+                structureController = new StructureUI({
+                    type: 'content',
+                    id: this.options.id,
+                    context: () => Promise.resolve(data),
+                    stack: self.options.stack,
+                    expose: () => {
+                        return Promise.resolve(template.expose || []);
+
+                    },
+                    settingsDictionary: (context) => {
+                        return Promise.resolve(template.props)
+                    }
+                }, this.repository);
+
+                //structureController.on('changed', lackey.as(self.onStructureChange, self));
+                return this.options.stack.inspectStructure(structureController);
+            });
+
     }
 
     onRepositoryChanged() {
@@ -241,38 +319,59 @@ class StructureUI extends Emitter {
     }
 
     drawMeta() {
-        let self = this,
-            settings,
-            context,
-            metaNode = lackey.select('[data-lky-template="cms/cms/properties"]', self.node)[0];
+        let self = this;
 
         return this.options
             .context()
-            .then((ctx) => {
-                context = ctx;
-                return self.options.settings(ctx);
-            })
-            .then((stgs) => {
-                settings = stgs;
-                return self.options.settingsDictionary(context);
-            })
-            .then((dictionary) => {
+            .then((context) => Promise.all([
+                self.options.settings(context),
+                self.options.settingsDictionary(context)
+            ]))
+            .then((responses) => {
                 return template
-                    .redraw(metaNode, self.mapDictionary({
-                        values: settings,
-                        dictionary: dictionary
-                    }));
+                    .redraw(self.metaNode, self.mapDictionary({
+                        values: responses[0],
+                        dictionary: responses[1]
+                    }))
+                    .then(() => responses[0])
             })
-            .then(() => {
-                lackey.select(['input', 'select'], metaNode)
-                    .forEach((input) => {
-                        input.addEventListener('change', () => {
-                            settings[input.name] = input.value;
-                            self.emit('changed', settings);
-                        }, true);
-                    });
+            .then(lackey.as(this.bindMetaEvents, this));
+
+    }
+
+    bindMetaEvents(settings) {
+        let self = this;
+        lackey
+            .bind('[data-lky-hook="action:pick-article"]', 'click', lackey.as(this.pickArticle, this, [settings]), this.node);
+
+        lackey
+            .select(['input', 'select'], self.metaNode)
+            .forEach((input) => {
+                input.addEventListener('change', () => {
+                    settings[input.name] = input.value;
+                    self.emit('changed', settings);
+                }, true);
+            });
+
+    }
+
+    pickArticle(settings, event, hook) {
+        this.collapse();
+        let self = this,
+            route = hook.getAttribute('data-value');
+
+        return this.options.stack
+            .pickArticle(route)
+            .then((route) => {
+                if (route !== null) {
+                    settings[hook.getAttribute('data-name')] = route;
+                    self.emit('changed', settings);
+                    self.drawMeta();
+                }
+                self.node.setAttribute('data-lky-edit', 'meta');
             });
     }
+
 
     toggle(event) {
 
@@ -287,6 +386,10 @@ class StructureUI extends Emitter {
         } else {
             this.node.setAttribute('data-lky-edit', toOpen);
         }
+    }
+
+    collapse() {
+        this.node.removeAttribute('data-lky-edit')
     }
 
     /**
@@ -349,6 +452,9 @@ class StructureUI extends Emitter {
                         })
                     };
                 }
+                if (typeof value === 'object') {
+                    return value;
+                }
                 return {
                     label: key,
                     name: key,
@@ -363,302 +469,3 @@ class StructureUI extends Emitter {
 
 
 module.exports = StructureUI;
-
-
-
-/**
- * @module lackey-cms/modules/cms/client/manager
-
-/**
- * @constructs lackey-cms/modules/cms/client/manager/StructureUI
- * @param {HTMLElement} rootNode
- * @param {object}   vars
- * @param {object} vars.settings
- * @param {object} vars.context
- * @param {object} vars.content
- * @param {object} vars.expose
- * @param {object} vars.settingsDictionary
- * @param {function} vars.pullLatest
-function StructureUI(rootNode, vars) {
-
-    this._node = rootNode;
-    this._documentType = vars.type;
-    this._documentId = vars.id;
-    this._settings = vars.settings;
-    this._dictionary = vars.settingsDictionary;
-    this._context = vars.context;
-    this._expose = vars.expose;
-    this._stack = vars.stack;
-    this.drawButtons(vars.settingsDictionary);
-    this.drawSections();
-    top.Lackey.manager.diff();
-
-}
-
-StructureUI.prototype.drawButtons = function () {
-
-    // settings
-    let section = lackey.select('[data-lky-section="meta"]', this._node)[0],
-        self = this,
-        dictionary,
-        settings,
-        context;
-
-    section.style.display = 'none';
-
-    this
-        ._context()
-        .then((ctx) => {
-            context = ctx;
-            return self._dictionary(context);
-        })
-        .then((dct) => {
-            dictionary = dct;
-            return self._settings(context);
-        })
-        .then((stgs) => {
-            settings = stgs;
-
-            if (!dictionary) {
-                return;
-            }
-
-            section.style.display = '';
-            return template
-                .redraw(lackey.select('[data-lky-template="cms/cms/properties"]', section)[0], StructureUI.mapDictionary({
-                    values: settings,
-                    dictionary: dictionary
-                }));
-        })
-        .then((nodes) => {
-            nodes.forEach((node) => {
-                lackey.select(['input', 'select'], node).forEach((input) => {
-                    input.addEventListener('change', function () {
-                        settings[input.name] = input.value;
-                        self.emit('changed', settings);
-                    }, true);
-                });
-            });
-        });
-
-};
-
-StructureUI.mapDictionary = function (data) {
-    data.dictionary = Object
-        .keys(data.dictionary)
-        .map((key) => {
-            let value = data.dictionary[key];
-            if (Array.isArray(value)) {
-                return {
-                    type: 'select',
-                    name: key,
-                    label: key,
-                    items: value.map((item) => {
-                        if (typeof item === 'string') {
-                            return {
-                                label: item,
-                                value: item
-                            };
-                        }
-                        item.label = item.label || item.value;
-                        return item;
-                    })
-                };
-            }
-            return {
-                label: key,
-                name: key,
-                type: value
-            };
-        });
-    return data;
-};
-
-
-StructureUI.prototype.editMedia = function (event, hook) {
-    event.stopPropagation();
-    event.preventDefault();
-    let self = this,
-        path = hook.getAttribute('data-lky-path').replace(/^layout\./, '');
-
-    lackey.manager
-        .get(self._documentId, path)
-        .then((media) => lackey.manager.getMedia(media.id))
-        .then((content) => MediaModalController.open(content))
-        .then((media) => {
-            if (media) {
-                lackey.manager.set(self._documentId, path, null, {
-                    type: 'Media',
-                    id: media.id
-                });
-                self.emit('changed');
-            }
-        });
-
-};
-
-StructureUI.prototype.addBlockController = (rootNode, vars, resolve) => {
-
-    let OK = lackey.hook('ok', rootNode);
-    OK.setAttribute('disabled', '');
-    lackey.bind('input', 'change', () => {
-        OK.removeAttribute('disabled');
-    }, rootNode);
-    OK.addEventListener('click', () => {
-        let value = lackey
-            .select('input', rootNode)
-            .map((input) => input.checked ? input.value : null)
-            .filter((val) => !!val)[0];
-        resolve(value);
-    });
-
-};
-
-StructureUI.prototype.addBlock = function (event, hook) {
-    event.stopPropagation();
-    event.preventDefault();
-    let self = this,
-        path = hook.getAttribute('data-lky-path').replace(/^layout\./, ''),
-        pathParts = path.split('.'),
-        parentPath = pathParts.slice(0, -1).join('.'),
-        actualPath = parentPath + '.items.' + pathParts[pathParts.length - 1];
-
-    this._blockDefs = this._blockDefs || api
-        .read('/cms/template?type=block&limit=100')
-        .then((r) => r.data);
-
-    this._blockDefs
-        .then((blocks) => {
-            return modal.open('cms/cms/structure/block.picker', {
-                blocks: blocks
-            }, self.addBlockController);
-        })
-        .then((value) => {
-            if (!value) {
-                return;
-            }
-            return self
-                .ensureList(parentPath)
-                .then(() => {
-                    return lackey.manager.insertAfter(self._documentId, actualPath, null, {
-                            type: 'Block',
-                            template: value,
-                            fields: {}
-                        })
-                        .then(() => {
-
-                            self.emit('changed');
-                            self.drawSections();
-                        });
-                });
-        });
-};
-
-
-StructureUI.prototype.ensureList = function (path) {
-    return lackey.manager
-        .get(this._documentId, path)
-        .then((list) => {
-            if (!list) {
-                return lackey.manager.set(this._documentId, path, '*', {
-                    type: 'List',
-                    items: []
-                });
-            }
-        });
-};
-
-StructureUI.prototype.removeBlock = function (event, hook) {
-    event.stopPropagation();
-    event.preventDefault();
-    lackey.manager.remove(this._documentId, hook.getAttribute('data-lky-path').replace(/^layout\./, ''));
-    this.emit('changed');
-    this.drawSections();
-};
-
-StructureUI.prototype.editBlock = function (event, hook) {
-    event.stopPropagation();
-    event.preventDefault();
-
-    let self = this,
-        path = hook.getAttribute('data-lky-path'),
-        shortPath = path.replace(/^layout\./, ''),
-        block;
-
-    lackey
-        .manager
-        .get(this._documentId, shortPath)
-        .then((blk) => {
-            block = blk;
-
-            return readTemplate(block.template, 0);
-        })
-        .then(() => {
-
-            self._stack.append('cms/cms/structure', {
-                type: self._documentType,
-                id: self._documentId,
-                context: () => Promise.resolve(block),
-                settings: (context) => Promise.resolve(context.props),
-                settingsDictionary: (context) => {
-                    if (typeof context.template === 'string') {
-                        return StructureUI
-                            .readTemplate(context.template)
-                            .then((tmp) => tmp.props);
-                    }
-                    return context.template.props;
-                },
-                expose: (context) => {
-                    return StructureUI
-                        .readTemplate(context.template)
-                        .then((tmp) => tmp.expose || []);
-                },
-                stack: self._stack
-            }, (rootNode, vars, resolve) => {
-                let listener = (evt) => {
-                        if (evt.data.old === block) {
-                            resolve();
-                            self._stack.off('pop', listener);
-                        }
-                    },
-                    structureController = new StructureUI(rootNode, vars);
-                self._stack.on('pop', listener);
-                structureController.bubble(this, 'changed');
-                structureController.bubble(this, 'properties-changed', 'changed');
-            });
-
-        })
-        .then(() => {});
-};
-
-
-StructureUI.prototype.drawSections = function () {
-    let
-        self = this,
-        context;
-
-    return this
-        ._context()
-        .then((ctx) => {
-            context = ctx;
-            return self._expose(ctx);
-        })
-        .then((expose) => {
-            return template.redraw(lackey.hook('sections', self._node), {
-                context: context,
-                expose: expose
-            });
-        })
-        .then(() => {
-            lackey.bind('[data-lky-action="media-edit"]', 'click', lackey.as(self.editMedia, self), self._node);
-            lackey.bind('[data-lky-action="block-add"]', 'click', lackey.as(self.addBlock, self), self._node);
-            lackey.bind('[data-lky-action="block-remove"]', 'click', lackey.as(self.removeBlock, self), self._node);
-            lackey.bind('[data-lky-action="block-inspect"]', 'click', lackey.as(self.editBlock, self), self._node);
-        });
-
-};
-
-
-emit(StructureUI.prototype);
-StructureUI.readTemplate = readTemplate;
-module.exports = StructureUI;*/
