@@ -19,6 +19,7 @@
 const emit = require('cms/client/js/emit'),
     template = require('core/client/js/template'),
     StructureUI = require('cms/client/js/manager/structure.ui.js'),
+    ArticlePicker = require('cms/client/js/manager/article.picker.ui.js'),
     lackey = require('core/client/js');
 /**
  * @module lackey-cms/modules/cms/client/manager
@@ -83,6 +84,33 @@ Stack.prototype.inspectStructure = function (structureController) {
     this._stack.push(structureController);
 
     return promise;
+};
+
+Stack.prototype.pickArticle = function (route) {
+
+    lackey.hook('main-area').setAttribute('data-lky-settings-open', 'true');
+
+    let self = this,
+        articlePicker = new ArticlePicker({
+            route: route,
+            stack: this
+        });
+
+    articlePicker
+        .buildUI()
+        .then((element) => {
+            self.node.appendChild(element);
+            return articlePicker.fadeIn();
+        });
+
+    this._stack.push(articlePicker);
+
+    return articlePicker
+        .promise
+        .then((route) => {
+            self.pop();
+            return route;
+        });
 };
 
 

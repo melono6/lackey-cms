@@ -11,6 +11,7 @@
         border-left: 2px solid $color-lackey-light-blue;
         width: 20px;
         padding: 6px;
+        cursor: pointer;
     }
     [data-lky-cog] {
         border-top: 2px solid $color-lackey-light-blue;
@@ -30,6 +31,18 @@
         [data-lky-bin],
         [data-lky-cog] {
             border-color: transparentize($color-lackey-light-gray, 0.5);
+        }
+    }
+}
+
+[data-lky-hook="sections"] {
+    > ul {
+        > li {
+            > span {
+                color: $color-lackey-light-blue;
+                display: block;
+                padding: 10px 0px 5px;
+            }
         }
     }
 }

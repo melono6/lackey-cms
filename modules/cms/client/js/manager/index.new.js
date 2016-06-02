@@ -246,24 +246,11 @@ Manager.prototype.onViewStructure = function () {
         promise = this
             .current
             .then((current) => {
+
                 let structureController = new StructureUI({
                     type: 'content',
                     id: current.id,
                     context: () => Promise.resolve(self.current),
-                    settings: (context) => Promise.resolve(context.props),
-                    settingsDictionary: (context) => {
-                        if (typeof context.template === 'string') {
-                            return StructureUI
-                                .readTemplate(context.template)
-                                .then((template) => template.props);
-                        }
-                        return context.template.props;
-                    },
-                    expose: (context) => {
-                        return StructureUI
-                            .readTemplate(context.template)
-                            .then((template) => template.expose || []);
-                    },
                     stack: self.stack
                 }, this.repository);
                 structureController.on('changed', lackey.as(self.onStructureChange, self));
@@ -271,55 +258,11 @@ Manager.prototype.onViewStructure = function () {
             });
     }
 
-    promise.then(() => {
-        lackey.hook('header.settings').removeAttribute('disabled', '');
-    });
+    promise
+        .then(() => {
+            lackey.hook('header.settings').removeAttribute('disabled', '');
+        });
 
-    /*lackey
-        .hook('main-area')
-        .setAttribute('data-settings-open', 'true');
-
-    let structureController,
-        self = this;
-
-    this
-        .current
-        .then((current) => {
-            self.stack.append('cms/cms/settings', {
-                type: 'content',
-                id: current.id,
-                context: () => Promise.resolve(self.current),
-                settings: (context) => Promise.resolve(context.props),
-                settingsDictionary: (context) => {
-                    if (typeof context.template === 'string') {
-                        return StructureUI
-                            .readTemplate(context.template)
-                            .then((template) => template.props);
-                    }
-                    return context.template.props;
-                },
-                expose: (context) => {
-                    return StructureUI
-                        .readTemplate(context.template)
-                        .then((template) => template.expose || []);
-                },
-                stack: self.stack
-            }, (rootNode, vars, resolve) => {
-                setTimeout(() => {
-                    rootNode.setAttribute('data-lky-open', '');
-                }, 0);
-                structureOpen = () => {
-                    rootNode.addEventListener('transitionend', () => {
-                        resolve();
-                        structureOpen = null;
-                    }, false);
-                    rootNode.removeAttribute('data-lky-open');
-                };
-                structureController = new StructureUI(rootNode, vars);
-                structureController.on('changed', lackey.as(self.onStructureChange, self));
-                structureController.on('properties-changed', lackey.as(self.onPagePropertiesChanged, self));
-            });
-        });*/
 
 };
 
