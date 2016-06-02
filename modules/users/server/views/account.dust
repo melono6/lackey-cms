@@ -92,7 +92,7 @@
                                 {@eq key="{_doc.sid}" value="{data.currentSession}"}
                                     (current session)
                                 {:else}
-                                    <a data-id="{_doc.sid}" class="sess-rm" href="{!/sessions/delete/{_doc.sid}!}">delete</a>
+                                    <a data-id="{_doc.sid}" class="sess-rm" href="#">delete</a> - last active: {_doc.humanLastActive}
                                 {/eq}
                             </div>
                             {/data.sessions}
