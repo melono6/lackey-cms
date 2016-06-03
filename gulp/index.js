@@ -53,6 +53,7 @@ module.exports = (gulp, projectDIR) => {
         'lackey.js',
         'lackey.img',
         'lackey.fonts',
+        'lackey.assets',
         'lackey.dust'
     ]);
 
