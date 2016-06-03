@@ -110,6 +110,7 @@ module.exports = SUtils
                         res.print(path, result);
                     }, (error) => {
                         console.error(error);
+                        console.error(error.stack);
                         if (error === '403') {
                             return res.error403(req);
                         }
@@ -167,7 +168,8 @@ module.exports = SUtils
                 let includeTaxonomies,
                     excludeTaxonomies;
 
-                return PageController.mapTaxonomyList(item.taxonomy || [], req, page)
+                return PageController
+                    .mapTaxonomyList(item.taxonomy || [], req, page)
                     .then((taxonomies) => {
                         includeTaxonomies = taxonomies;
                         return PageController.mapTaxonomyList(item.excludeTaxonomy || [], req, page);
@@ -184,8 +186,8 @@ module.exports = SUtils
                                 includeTaxonomies: taxes,
                                 excludeTaxonomies: exTaxes,
                                 requireAuthor: author,
-                                limit: item.limit,
-                                page: pageNumber,
+                                limit: item.limit || 10,
+                                page: pageNumber || 0,
                                 order: item.order,
                                 excludeIds: item.excludeContentId ? page.id : null,
                                 requestor: req.user
@@ -193,7 +195,10 @@ module.exports = SUtils
 
                     })
                     .then((results) => {
-                        target[item.field] = results;
+                        target[item.field] = results.rows;
+                        if (item.paging) {
+                            target[item.paging] = results.paging;
+                        }
                     });
             }
 

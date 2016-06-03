@@ -69,7 +69,8 @@ module.exports = SUtils.waitForAs('contentCtrl',
 
                 req.body.templateId = 1 * req.body.templateId;
 
-                this.model.getByTypeAndRoute('page', req.body.route)
+                this.model
+                    .getByTypeAndRoute('page', req.body.route)
                     .then((instance) => {
                         if (instance) {
                             throw new Error('Given route is already taken');
@@ -96,7 +97,8 @@ module.exports = SUtils.waitForAs('contentCtrl',
             }
 
             static cmsList(req, res) {
-                Model.list({
+                Model
+                    .list({
                         type: 'page'
                     })
                     .then((data) => {
@@ -120,7 +122,8 @@ module.exports = SUtils.waitForAs('contentCtrl',
 
             static cmsEdit(req, res) {
                 if (req.content) {
-                    Template.list()
+                    Template
+                        .list()
                         .then((templates) => {
 
                             res.send({
@@ -180,45 +183,51 @@ module.exports = SUtils.waitForAs('contentCtrl',
             }
 
             static addTaxonomy(req, res) {
-                this.taxonomyFromQuery(req.body).then((taxonomy) => {
-                    return req.content.addTaxonomy(taxonomy);
-                }).then(() => {
-                    return res.api(req.content);
-                }, (error) => {
-                    console.error(error.message);
-                    console.error(error.stack);
-                    return res.error(error);
-                });
+                this
+                    .taxonomyFromQuery(req.body).then((taxonomy) => {
+                        return req.content.addTaxonomy(taxonomy);
+                    })
+                    .then(() => {
+                        return res.api(req.content);
+                    }, (error) => {
+                        console.error(error.message);
+                        console.error(error.stack);
+                        return res.error(error);
+                    });
             }
 
             static removeTaxonomy(req, res) {
-                this.taxonomyFromQuery({
-                    type: req.taxonomyTypeName,
-                    name: req.taxonomyName
-                }).then((taxonomy) => {
-                    return req.content.removeTaxonomy(taxonomy);
-                }).then(() => {
-                    return res.api(req.content);
-                }, (error) => {
-                    console.error(error);
-                    return res.error(error);
-                });
+                this
+                    .taxonomyFromQuery({
+                        type: req.taxonomyTypeName,
+                        name: req.taxonomyName
+                    })
+                    .then((taxonomy) => {
+                        return req.content.removeTaxonomy(taxonomy);
+                    })
+                    .then(() => {
+                        return res.api(req.content);
+                    }, (error) => {
+                        console.error(error);
+                        return res.error(error);
+                    });
             }
 
 
             static generateSitemap() {
 
                 return Model.list({
-                    type: 'page',
-                    state: 'published'
-                }).then((list) => {
-                    return list.map((item) => {
-                        return {
-                            url: item.route,
-                            lastmod: new Date()
-                        };
+                        type: 'page',
+                        state: 'published'
+                    })
+                    .then((list) => {
+                        return list.map((item) => {
+                            return {
+                                url: item.route,
+                                lastmod: new Date()
+                            };
+                        });
                     });
-                });
             }
 
         }

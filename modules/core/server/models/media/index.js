@@ -110,7 +110,16 @@ module.exports = SUtils
                 return __debug;
             }
 
-            static lookupMime(path) {
+            static lookupMime(path, forceMime) {
+
+                if (forceMime) {
+                    return Promise.resolve(forceMime);
+                }
+
+                if(path.match(/^https:\/\/unsplash\.it/)) {
+                    return Promise.resolve('image/jpeg');
+                }
+
                 SCli.debug('lackey-cms/modules/media/server/models/media', 'lookupMime', path);
                 let mime = mimeLib.lookup(path),
                     isWeb = path.match(/^(http|https|)\:\/\/.+$/) !== null;
@@ -154,64 +163,67 @@ module.exports = SUtils
             static mapSource(source) {
                 SCli.debug('lackey-cms/modules/media/server/models/media', 'mapSource', source);
                 if (typeof source === 'string') {
-                    return Media.lookupMime(source).then((mime) => {
-                        return {
-                            type: Media.mimeToType(mime),
-                            mime: mime,
-                            source: source,
-                            alternatives: []
-                        };
-                    });
+                    return Media.lookupMime(source)
+                        .then((mime) => {
+                            return {
+                                type: Media.mimeToType(mime),
+                                mime: mime,
+                                source: source,
+                                alternatives: []
+                            };
+                        });
                 }
                 if (source.source) {
                     return Media.mapSource(source.source);
                 }
                 if (Array.isArray(source)) {
                     return Promise.all(source.map((entry) => {
-                        if (typeof entry === 'string') {
-                            return Media.lookupMime(entry)
+                            if (typeof entry === 'string') {
+                                return Media.lookupMime(entry)
+                                    .then((mime) => {
+                                        return {
+                                            mime: mime,
+                                            source: entry
+                                        };
+                                    });
+                            }
+                            return Media
+                                .lookupMime(entry.src)
                                 .then((mime) => {
                                     return {
                                         mime: mime,
-                                        source: entry
+                                        source: entry.src,
+                                        dimension: entry.dimension
                                     };
                                 });
-                        }
-                        return Media.lookupMime(entry.src)
-                            .then((mime) => {
-                                return {
-                                    mime: mime,
-                                    source: entry.src,
-                                    dimension: entry.dimension
-                                };
+                        }))
+                        .then((list) => {
+                            let main,
+                                output,
+                                srcset = [];
+
+                            list.forEach((elem) => {
+                                if (typeof elem === 'string' && !main) {
+                                    main = elem;
+                                    srcset.push(elem);
+                                    return;
+                                }
+                                if (!main) {
+                                    main = elem;
+                                }
+                                srcset.push(elem.source + (elem.dimension ? ' ' + elem.dimension : ''));
                             });
-                    })).then((list) => {
-                        let main,
-                            output,
-                            srcset = [];
+                            output = {
+                                type: Media.mimeToType(main.mime),
+                                mime: main.mime,
+                                source: main.source
+                            };
+                            if (srcset.length) {
+                                output.srcset = srcset.join(',');
+                            }
 
-                        list.forEach((elem) => {
-                            if (typeof elem === 'string' && !main) {
-                                main = elem;
-                                srcset.push(elem);
-                                return;
-                            }
-                            if (!main) {
-                                main = elem;
-                            }
-                            srcset.push(elem.source + (elem.dimension ? ' ' + elem.dimension : ''));
+                            return output;
                         });
-                        output = {
-                            type: Media.mimeToType(main.mime),
-                            mime: main.mime,
-                            source: main.source
-                        };
-                        if (srcset.length) {
-                            output.srcset = srcset.join(',');
-                        }
-
-                        return output;
-                    });
                 } else {
                     return Promise.all(Object
                         .keys(source)

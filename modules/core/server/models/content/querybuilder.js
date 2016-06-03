@@ -19,7 +19,8 @@
     limitations under the License.
 */
 
-const INCLUDE_QUERY = `
+const SCli = require(LACKEY_PATH).cli,
+    INCLUDE_QUERY = `
         id IN (
             SELECT id FROM content WHERE
                 "templateId" IN (
@@ -104,7 +105,8 @@ module.exports = require(LACKEY_PATH)
 
             run(user, page, limit, order) {
 
-                let self = this;
+                let self = this,
+                    num_limit = limit || 10;
 
                 return this
                     .getRestrictives(user ? (user.id ? user.id : user) : null)
@@ -112,24 +114,45 @@ module.exports = require(LACKEY_PATH)
 
                         self.withoutTaxonomies(excludeRestrictives);
 
-
-                        let query = 'SELECT route FROM content ';
+                        let countQuery = 'SELECT count(*) as "count" FROM content ',
+                            query = 'SELECT route FROM content ';
 
                         if (self._wheres.length) {
                             query += ' WHERE ' + self._wheres.join(' AND ');
+                            countQuery += ' WHERE ' + self._wheres.join(' AND ');
                         }
 
                         query += ' ORDER BY "createdAt" DESC ';
 
                         if (page > 0) {
-                            query += ' OFFSET ' + page * limit + ' ';
+                            query += ' OFFSET ' + page * num_limit + ' ';
                         }
 
-                        query += ' LIMIT ' + limit;
+                        query += ' LIMIT ' + num_limit;
 
-                        return knex.raw(query)
+                        return Promise.all([
+                            SCli.sql(knex.raw(countQuery)).then((r) => r.rows),
+                            SCli.sql(knex.raw(query)).then((r) => r.rows)
+                        ]);
+
                     })
-                    .then((results) => results.rows);
+                    .then((results) => {
+
+                        let count = +results[0][0].count;
+
+                        return {
+                            rows: results[1].map((r) => {
+                                return r.route;
+                            }),
+                            paging: {
+                                count: count,
+                                page: +page,
+                                limit: num_limit,
+                                pages: Math.ceil(count / num_limit),
+                                pageFormatted: 1 + (+page),
+                            }
+                        };
+                    });
             }
 
             getRestrictives(userId) {

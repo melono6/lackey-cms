@@ -39,7 +39,7 @@ module.exports = (data) => {
             SCli.debug('lackey/modules/media/server/models/media/generator', 'Ensure that media ' + sourceResult.source + ' exists');
 
             return Media
-                .lookupMime(sourceResult.source)
+                .lookupMime(sourceResult.source, sourceResult.mime)
                 .then((mime) => {
                     return Media.findByPathAndType(sourceResult.source, mime);
                 }).then((media) => {

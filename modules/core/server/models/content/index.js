@@ -388,8 +388,7 @@ module.exports = SUtils
                 builder.withoutIds(options.exlcudeIds);
 
                 return builder
-                    .run(options.requestor, options.page, options.limit, options.order)
-                    .then((results) => results.map((result) => result.route));
+                    .run(options.requestor, options.page, options.limit, options.order);
 
             }
 
@@ -401,7 +400,9 @@ module.exports = SUtils
 
                 return builder
                     .run(user, 0, 1)
-                    .then((results) => results.length > 0);
+                    .then((results) => {
+                        return results.paging.count > 0;
+                    });
 
             }
         }

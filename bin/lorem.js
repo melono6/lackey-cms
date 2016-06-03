@@ -8,7 +8,7 @@ const cli = require('command-line-args'),
     path = require('path'),
     slug = require('slug'),
     json2yaml = require('json2yaml'),
-      objectPath = require('object-path'),
+    objectPath = require('object-path'),
     fs = require('fs');
 
 function random(count, source) {
@@ -47,18 +47,18 @@ function randomize(settings) {
 }
 
 function map(props, data) {
-    if(typeof props !== 'object') {
+    if (typeof props !== 'object') {
         return props;
     }
-    if(props.$map) {
+    if (props.$map) {
         let key = objectPath.get(data, props.$path);
         return props.$map[key];
     }
     Object
         .keys(props)
         .map((key) => {
-        props[key] = map(props[key], data);
-    });
+            props[key] = map(props[key], data);
+        });
     return props;
 }
 
@@ -69,9 +69,14 @@ function file(fileName, schema, dirname) {
 
     for (let i = 0; i < number; i++) {
         let nameLength = Math.ceil(Math.random() * 5),
+            image = 'https://unsplash.it/g/1000/1000?random&_=' + (Math.round(Math.random() * 10000000000)),
             name = lorem({
                 count: nameLength,
                 units: 'words'
+            }),
+            intro = lorem({
+                count: 1,
+                units: 'paragraphs'
             }),
             content = lorem({
                 count: 6,
@@ -82,18 +87,25 @@ function file(fileName, schema, dirname) {
             taxonomies = randomize(JSON.parse(JSON.stringify(schema.taxonomies)));
 
         content = content.split('\r\n').filter((l) => l.replace(/\s+/g, '').length > 0);
-        content.splice(2, 0, '![](https://source.unsplash.com/random)');
+        content.splice(2, 0, '![](' + image + ')');
         content = content.join('\n\n');
 
         data = {
             route: route,
             name: name,
             layout: {
-                type: 'Fileds',
+                type: 'Fields',
                 title: name,
-                content: content
+                intro: intro,
+                content: content,
+                image: {
+                    type: 'Media',
+                    source: image,
+                    mime: 'image/jpeg'
+                }
             },
             template: schema.template,
+            state: 'published',
             taxonomies: taxonomies
         };
 

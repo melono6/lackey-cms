@@ -57,11 +57,15 @@ module.exports = (dust) => {
           function render() {
 
             SCli.debug('lackey-cms/modules/cms/serer/lib/dust/embed', 'Content', route, template);
-            data = data.push({
-              data: {
-                content: document.toJSON()
-              }
-            }).push(params);
+            data = data
+              .push({
+                data: {
+                  content: document.toJSON()
+                }
+              })
+              .push(params);
+
+
             dust.render(template, data, (err, out) => {
               if (err) {
                 SCli.debug('lackey-cms/modules/cms/serer/lib/dust/embed', 'Error', route, template);
