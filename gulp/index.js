@@ -111,6 +111,11 @@ module.exports = (gulp, projectDIR) => {
         'lackey.sass.project'
     ]);
 
+    gulp.task('lackey.assets', [
+        'lackey.assets.cms',
+        'lackey.assets.project'
+    ]);
+
     gulp.task('lackey.js', [
         'lackey.js.cms',
         'lackey.js.project'
@@ -186,6 +191,8 @@ module.exports = (gulp, projectDIR) => {
     gulp.task('lackey.img.project', () => copyTask(projectDIR + '/modules/*/client/img/**/*', '/img'));
     gulp.task('lackey.fonts.cms', () => copyTask(lackeyDIR + '/modules/*/client/fonts/**/*', '/fonts/cms'));
     gulp.task('lackey.fonts.project', () => copyTask(projectDIR + '/modules/*/client/fonts/**/*', '/fonts'));
+    gulp.task('lackey.assets.cms', () => copyTask(lackeyDIR + '/modules/*/client/assets/**/*', '/assets/cms'));
+    gulp.task('lackey.assets.project', () => copyTask(projectDIR + '/modules/*/client/assets/**/*', '/assets'));
 
     function dustTask(from, to) {
         return gulp
