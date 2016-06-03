@@ -22,6 +22,7 @@ module.exports = (dust) => {
     let data = context.get('data'),
       name = params.name,
       type = params.type,
+      many = !!params.many,
       newContext,
       output = chunk;
 
@@ -30,23 +31,24 @@ module.exports = (dust) => {
       (data.content.taxonomies || []).forEach((taxonomy) => {
         if (name) {
           if (taxonomy.name === name && taxonomy.type.name === type) {
-            output = chunk.render(bodies.block, context);
+            chunk.render(bodies.block, context);
           }
         } else if (!found && taxonomy.type.name === type) {
           newContext = context.push({
             $taxonomy: taxonomy
           });
-          output = chunk.render(bodies.block, newContext);
-          found = true;
-
+          chunk.render(bodies.block, newContext);
+          if (!many) {
+            found = true;
+          }
         }
       });
       if (!found && bodies.else) {
-        output = chunk.render(bodies.else, context);
+        chunk.render(bodies.else, context);
       }
     }
 
-    return output;
+    return chunk;
   };
 
 };
