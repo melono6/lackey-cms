@@ -110,7 +110,6 @@ module.exports = SUtils
                 return this._doc.prefix || '';
             }
 
-
             static selectable() {
                 SCli.debug('lackey-cms/modules/cms/server/models/template', 'selectable', this.model.tableName);
                 let Self = this;
@@ -136,7 +135,8 @@ module.exports = SUtils
                     populate: this._doc.populate || [],
                     expose: this._doc.expose || [],
                     thumb: this._doc.thumb || null,
-                    prefix: this._doc.prefix || ''
+                    prefix: this._doc.prefix || '',
+                    variants: this.variants
                 };
             }
 
@@ -171,6 +171,12 @@ module.exports = SUtils
                                 }
                                 self._doc.expose = JSON.stringify(self._doc.expose);
                             }
+                            if (self._doc.variants) {
+                                if (!Array.isArray(self._doc.variants)) {
+                                    self._doc.variants = [self._doc.variants];
+                                }
+                                self._doc.variants = JSON.stringify(self._doc.variants);
+                            }
                             if (!self._doc.type) {
                                 self._doc.type = 'template';
                             }
@@ -204,6 +210,22 @@ module.exports = SUtils
                         }
                         if (typeof self._doc.expose === 'string') {
                             self._doc.expose = JSON.parse(self._doc.expose);
+                        }
+                        if (Array.isArray(self._doc.variants)) {
+                            let promises = self
+                                ._doc
+                                .variants
+                                .map((variant) => {
+                                    return Template
+                                        .getByPath(variant);
+
+                                });
+                            return Promise
+                                .all(promises)
+                                .then((variants) => {
+                                    self.variants = variants;
+                                    return self;
+                                });
                         }
                         return self;
                     });

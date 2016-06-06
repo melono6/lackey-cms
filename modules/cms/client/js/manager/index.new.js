@@ -139,9 +139,10 @@ Manager.prototype.get = function (contentId, path, variant, schema) {
  * @returns {Promise}
  */
 Manager.prototype.set = function (contentId, path, variant, value) {
-    return this.update('content', contentId, function (content) {
-        treeParser.set(content.layout, path, value, variant || '*', null, locale !== defaultLocale ? locale : '*');
-    });
+    return this
+        .update('content', contentId, function (content) {
+            treeParser.set(content.layout, path, value, variant || '*', null, locale !== defaultLocale ? locale : '*');
+        });
 };
 
 /**
@@ -153,9 +154,10 @@ Manager.prototype.set = function (contentId, path, variant, value) {
  * @returns {Promise}
  */
 Manager.prototype.insertAfter = function (contentId, path, variant, value) {
-    return this.update('content', contentId, function (content) {
-        treeParser.insertAfter(content.layout, path, value, variant || '*', null, locale !== defaultLocale ? locale : '*');
-    });
+    return this
+        .update('content', contentId, function (content) {
+            treeParser.insertAfter(content.layout, path, value, variant || '*', null, locale !== defaultLocale ? locale : '*');
+        });
 };
 
 
@@ -168,9 +170,10 @@ Manager.prototype.insertAfter = function (contentId, path, variant, value) {
  * @returns {Promise}
  */
 Manager.prototype.remove = function (contentId, path, variant) {
-    return this.update('content', contentId, function (content) {
-        treeParser.remove(content.layout, path, variant || '*', null, locale !== defaultLocale ? locale : '*');
-    });
+    return this
+        .update('content', contentId, function (content) {
+            treeParser.remove(content.layout, path, variant || '*', null, locale !== defaultLocale ? locale : '*');
+        });
 };
 
 /**
@@ -181,14 +184,15 @@ Manager.prototype.remove = function (contentId, path, variant) {
  * @returns {Promise.<Mixed>}} [[Description]]
  */
 Manager.prototype.getMedia = function (contentId) {
-    return this.repository
+    return this
+        .repository
         .get('media', contentId)
         .then((content) => {
             return content;
         });
 };
 
-Manager.prototype.preview = function () {
+Manager.prototype.preview = function (variant, language) {
     let self = this;
     this
         .current
@@ -203,13 +207,33 @@ Manager.prototype.preview = function () {
                     contents: contents
                 }),
                 form = top.document.createElement('form'),
-                input = top.document.createElement('input');
+                input = top.document.createElement('input'),
+                inputVariant = top.document.createElement('input'),
+                inputLanguage = top.document.createElement('input');
             form.method = 'post';
             form.action = '/cms/preview';
             form.target = '_preview';
-            input.type = 'hidden';
+            input.type = inputVariant.type = inputLanguage.type = 'hidden';
             input.name = 'preview';
+            inputVariant.name = 'variant';
+            inputLanguage.name = 'locale';
             input.value = data;
+            if (variant !== undefined) {
+                inputVariant.value = variant;
+                self.variant = variant;
+            } else {
+                inputVariant.value = self.variant;
+            }
+            form.appendChild(inputVariant);
+
+            if (language !== undefined) {
+                inputLanguage.value = language;
+                self.locale = language;
+            } else {
+                inputLanguage.value = self.locale;
+            }
+            form.appendChild(inputLanguage);
+
             form.appendChild(input);
             document.body.appendChild(form);
             form.submit();
@@ -291,7 +315,8 @@ Manager.prototype.update = function (type, id, handler) {
 };
 
 Manager.prototype.updateCurrent = function (handler) {
-    return this.current
+    return this
+        .current
         .then((current) => {
             return this.update('content', current.id, handler);
         });
@@ -299,7 +324,9 @@ Manager.prototype.updateCurrent = function (handler) {
 
 Manager.prototype.setupUI = function () {
 
-    lackey.hook('header.settings').addEventListener('click', lackey.as(this.onViewStructure, this), true);
+    lackey
+        .hook('header.settings')
+        .addEventListener('click', lackey.as(this.onViewStructure, this), true);
     this._changeUI = new ChangeUI(this.repository);
 };
 

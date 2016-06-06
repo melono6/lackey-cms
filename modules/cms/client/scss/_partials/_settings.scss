@@ -142,6 +142,15 @@
             }
         }
     }
+    [data-lky-hook="settings.dimensions"] {
+        > div {
+            width: #{$settings-edit-width * 2};
+            > ul {
+                padding: 50px;
+                list-style: none;
+            }
+        }
+    }
     [data-lky-hook="settings.meta"] {
         input[type="text"] + [data-lky-btn] {
             display: block;
@@ -190,7 +199,7 @@
             background-color: $color-background-accent;
         }
         [data-lky-hook="settings.dimensions"] {
-            width: $settings-edit-width;
+            width: #{$settings-edit-width * 2};
         }
     }
     &[data-lky-edit="taxonomy"] {

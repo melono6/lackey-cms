@@ -24,9 +24,10 @@ module.exports = SUtils
     .waitForAs('pageCtrl',
         SUtils.cmsMod('core').model('content'),
         SUtils.cmsMod('core').model('taxonomy'),
-        SUtils.cmsMod('core').model('taxonomy-type')
+        SUtils.cmsMod('core').model('taxonomy-type'),
+        SUtils.cmsMod('core').model('template')
     )
-    .then((ContentModel, Taxonomy, TaxonomyType) => {
+    .then((ContentModel, Taxonomy, TaxonomyType, Template) => {
 
         class PageController {
 
@@ -99,15 +100,23 @@ module.exports = SUtils
 
                         SCli.debug('lackey-cms/modules/cms/server/controllers/page', path);
 
-                        if (req.query.variant && req.query.variant) {
+                        if (req.body.variant && req.body.variant) {
                             if (req.user && req.user.getACL('viewInContext')) {
-                                path = ['~/core/variant', 'cms/cms/variant'];
-                                res.variant(req.query.variant);
+                                return Template
+                                    .findById(req.body.variant)
+                                    .then((template) => {
+                                        console.log(template);
+                                        res.variant(template.path);
+                                        return [template.path, result];
+                                    });
+
                             }
                         }
-
+                        return [path, result];
+                    })
+                    .then((result) => {
                         res.edit(isAllowed);
-                        res.print(path, result);
+                        res.print(result[0], result[1]);
                     }, (error) => {
                         console.error(error);
                         console.error(error.stack);

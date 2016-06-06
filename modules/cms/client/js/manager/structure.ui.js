@@ -143,7 +143,7 @@ class StructureUI extends Emitter {
             .then((nodes) => {
                 self.node = nodes[0];
 
-                if(self.options.open) {
+                if (self.options.open) {
                     self.node.setAttribute('data-lky-edit', self.options.open);
                 }
 
@@ -171,6 +171,9 @@ class StructureUI extends Emitter {
                 return self.drawSections();
             })
             .then(() => {
+                return self.drawDimensions();
+            })
+            .then(() => {
                 self.onRepositoryChanged();
 
                 let diffToggle = lackey
@@ -194,23 +197,51 @@ class StructureUI extends Emitter {
 
     drawSections() {
         let context,
-            self = this,
-            expose;
-        return this.options
+            self = this;
+
+        return this
+            .options
             .context()
             .then((ctx) => {
                 context = ctx;
                 return self.options.expose(ctx);
             })
             .then((expose) => {
-                return template.redraw('sections', {
-                    context: context,
-                    expose: expose
-                }, self.node);
+                return template
+                    .redraw('sections', {
+                        context: context,
+                        expose: expose
+                    }, self.node);
             })
             .then((root) => {
                 lackey.bind('[data-lky-cog]', 'click', lackey.as(self.inspect, self), root[0]);
             });
+    }
+
+    drawDimensions() {
+        let self = this;
+
+        return this
+            .options
+            .context()
+            .then((context) => {
+                return template
+                    .redraw('dimensions', {
+                        context: context,
+                        locale: top.Lackey.manager.locale,
+                        variant: top.Lackey.manager.variant
+                    }, self.node);
+            })
+            .then((root) => {
+                lackey
+                    .bind('[data-lky-variant]', 'change', lackey.as(self.viewInVariant, self), root[0]);
+            });
+    }
+
+    viewInVariant(event, hook) {
+        top.Lackey.manager.preview(hook.value);
+        top.Lackey.manager.stack.clear();
+        return;
     }
 
     inspect(event, hook) {
@@ -340,7 +371,7 @@ class StructureUI extends Emitter {
                         values: responses[0],
                         dictionary: responses[1]
                     }))
-                    .then(() => responses[0])
+                    .then(() => responses[0]);
             })
             .then(lackey.as(this.bindMetaEvents, this));
 

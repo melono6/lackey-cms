@@ -155,21 +155,24 @@ Stack.prototype.append = function (templatePath, vars, controller) {
 /**
  * Removes item from top of the stack
  */
-Stack.prototype.pop = function () {
+Stack.prototype.pop = function (clearing) {
 
-    let item = this._stack.pop();
+    let self = this,
+        item = this._stack.pop();
 
     if (!item) {
         return Promise.resolve();
     }
 
-    if (this._stack.length) {
-        if (this._stack[this._stack.length - 1] instanceof StructureUI) {
-            this._stack[this._stack.length - 1].node.setAttribute('data-lky-edit', 'blocks');
-        }
-    }
-
-    return item.remove();
+    return item
+        .remove()
+        .then(() => {
+            if (self._stack.length && !clearing) {
+                if (self._stack[self._stack.length - 1] instanceof StructureUI) {
+                    self._stack[self._stack.length - 1].node.setAttribute('data-lky-edit', 'blocks');
+                }
+            }
+        });
 
 };
 
@@ -177,10 +180,10 @@ Stack.prototype.clear = function () {
     let self = this;
 
     return this
-        .pop()
+        .pop(true)
         .then(() => {
             if (self._stack.length) {
-                return self.pop();
+                return self.clear();
             }
             lackey.hook('main-area').removeAttribute('data-lky-settings-open');
             return true;

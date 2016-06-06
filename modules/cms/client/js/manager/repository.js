@@ -165,8 +165,11 @@ Repository.prototype.save = function () {
         contentId = type + '-' + id;
     }
 
+    let clearData = deepClone(this._copy[contentId]);
+    delete clearData.template;
+
     return api
-        .update('/cms/' + type + '/' + id, this._copy[contentId])
+        .update('/cms/' + type + '/' + id, clearData)
         .then(() => {
             return self.apply(type, id);
         });

@@ -1,0 +1,29 @@
+<ul>
+    <li>
+        <label>
+            <span>View as role</span>
+            <select name="{name}"></select>
+        </label>
+    </li>
+    <li>
+        <label>
+            <span>View variant</span>
+            <select data-lky-variant>
+                <option value="">Page</option>
+                {#context.template.variants}
+                    <option value="{id}" {@eq key=variant value=id type="number"}selected{/eq}>{name}</option>
+                {/context.template.variants}
+            </select>
+        </label>
+    </li>
+    <li>
+        <label>
+            <span>View in language</span>
+            <select name="{name}">
+                {#data.languages}
+                    <options value="{code}">{name}</options>
+                {/data.languages}
+            </select>
+        </label>
+    </li>
+</ul>
