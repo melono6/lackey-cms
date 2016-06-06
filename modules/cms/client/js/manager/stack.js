@@ -162,6 +162,13 @@ Stack.prototype.pop = function () {
     if (!item) {
         return Promise.resolve();
     }
+
+    if (this._stack.length) {
+        if (this._stack[this._stack.length - 1] instanceof StructureUI) {
+            this._stack[this._stack.length - 1].node.setAttribute('data-lky-edit', 'blocks');
+        }
+    }
+
     return item.remove();
 
 };

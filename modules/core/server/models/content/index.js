@@ -374,7 +374,7 @@ module.exports = SUtils
             }
 
             static findByRoute(route) {
-                return this.findOneBy('route', route);
+                return this.findOneBy('route', route.replace(/^[\n\r\s\t]+|[\n\r\s\t]+$/g, ''));
             }
 
             static complexQuery(options) {

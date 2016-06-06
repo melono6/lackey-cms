@@ -89,9 +89,11 @@ module.exports = SUtils.waitForAs('contentCtrl',
             static get actions() {
                 return [{
                     label: 'View',
+                    icon: '/img/cms/cms/svg/preview.svg',
                     href: '/admin{route}'
                 }, {
                     label: 'Remove',
+                    icon: '/img/cms/cms/svg/close.svg',
                     api: 'DELETE:/cms/content/{id}'
                 }];
             }

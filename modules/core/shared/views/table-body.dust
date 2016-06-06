@@ -18,16 +18,28 @@
     <td>
         {#actions}
             {?href}
-                <a href="{href}">{label}</a>
+                <a href="{href}">
+                    {?icon}
+                        <img src="{icon}"/>
+                    {:else}
+                        {label}
+                    {/icon}
+                </a>
             {:else}
                 {?api}
                     <button data-lky-api="{api}"
-                            >{label}</button>
+                            >
                 {:else}
                     <button data-lky-hook="{hook}"
                             data-lky-id="{id}"
-                            >{label}</button>
+                            >
                 {/api}
+                        {?icon}
+                        <img src="{icon}"/>
+                    {:else}
+                        {label}
+                    {/icon}
+                        </button>
             {/href}
         {/actions}
     </td>

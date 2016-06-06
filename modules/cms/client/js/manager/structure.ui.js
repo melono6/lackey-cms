@@ -143,6 +143,10 @@ class StructureUI extends Emitter {
             .then((nodes) => {
                 self.node = nodes[0];
 
+                if(self.options.open) {
+                    self.node.setAttribute('data-lky-edit', self.options.open);
+                }
+
                 lackey.bind('[data-lky-hook="settings.back"]', 'click', () => {
                     self.options.stack.pop();
                 }, self.node);
@@ -177,7 +181,7 @@ class StructureUI extends Emitter {
                 } else {
                     diffToggle.removeAttribute('checked');
                 }
-                diffToggle.addEventListener('change', (event) => {
+                diffToggle.addEventListener('change', () => {
                     if (diffToggle.checked) {
                         formatters.html.hideUnchanged();
                     } else {
@@ -245,12 +249,15 @@ class StructureUI extends Emitter {
                         return Promise.resolve(template.expose || []);
 
                     },
-                    settingsDictionary: (context) => {
-                        return Promise.resolve(template.props)
-                    }
+                    settingsDictionary: () => {
+                        return Promise.resolve(template.props);
+                    },
+                    open: 'meta'
                 }, this.repository);
 
-                //structureController.on('changed', lackey.as(self.onStructureChange, self));
+                structureController.on('changed', lackey.as(() => {
+                    this.emit('changed');
+                }, self));
                 return this.options.stack.inspectStructure(structureController);
             });
 
@@ -389,7 +396,7 @@ class StructureUI extends Emitter {
     }
 
     collapse() {
-        this.node.removeAttribute('data-lky-edit')
+        this.node.removeAttribute('data-lky-edit');
     }
 
     /**
