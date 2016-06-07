@@ -148,6 +148,24 @@
             > ul {
                 padding: 50px;
                 list-style: none;
+                > li {
+                    table {
+                        width: 100%;
+                        font-size: 11px;
+                        border-spacing: 0px;
+                        border-collapse: collapse;
+                        tr, td {
+                            padding: 5px;
+                            border: 1px solid $color-light-gray;
+                        }
+                        thead {
+                            background-color: $color-lightest-gray;
+                        }
+                        tr:nth-child(even) {
+                            background-color: $color-lightest-gray;
+                        }
+                    }
+                }
             }
         }
     }

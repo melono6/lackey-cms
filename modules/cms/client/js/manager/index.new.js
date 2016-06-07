@@ -19,17 +19,24 @@
 const
     lackey = require('core/client/js'),
     api = require('cms/client/js/api'),
-    modal = require('core/client/js/modal'),
     emit = require('cms/client/js/emit'),
     treeParser = require('cms/shared/treeparser'),
     Repository = require('cms/client/js/manager/repository'),
     ChangeUI = require('cms/client/js/manager/change.ui.js'),
     StructureUI = require('cms/client/js/manager/structure.ui.js'),
-    ViewabilityUI = require('cms/client/js/manager/visibility.ui.js'),
     Stack = require('cms/client/js/manager/stack');
 
 let locale = 'en',
     defaultLocale = 'en';
+
+lackey.select('html').forEach((elem) => {
+    locale = elem.getAttribute('lang');
+    defaultLocale = elem.getAttribute('data-default-locale');
+    if (locale === defaultLocale) {
+        locale = '*';
+    }
+});
+
 
 /**
  * @module lackey-cms/modules/cms/client/manager
@@ -44,6 +51,8 @@ function Manager() {
     let self = this,
         overlay = lackey
         .hook('settings.overlay');
+
+    this.locale = locale;
 
     Object.defineProperty(this, 'current', {
         /**
@@ -96,7 +105,15 @@ Manager.prototype._loadCurrent = function () {
 
     this._current = api
         .read('/cms/content?route=' + loc)
-        .then((data) => data.data[0].id);
+        .then((data) => {
+            if (data.$locale) {
+                locale = top.Lackey.manager.locale = data.$locale;
+            }
+            if(loc !== data.data[0].route) {
+                top.history.pushState('', top.document.title, '/admin' + data.data[0].route);
+            }
+            return data.data[0].id;
+        });
 };
 
 Manager.prototype.setAction = function (options) {
@@ -218,17 +235,18 @@ Manager.prototype.preview = function (variant, language) {
             inputVariant.name = 'variant';
             inputLanguage.name = 'locale';
             input.value = data;
-            if (variant !== undefined) {
-                inputVariant.value = variant;
+            if (variant === undefined) {
                 self.variant = variant;
-            } else {
-                inputVariant.value = self.variant;
             }
-            form.appendChild(inputVariant);
+            if (self.variant !== undefined) {
+                inputVariant.value = self.variant;
+                form.appendChild(inputVariant);
+            }
 
             if (language !== undefined) {
                 inputLanguage.value = language;
                 self.locale = language;
+                locale = language;
             } else {
                 inputLanguage.value = self.locale;
             }

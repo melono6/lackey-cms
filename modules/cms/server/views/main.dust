@@ -52,10 +52,17 @@
                 <div data-lky-hook="header.user">
                     <img src="{admin.image.source}"/>
                     <span data-lky-hook="header.user.name">{admin.name}</span>
-                    <span data-lky-hook="header.user.acting">Acting as: Admin</span>
+                    <span data-lky-hook="header.user.acting"><span>Acting as:</span>Admin</span>
                 </div>
-                <button data-lky-hook="header.cancel">Cancel</button>
-                <button data-lky-hook="header.save">Save</button>
+                <div data-lky-hook="header.changes">
+                    <button data-lky-hook="header.save" data-lky-btn>Save</button>
+                    <span>
+                        <span>You've made 2 changes</span>
+                        <a data-lky-hook="header.cancel">Cancel all</a>
+                    </span>
+                </div>
+
+
             </header>
             {+body/}
         </main>

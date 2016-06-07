@@ -219,27 +219,40 @@ class StructureUI extends Emitter {
     }
 
     drawDimensions() {
-        let self = this;
+        let self = this,
+            locales;
 
-        return this
-            .options
-            .context()
+        return api
+            .read('/cms/language?enabled=true')
+            .then((locs) => {
+                locales = locs.data;
+                return self.options.context();
+            })
             .then((context) => {
                 return template
                     .redraw('dimensions', {
                         context: context,
                         locale: top.Lackey.manager.locale,
-                        variant: top.Lackey.manager.variant
+                        variant: top.Lackey.manager.variant,
+                        locales: locales
                     }, self.node);
             })
             .then((root) => {
                 lackey
                     .bind('[data-lky-variant]', 'change', lackey.as(self.viewInVariant, self), root[0]);
+                lackey
+                    .bind('[data-lky-locale]', 'change', lackey.as(self.viewInLocale, self), root[0]);
             });
     }
 
     viewInVariant(event, hook) {
         top.Lackey.manager.preview(hook.value);
+        top.Lackey.manager.stack.clear();
+        return;
+    }
+
+    viewInLocale(event, hook) {
+        top.Lackey.manager.preview(undefined, hook.value);
         top.Lackey.manager.stack.clear();
         return;
     }

@@ -24,7 +24,6 @@ const
     MediaModalController = require('cms/client/js/manager/media'),
     ProseMirror = edit.ProseMirror;
 
-//require('prosemirror/dist/inputrules/autoinput');
 require('prosemirror/dist/menu/tooltipmenu');
 require('prosemirror/dist/menu/menubar');
 
@@ -61,15 +60,15 @@ class Wysiwyg {
         this._contentId = div.getAttribute('data-lky-content');
         this._path = div.getAttribute('data-lky-path') || null;
 
-        Wysiwyg
+        top.Lackey
             .manager
             .get(this.contentId, this.path, this.variant, this._schema)
             .then(function (source) {
                 self._source = source;
                 self.render();
-                Wysiwyg.manager.on('reset', (event) => {
+                top.Lackey.manager.on('reset', (event) => {
                     if (event.data.type === 'content' && +event.data.id === +self._contentId) {
-                        Wysiwyg
+                        top.Lackey
                             .manager
                             .get(self.contentId, self.path, self.variant, self._schema)
                             .then((src) => {
@@ -158,7 +157,7 @@ class Wysiwyg {
                 }
                 self._changed = true;
                 let newContent = pm.getContent('json');
-                Wysiwyg.manager.set(self.contentId, self.path, self.variant, newContent);
+                top.Lackey.manager.set(self.contentId, self.path, self.variant, newContent);
             });
         } catch (error) {
             console.error('this', this);
@@ -167,10 +166,6 @@ class Wysiwyg {
 
         }
 
-    }
-
-    static get manager() {
-        return top.Lackey.manager;
     }
 
     static factory(div) {

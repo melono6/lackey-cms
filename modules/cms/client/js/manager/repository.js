@@ -118,8 +118,20 @@ Repository.prototype.notify = function() {
  * @param {String}   type
  * @param {Number} id
  */
-Repository.prototype.reset = function (type, id) {
-    let contentId = type + '-' + id;
+Repository.prototype.reset =  function () {
+    let contentId,
+        type,
+        id;
+
+    if (arguments.length === 1) {
+        contentId = arguments[0];
+        type = contentId.split('-')[0];
+        id = contentId.split('-')[1];
+    } else {
+        type = arguments[0];
+        id = arguments[1];
+        contentId = type + '-' + id;
+    }
     this._copy[contentId] = deepClone(this._cache[contentId]);
     this.emit('changed', {
         type: type,
@@ -178,6 +190,11 @@ Repository.prototype.save = function () {
 Repository.prototype.saveAll = function() {
     let self = this;
     return Promise.all(Object.keys(this._copy).map((key) => self.save(key)));
+};
+
+Repository.prototype.resetAll = function() {
+    let self = this;
+    return Promise.all(Object.keys(this._copy).map((key) => self.reset(key)));
 };
 
 Repository.prototype.diff = function () {

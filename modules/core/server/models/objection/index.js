@@ -486,6 +486,10 @@ module.exports = Database
                         return Promise.resolve(query);
                     }
 
+                    static _postQuery(data, query, options) {
+                        return Promise.resolve(data);
+                    }
+
                     /**
                      * Generates table data
                      * @param   {object} inputQuery
@@ -674,6 +678,9 @@ module.exports = Database
                                 }
 
                                 return table;
+                            })
+                            .then((table) => {
+                                return self._postQuery(table, inputQuery, options);
                             });
 
                     }

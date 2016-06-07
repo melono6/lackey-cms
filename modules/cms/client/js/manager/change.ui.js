@@ -17,11 +17,8 @@
     limitations under the License.
 */
 const lackey = require('core/client/js'),
-    template = require('core/client/js/template'),
     emit = require('cms/client/js/emit'),
-    growl = require('cms/client/js/growl'),
-    path = require('path');
-
+    growl = require('cms/client/js/growl');
 
 /**
  * @module lackey-cms/modules/cms/client/manager
@@ -43,8 +40,7 @@ emit(ChangeUI.prototype);
 ChangeUI.prototype.bindUI = function () {
     this._save = lackey.hook('header.save');
     this._cancel = lackey.hook('header.cancel');
-    //this._changes = lackey.hook('changes', parentNode);
-    //this._changesList = lackey.hook('changes-list', parentNode);
+    this._changes = lackey.hook('header.changes');
 
     this._changeHandler = lackey.as(this.onChange, this);
     this.repository.on('changed', this._changeHandler);
@@ -58,7 +54,7 @@ ChangeUI.prototype.bindUI = function () {
 ChangeUI.prototype.cancel = function (event) {
     event.stopPropagation();
     event.preventDefault();
-    this.repository.reset(this._type, this._id);
+    this.repository.resetAll();
 };
 
 ChangeUI.prototype.save = function (event) {
@@ -77,56 +73,25 @@ ChangeUI.prototype.save = function (event) {
 
 ChangeUI.prototype.onChange = function () {
 
-    let self = this,
-        diff = this.repository.diff(),
+    let diff = this.repository.diff(),
         keys = diff ? Object.keys(diff) : [],
         changesCount = keys.length;
 
     if (changesCount > 0) {
-        /*this._changes.innerText = changesCount;
-        this._changesList.innerHTML = '';
-        keys.forEach((key) => {
-            let li = document.createElement('li'),
-                span = document.createElement('span'),
-                button = document.createElement('button');
-
-            self.repository.get(key)
-                .then((object) => {
-                    let label;
-                    if(key.match(/^content-/)) {
-                        label = 'Page: ';
-                        if(object.props && object.props.title) {
-                            label += object.props.title;
-                        } else {
-                            label += object.route;
-                        }
-                    } else if(object.type === 'image') {
-                        label = 'Image: ' + path.basename(object.source);
-                    } else if(object.type === 'video') {
-                        label = 'Video: ' + path.basename(object.source);
-                    } else {
-                        label = 'Attacj,emt: ' + path.basename(object.source);
-                    }
-
-                    span.innerText = label;
-                });
-            button.innerText = 'Dismiss';
-
-            li.appendChild(span);
-            li.appendChild(button);
-            this._changesList.appendChild(li);
-        });*/
-        this.uiUpdate('active', 'active', 'active');
+        this.uiUpdate(true);
     } else {
-        this.uiUpdate('disabled', 'disabled', 'hidden');
+        this.uiUpdate(false);
     }
 };
 
-ChangeUI.prototype.uiUpdate = function (save, cancel, changes) {
-    this.state(this._save, save);
-    this.state(this._cancel, cancel);
-    //this.state(this._changes, changes);
-    //this.state(this._changesList, changes);
+ChangeUI.prototype.uiUpdate = function (state) {
+    if (state) {
+        this._save.removeAttribute('disabled');
+        this._changes.setAttribute('data-lky-active', '');
+    } else {
+        this._save.setAttribute('disabled', '');
+        this._changes.removeAttribute('data-lky-active');
+    }
 };
 
 ChangeUI.prototype.state = function (element, state) {

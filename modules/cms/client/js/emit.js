@@ -56,11 +56,13 @@ function emit(eventName, data) {
         return;
     }
     var self = this;
-    this.__listeners[eventName].forEach((listener) => listener({
-        name: eventName,
-        data: data,
-        source: self
-    }));
+    this.__listeners[eventName].forEach(function (listener) {
+        listener({
+            name: eventName,
+            data: data,
+            source: self
+        });
+    });
 }
 
 /**

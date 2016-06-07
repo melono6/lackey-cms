@@ -35,6 +35,10 @@ module.exports = SUtils
                 let data = JSON.parse(req.body.preview),
                     fullPath = req.protocol + '://' + req.get('host') + decodeURIComponent(data.location);
 
+                if (req.body.locale) {
+                    res.__doc.locale = req.body.locale;
+                }
+
                 ContentModel
                     .findByRoute(decodeURIComponent(data.location))
                     .then((page) => {
@@ -105,7 +109,6 @@ module.exports = SUtils
                                 return Template
                                     .findById(req.body.variant)
                                     .then((template) => {
-                                        console.log(template);
                                         res.variant(template.path);
                                         return [template.path, result];
                                     });

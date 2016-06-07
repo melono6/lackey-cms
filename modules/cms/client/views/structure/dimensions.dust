@@ -19,11 +19,33 @@
     <li>
         <label>
             <span>View in language</span>
-            <select name="{name}">
-                {#data.languages}
-                    <options value="{code}">{name}</options>
-                {/data.languages}
+            <select data-lky-locale>
+                {#locales}
+                    <option value="{code}" {@eq key=locale value=code}selected{/eq}>{name}</option>
+                {/locales}
             </select>
         </label>
     </li>
+    <li>
+        <label>Used dimensions</label>
+        <table>
+            <thead>
+                <tr>
+                    <td>Language</td>
+                    <td>Role</td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>default</td>
+                    <td>default</td>
+                    <td>
+                        <a href="">default</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
 </ul>
+

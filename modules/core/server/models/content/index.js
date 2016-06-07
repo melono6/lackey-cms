@@ -23,6 +23,7 @@ const SUtils = require(LACKEY_PATH).utils,
     SCli = require(LACKEY_PATH).cli,
     objection = require('objection'),
     Model = objection.Model,
+    languageTags = require('language-tags'),
     __MODULE_NAME = 'lackey-cms/modules/core/server/models/content';
 
 SCli.debug(__MODULE_NAME, 'REQUIRED');
@@ -163,7 +164,10 @@ module.exports = SUtils
                     });
             }
 
-            static _preQuery(query, options) {
+            static _preQuery(innerQuery, options) {
+
+                let query = JSON.parse(JSON.stringify(innerQuery));
+
                 if (options.textSearch) {
                     query.$or = [{
                         route: {
@@ -182,7 +186,30 @@ module.exports = SUtils
                         }
                         }];
                 }
+                if (query.route) {
+                    let pathParts = query.route.split('/');
+
+                    if (languageTags(pathParts[1]).valid() || languageTags(pathParts[1]).deprecated()) {
+                        pathParts.splice(0, 2);
+                        query.route = '/' + pathParts.join('/');
+                    }
+                }
                 return super._preQuery(query, options);
+            }
+
+            static _postQuery(data, query, options) {
+                if (!data) return data;
+
+                console.log(query);
+
+                if (query.route) {
+                    let pathParts = query.route.split('/');
+
+                    if (languageTags(pathParts[1]).valid() || languageTags(pathParts[1]).deprecated()) {
+                        data.$locale = pathParts[1];
+                    }
+                }
+                return data;
             }
 
             _preSave() {

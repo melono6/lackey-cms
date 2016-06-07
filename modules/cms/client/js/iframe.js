@@ -32,7 +32,6 @@ if (top === window) {
         right = '/admin' + document.location.pathname.replace(/\/$/, '');
 
     if(right === '/admin/cms/preview') {
-        // something goes wrong here
         return;
     }
 
