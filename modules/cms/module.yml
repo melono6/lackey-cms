@@ -37,6 +37,8 @@ init:
                 cms: '*'
                 debug: '*'
                 viewas: '*'
+                /api/*:
+                    - get
 
     # DEFAULT SYSTEM PAGES
     Content:

@@ -220,12 +220,17 @@ class StructureUI extends Emitter {
 
     drawDimensions() {
         let self = this,
-            locales;
+            locales,
+            viewAs;
 
         return api
             .read('/cms/language?enabled=true')
             .then((locs) => {
                 locales = locs.data;
+                return api.read('/view-as');
+            })
+            .then((response) => {
+                viewAs = response;
                 return self.options.context();
             })
             .then((context) => {
@@ -234,7 +239,8 @@ class StructureUI extends Emitter {
                         context: context,
                         locale: top.Lackey.manager.locale,
                         variant: top.Lackey.manager.variant,
-                        locales: locales
+                        locales: locales,
+                        viewAs: viewAs
                     }, self.node);
             })
             .then((root) => {
@@ -242,7 +248,16 @@ class StructureUI extends Emitter {
                     .bind('[data-lky-variant]', 'change', lackey.as(self.viewInVariant, self), root[0]);
                 lackey
                     .bind('[data-lky-locale]', 'change', lackey.as(self.viewInLocale, self), root[0]);
+                lackey
+                    .bind('[data-lky-view-as]', 'change', lackey.as(self.viewAs, self), root[0]);
             });
+    }
+
+    viewAs(event, hook) {
+        top.Lackey.setCookie('lky-view-as', hook.value);
+        top.Lackey.manager.preview();
+        top.Lackey.manager.stack.clear();
+        return;
     }
 
     viewInVariant(event, hook) {

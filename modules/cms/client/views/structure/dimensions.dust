@@ -2,7 +2,11 @@
     <li>
         <label>
             <span>View as role</span>
-            <select name="{name}"></select>
+            <select data-lky-view-as>
+            {#viewAs.viewAs}
+                <option value="{name}">{?label}{label}{:else}{name}{/label}</option>
+            {/viewAs.viewAs}
+            </select>
         </label>
     </li>
     <li>

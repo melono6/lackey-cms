@@ -32,6 +32,12 @@ module.exports = SUtils
     .then((Activity, Role, Language, Template, Serializer, JSON2YAML) => {
 
         return {
+            viewingAs: (req, res) => {
+                res.api({
+                    viewAs: res.viewAs || [],
+                    viewingAs: res.viewingAs
+                });
+            },
             dashboard: (req, res) => {
                 res.print('cms/cms/dashboard', {
                     memory: ((mem) => {

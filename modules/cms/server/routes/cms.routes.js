@@ -65,6 +65,9 @@ module.exports = (server, config) => {
             server.route('/admin*')
                 .get(server.aclAdmin, CMSController.iframe);
 
+            server.route('/api/view-as')
+                .get(server.aclAdmin, CMSController.viewingAs);
+
             server.route('/cms').get(server.aclAdmin, CMSController.dashboard);
             server.route('/cms/preview').post(server.aclAdmin, PageController.preview);
             server.route('/cms/content/create')
@@ -74,7 +77,7 @@ module.exports = (server, config) => {
                 .get( /*server.aclAdmin, */ CMSController.serialize);
 
             server.route('/api/cms/session')
-                .delete( server.aclAdmin, SessionController.method('removeAll'));
+                .delete(server.aclAdmin, SessionController.method('removeAll'));
 
             server.route('/api/cms/content/:content_id/taxonomy/:taxonomyTypeName/:taxonomyName')
                 .delete(server.aclAdmin, ContentController.method('removeTaxonomy'));

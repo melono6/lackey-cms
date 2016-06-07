@@ -235,7 +235,7 @@ Manager.prototype.preview = function (variant, language) {
             inputVariant.name = 'variant';
             inputLanguage.name = 'locale';
             input.value = data;
-            if (variant === undefined) {
+            if (variant !== undefined) {
                 self.variant = variant;
             }
             if (self.variant !== undefined) {
