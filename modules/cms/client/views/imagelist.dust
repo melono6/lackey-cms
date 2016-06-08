@@ -1,15 +1,17 @@
-<ul class="miniatures">
-    {#uploaded}
-        <li>
-            <a href="#" data-lky-hook="image" data-lky-media="{.|js}">
-                {@eq key=type value="video"}
-                    <video><source src="{source}"/></video>
-                {/eq}
-                {@ne key=type value="video"}
-                    <img src="{source}"/>
-                {/ne}
-            </a>
-        </li>
-    {/uploaded}
-</ul>
-<div style="clear:both"></div>
+{#data}
+    <tr>
+        <td>
+            {@eq key=type value="video"}
+                <video><source src="{source}"/></video>
+            {/eq}
+            {@ne key=type value="video"}
+                <img src="{source}"/>
+            {/ne}
+        </td>
+        <td>{alt}</td>
+        <td>{type}</td>
+        <td>
+            <button data-lky-btn data-lky-hook="image" data-lky-media="{.|js}">Choose</button>
+        </td>
+    </tr>
+{/data}

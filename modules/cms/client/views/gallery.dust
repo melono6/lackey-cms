@@ -1,0 +1,97 @@
+<aside data-lky-component="settings" data-lky-has-media="false">
+    <section data-lky-hook="settings.breadcrumbs">
+        <!-- later -->
+    </section>
+    <section data-lky-hook="settings.back"></section>
+    <section data-lky-hook="settings.pick">
+        <div data-lky-hook="settings.presentation"></div>
+        <ul>
+            <li data-lky-hook="settings.open.meta" data-lky-open="meta">
+                <a href="#">Meta</a>
+            </li>
+        </ul>
+        <ul>
+            <li data-lky-hook="settings.open.upload" data-lky-open="upload">
+                <a href="#">Upload</a>
+            </li>
+        </ul>
+        <ul>
+            <li data-lky-hook="settings.open.url" data-lky-open="url">
+                <a href="#">Add by URL</a>
+            </li>
+        </ul>
+        <ul>
+            <li data-lky-hook="settings.open.gallery" data-lky-open="gallery">
+                <a href="#">Gallery</a>
+            </li>
+        </ul>
+        <ul>
+            <li data-lky-hook="settings.open.clear" data-lky-open="clear">
+                <a href="#">Clear</a>
+            </li>
+        </ul>
+    </section>
+    <section data-lky-hook="settings.meta">
+        <div>
+            <ul>
+
+                <li>
+                    <label>
+                        <span>URL</span>
+                        <input type="text" value="{media.source}" name="source" disabled/>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Alternative Text</span>
+                        <input type="text" value="{media.alt}" name="alt"/>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span>Treat as</span>
+                        <select name="type">
+                            <option value="image" {@eq key=media.type value="image"}selected{/eq}>Image</option>
+                            <option value="video" {@eq key=media.type value="video"}selected{/eq}>Video</option>
+                            <option value="application" {@eq key=media.type value="application"}selected{/eq}>Attachment</option>
+                        </select>
+                    </label>
+                </li>
+                {@eq key=media.type value="video"}
+                    <li>
+                        <label>
+                            <span>Alternative Sources</span>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>URL</th>
+                                        <th>Media</th>
+                                        <th>Mime</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </label>
+                    </li>
+                {/eq}
+            </ul>
+        </div>
+    </section>
+    <section data-lky-hook="settings.gallery">
+        <div>
+            <input type="search" data-lky-hook="filter" placeholder="Type title or path"/>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Thumbnail</th>
+                        <th>Alt</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody data-lky-template="cms/cms/imagelist"></tbody>
+            </table>
+        </div>
+    </section>
+</aside>

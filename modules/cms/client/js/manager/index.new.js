@@ -84,6 +84,9 @@ function Manager() {
             content.scrollTop = (e.wheelDelta * -1) + content.scrollTop;
         }
     }, true);
+    overlay.addEventListener('click', () => {
+        this.stack.clear();
+    }, true);
 
     this.setupUI();
 
@@ -109,7 +112,7 @@ Manager.prototype._loadCurrent = function () {
             if (data.$locale) {
                 locale = top.Lackey.manager.locale = data.$locale;
             }
-            if(loc !== data.data[0].route) {
+            if (loc !== data.data[0].route) {
                 top.history.pushState('', top.document.title, '/admin' + data.data[0].route);
             }
             return data.data[0].id;

@@ -25,25 +25,57 @@ if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
     return;
 }
 
-function Upload(HTMLElement) {
+function Upload(HTMLElement, onClick) {
     this._listeners = {};
-    this.input(HTMLElement);
+    this.input(HTMLElement, onClick);
 }
 
 Upload.prototype.browse = function (event) {
     event.preventDefault();
 };
 
-Upload.prototype.input = function (HTMLElement) {
+Upload.prototype.input = function (HTMLElement, onClick) {
 
     this._hover = lackey.as(this.hover, this);
     this._drop = lackey.as(this.drop, this);
+    this._pick = lackey.as(this.pick, this);
+
+
 
     HTMLElement.addEventListener('dragover', this._hover, false);
     HTMLElement.addEventListener('dragleave', this._hover, false);
     HTMLElement.addEventListener('drop', this._drop, false);
 
+    if (onClick) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.setAttribute('multiple', 'false');
+        input.style.position = 'fixed';
+        input.style.left = '-1000px';
+        input.addEventListener('change', this._pick, false);
+
+        HTMLElement.addEventListener('click', (event) => {
+            event.stopPropagation();
+            event.preventDefault();
+            if (event.target.nodeName === 'INPUT') {
+                return;
+            }
+            if (document.createEvent) {
+                var evt = document.createEvent('MouseEvents');
+                evt.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                input.dispatchEvent(evt);
+            } else {
+                input.fireEvent('onclick'); //For IE
+            }
+        }, true);
+    }
+
     this.element = HTMLElement;
+};
+
+Upload.prototype.pick = function (event) {
+    this.hover(event);
+    this.choice(event);
 };
 
 Upload.prototype.hover = function (event) {
@@ -53,7 +85,6 @@ Upload.prototype.hover = function (event) {
 };
 
 Upload.prototype.drop = function (event) {
-    console.log(event);
     this.hover(event);
     this.choice(event);
 };
@@ -152,6 +183,7 @@ Upload.prototype.choice = function (event) {
         console.error(error);
     });
     promise.then(() => {
+        console.log('uploaded', uploaded);
         self.emit('done', uploaded);
     });
     return promise;

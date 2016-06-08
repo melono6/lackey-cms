@@ -17,9 +17,9 @@
     limitations under the License.
 */
 const emit = require('cms/client/js/emit'),
-    template = require('core/client/js/template'),
     StructureUI = require('cms/client/js/manager/structure.ui.js'),
     ArticlePicker = require('cms/client/js/manager/article.picker.ui.js'),
+    Gallery = require('cms/client/js/manager/gallery.ui.js'),
     lackey = require('core/client/js');
 /**
  * @module lackey-cms/modules/cms/client/manager
@@ -29,8 +29,6 @@ const emit = require('cms/client/js/emit'),
  * @constructs lackey-cms/modules/cms/client/manager/Stack
  */
 function Stack(repository) {
-
-    let self = this;
 
     this._repository = repository;
     this._stack = [];
@@ -113,43 +111,32 @@ Stack.prototype.pickArticle = function (route) {
         });
 };
 
+Stack.prototype.inspectMedia = function (media, node) {
 
+    lackey.hook('main-area').setAttribute('data-lky-settings-open', 'true');
 
-/**
- * Adds new item on top of the stack
- * @param {Object} item
- */
-Stack.prototype.append = function (templatePath, vars, controller) {
-
-    throw new Error('dxeprecated');
-
-    let node = this.node,
-        root,
-        promise;
-
-    promise = template
-        .render(templatePath, vars || {})
-        .then((nodes) => {
-            root = nodes[0];
-
-            node.appendChild(root);
-
-            return new Promise((resolve, reject) => {
-                setTimeout(() => controller(root, vars, resolve, reject), 0);
-            });
-        })
-        .then((data) => {
-            node.removeChild(root);
-            return data;
-        }, (error) => {
-            try {
-                node.removeChild(root);
-            } catch (ex) {
-                console.error(ex);
-            }
-            throw error;
+    let self = this,
+        gallery = new Gallery({
+            media: media,
+            node: node,
+            stack: this
         });
-    this._stack.push(promise);
+
+    gallery
+        .buildUI()
+        .then((element) => {
+            self.node.appendChild(element);
+            return gallery.fadeIn();
+        });
+
+    this._stack.push(gallery);
+
+    return gallery
+        .promise
+        .then((mediaObject) => {
+            self.pop();
+            return mediaObject;
+        });
 };
 
 /**
@@ -171,6 +158,9 @@ Stack.prototype.pop = function (clearing) {
                 if (self._stack[self._stack.length - 1] instanceof StructureUI) {
                     self._stack[self._stack.length - 1].node.setAttribute('data-lky-edit', 'blocks');
                 }
+            }
+            if(!self._stack.length) {
+                lackey.hook('main-area').removeAttribute('data-lky-settings-open');
             }
         });
 

@@ -180,9 +180,13 @@ class Wysiwyg {
             let media = new Media(element);
             media.selected((mediaObject) => {
 
-                return MediaModalController
-                    .open(mediaObject.media, mediaObject.node)
+                top.Lackey.manager.stack
+                    .inspectMedia(mediaObject.media, mediaObject.node)
+
+                //return MediaModalController
+                //    .open(mediaObject.media, mediaObject.node)
                     .then((result) => {
+                    console.log(result);
                         if (result || result === -1) {
                             mediaObject.set(result !== -1 ? result : null);
                             mediaObject.notify();

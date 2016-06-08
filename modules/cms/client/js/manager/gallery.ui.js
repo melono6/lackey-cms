@@ -19,12 +19,13 @@
 const Emitter = require('cms/client/js/emitter').Emitter,
     lackey = require('core/client/js'),
     template = require('core/client/js/template'),
-    api = require('cms/client/js/api');
+    api = require('cms/client/js/api'),
+    Upload = require('core/client/js/upload');;
 
 /**
  * @class
  */
-class ArticlePickerUI extends Emitter {
+class Gallery extends Emitter {
 
 
 
@@ -57,13 +58,45 @@ class ArticlePickerUI extends Emitter {
     buildUI() {
         let self = this;
         return template
-            .render('cms/cms/article-picker', this.options || {})
+            .render('cms/cms/gallery', this.options || {})
             .then((nodes) => {
                 self.node = nodes[0];
 
                 lackey.bind('[data-lky-hook="settings.back"]', 'click', () => {
                     self.resolve(null);
                 }, self.node);
+
+                if (!self.options.media || !self.options.media.id) {
+                    self.node.setAttribute('data-lky-edit', 'gallery');
+                    self.node.setAttribute('data-lky-has-media', 'false');
+                } else {
+                    self.node.removeAttribute('data-lky-has-media');
+                    self.node.setAttribute('data-lky-edit', 'meta');
+                }
+
+                lackey
+                    .select([
+                        '[data-lky-hook="settings.open.meta"]',
+                        '[data-lky-hook="settings.open.upload"]',
+                        '[data-lky-hook="settings.open.url"]',
+                        '[data-lky-hook="settings.open.gallery"]'
+                    ], self.node)
+                    .forEach((element) => {
+                        element.addEventListener('click', lackey.as(self.toggle, self), true);
+                    });
+
+                lackey
+                    .select('[data-lky-hook="settings.open.clear"]', self.node)
+                    .forEach((element) => {
+                        element.addEventListener('click', () => self.resolve(-1), true);
+                    });
+
+                self.zone = new Upload(lackey.hook('settings.open.upload', self.node), true);
+                self.zone.on('done', (uploader, images) => {
+                    if (images && images.length) {
+                        self.resolve(images[0].data);
+                    }
+                });
 
                 self.query();
 
@@ -122,6 +155,21 @@ class ArticlePickerUI extends Emitter {
         });
     }
 
+    toggle(event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        let toOpen = event.target.getAttribute('data-lky-open'),
+            current = this.node.getAttribute('data-lky-edit');
+
+        if (current === toOpen) {
+            this.node.removeAttribute('data-lky-edit');
+        } else {
+            this.node.setAttribute('data-lky-edit', toOpen);
+        }
+    }
+
     /**
      * Updates list of pages
      * @returns {Promise}
@@ -130,13 +178,13 @@ class ArticlePickerUI extends Emitter {
         let self = this,
             input = lackey.select('input[type="search"]', this.node)[0];
         api
-            .read('/cms/content?type=page&q=' + encodeURI(input.value))
+            .read('/cms/media?q=' + encodeURI(input.value))
             .then((list) => {
-                return template.redraw(lackey.select('ul', self.node)[0], list);
+                return template.redraw(lackey.select('[data-lky-hook="settings.gallery"] tbody', self.node)[0], list);
             })
             .then((nodes) => {
                 lackey.bind('[data-lky-btn]', 'click', (event, hook) => {
-                    self.resolve(hook.getAttribute('data-lky-route'));
+                    self.resolve(JSON.parse(hook.getAttribute('data-lky-media')));
                 }, nodes[0]);
             });
     }
@@ -145,4 +193,4 @@ class ArticlePickerUI extends Emitter {
 
 
 
-module.exports = ArticlePickerUI;
+module.exports = Gallery;
