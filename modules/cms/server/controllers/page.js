@@ -148,32 +148,63 @@ module.exports = SUtils
             }
 
             static mapTaxonomyList(list, req, page) {
-                return Promise.all(list.map((taxonomy) => {
-                    if (taxonomy.ifNot) {
-                        if (PageController.parse(taxonomy.ifNot, req, page)) {
-                            return null;
-                        }
-                    }
-                    if (taxonomy.if) {
-                        if (!PageController.parse(taxonomy.if, req, page)) {
-                            return null;
-                        }
-                    }
+                return PageController
+                    ._mapTaxonomyList(list, req, page)
+                    .then((list) => {
+                        return list.map((t) => t.id);
+                    });
+            }
 
-                    let queryValue = PageController.parse(taxonomy, req, page);
-                    if (!queryValue || !queryValue.length) return Promise.resolve(null);
-                    return PageController
-                        .taxonomyType(taxonomy.type)
-                        .then((taxonomyTypeId) => {
-                            return SCli
-                                .sql(Taxonomy.model.query()
-                                    .where('taxonomyTypeId', taxonomyTypeId)
-                                    .whereIn('name', queryValue))
-                                .then((tax) => {
-                                    return tax[0] ? tax[0].id : null;
-                                });
+            static mapTaxonomyListGrouped(list, req, page) {
+                let groups = {};
+                return PageController
+                    ._mapTaxonomyList(list, req, page)
+                    .then((list) => {
+                        return list.map((t) => {
+                            groups[t.taxonomyTypeId] = groups[t.taxonomyTypeId] || [];
+                            groups[t.taxonomyTypeId].push(t.id);
                         });
-                }));
+                    })
+                    .then(() => {
+                        return Object
+                            .keys(groups)
+                            .map((g) => {
+                                return groups[g];
+                            });
+                    });
+
+            }
+
+            static _mapTaxonomyList(list, req, page) {
+                return Promise.all(list.map((taxonomy) => {
+                        if (taxonomy.ifNot) {
+                            if (PageController.parse(taxonomy.ifNot, req, page)) {
+                                return null;
+                            }
+                        }
+                        if (taxonomy.if) {
+                            if (!PageController.parse(taxonomy.if, req, page)) {
+                                return null;
+                            }
+                        }
+
+                        let queryValue = PageController.parse(taxonomy, req, page);
+                        if (!queryValue || !queryValue.length) return Promise.resolve(null);
+                        return PageController
+                            .taxonomyType(taxonomy.type)
+                            .then((taxonomyTypeId) => {
+                                return SCli
+                                    .sql(Taxonomy.model.query()
+                                        .where('taxonomyTypeId', taxonomyTypeId)
+                                        .whereIn('name', queryValue))
+                                    .then((tax) => {
+                                        return tax[0] ? tax[0] : null;
+                                    });
+                            });
+                    }))
+                    .then((list) => {
+                        return list.filter((t) => !!t);
+                    });
             }
 
             static populateContent(target, item, req, page) {
@@ -181,7 +212,7 @@ module.exports = SUtils
                     excludeTaxonomies;
 
                 return PageController
-                    .mapTaxonomyList(item.taxonomy || [], req, page)
+                    .mapTaxonomyListGrouped(item.taxonomy || [], req, page)
                     .then((taxonomies) => {
                         includeTaxonomies = taxonomies;
                         return PageController.mapTaxonomyList(item.excludeTaxonomy || [], req, page);
@@ -218,7 +249,7 @@ module.exports = SUtils
 
                 let selected = PageController.parse(item.selected, req);
 
-                if(selected) {
+                if (selected) {
                     selected = selected.split(',');
                 } else {
                     selected = [];

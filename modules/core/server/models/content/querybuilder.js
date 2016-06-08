@@ -22,13 +22,21 @@
 const SCli = require(LACKEY_PATH).cli,
     INCLUDE_QUERY = `
         id IN (
-            SELECT id FROM content WHERE
-                "templateId" IN (
-                    SELECT "templateId" FROM "templateToTaxonomy" WHERE "taxonomyId" IN ($1)
-                )
-            UNION ALL
-            SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+            SELECT id FROM content AS con WHERE $1
        )`,
+    INCLUDE_SUB = `
+        (
+            SELECT count(*) FROM (
+                SELECT ttt."taxonomyId" FROM "content" AS c
+                    JOIN "templateToTaxonomy" AS ttt
+                        ON ttt."templateId" = c."templateId"
+                        AND c.id = con.id
+                UNION ALL
+                SELECT ctt."taxonomyId" FROM "contentToTaxonomy" AS ctt
+                    WHERE ctt."contentId" = con.id
+                ) AS FOO
+         WHERE "taxonomyId" IN ($1)) > 0
+    `,
     EXCLUDE_QUERY = `
         id NOT IN (
             SELECT id FROM content WHERE "templateId" IN (
@@ -71,7 +79,22 @@ module.exports = require(LACKEY_PATH)
             }
 
             withTaxonomies(taxonomies) {
-                this.whereIn(INCLUDE_QUERY, taxonomies);
+                if (taxonomies && Array.isArray(taxonomies) && taxonomies.length) {
+
+                    let output = [];
+
+                    taxonomies.forEach((group) => {
+                        if(group && Array.isArray(group) && group.length) {
+                         output.push(INCLUDE_SUB.replace(/\$1/g, group.join(', ')));
+                        }
+                    });
+
+                    if(output.length) {
+                        this._wheres.push(INCLUDE_QUERY.replace(/\$1/g, output.join(' AND ')));
+                    } else {
+                        this._wheres.push(INCLUDE_QUERY.replace(/\$1/g, 'TRUE'));
+                    }
+                }
             }
 
             withoutTaxonomies(taxonomies) {
