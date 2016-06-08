@@ -215,21 +215,32 @@ module.exports = SUtils
             }
 
             static populateTaxonomy(target, item, req) {
+
+                let selected = PageController.parse(item.selected, req);
+
+                if(selected) {
+                    selected = selected.split(',');
+                } else {
+                    selected = [];
+                }
+
                 return PageController
                     .taxonomyType(item.taxonomyType)
                     .then((taxonomyTypeId) => {
+
                         return Taxonomy.
-                        findBy('taxonomyTypeId', taxonomyTypeId)
-                            .then((list) => {
-                                target[item.field] = list
-                                    .map((result) => {
-                                        let res = result.toJSON();
-                                        if (item.selected && res.name === PageController.parse(item.selected, req)) {
-                                            res.selected = true;
-                                        }
-                                        return res;
-                                    });
+                        findBy('taxonomyTypeId', taxonomyTypeId);
+                    })
+                    .then((list) => {
+                        target[item.field] = list
+                            .map((result) => {
+                                let res = result.toJSON();
+                                if (item.selected && selected.indexOf(res.name) !== -1) {
+                                    res.selected = true;
+                                }
+                                return res;
                             });
+
                     });
             }
 
