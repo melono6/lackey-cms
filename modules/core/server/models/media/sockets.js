@@ -55,17 +55,22 @@ function postProcess(file, config) {
         })
         .then((Media) => {
             SCli.log(__MODULE_NAME, 'Create recode');
-            let filePath = file.path.match(/^http(|s):\/\//) ? file.path : path.relative(SUtils.getProjectPath(), file.path);
+            let filePath = file.path.match(/^http(|s):\/\//) ? file.path : '/' + path.relative(SUtils.getProjectPath(), file.path);
+            if (file.ju) {
+                return filePath;
+            }
             return (new Media({
-                name: path.basename(file.path),
-                mime: file.mime,
-                source: filePath,
-                alternatives: []
-            })).save();
-        })
-        .then((medium) => {
-            SCli.log(__MODULE_NAME, 'Done in fact');
-            return medium.toJSON();
+                    name: path.basename(file.path),
+                    mime: file.mime,
+                    source: filePath,
+                    alternatives: []
+                }))
+                .save()
+                .then((medium) => {
+                    SCli.log(__MODULE_NAME, 'Done in fact');
+                    return medium.toJSON();
+                })
+
         })
         .catch((error) => {
             console.error(error);
@@ -88,7 +93,8 @@ module.exports = (socket, config) => {
                 fileSize: data.size,
                 data: '',
                 downloaded: 0,
-                path: filePath
+                path: filePath,
+                ju: !!data.ju
             };
 
         SCli.log(__MODULE_NAME, 'media.start-upload - mkdir');

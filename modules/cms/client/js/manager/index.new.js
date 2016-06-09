@@ -212,6 +212,22 @@ Manager.prototype.getMedia = function (contentId) {
         });
 };
 
+/**
+ * Gets content node
+ * @param   {Number} contentId [[Description]]
+ * @param   {String} path      [[Description]]
+ * @param   {String|null} variant   [[Description]]
+ * @returns {Promise.<Mixed>}} [[Description]]
+ */
+Manager.prototype.setMedia = function (contentId, content) {
+    return this
+        .repository
+        .set('media', contentId, content)
+        .then((content) => {
+            return content;
+        });
+};
+
 Manager.prototype.preview = function (variant, language) {
     let self = this;
     this

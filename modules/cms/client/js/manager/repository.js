@@ -106,6 +106,7 @@ Repository.prototype.set = function (type, id, value) {
         type: type,
         id: id
     });
+    return Promise.resolve(value);
 };
 
 Repository.prototype.notify = function() {

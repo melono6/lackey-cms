@@ -20,7 +20,28 @@ const Emitter = require('cms/client/js/emitter').Emitter,
     lackey = require('core/client/js'),
     template = require('core/client/js/template'),
     api = require('cms/client/js/api'),
-    Upload = require('core/client/js/upload');;
+    Upload = require('core/client/js/upload'),
+    mimes = require('mime/types.json'),
+    mime = Object
+    .keys(mimes)
+    .map((key) => {
+        let type = key.split('/')[0];
+        if (type === 'application') {
+            type = 'file';
+        }
+        return {
+            mime: key,
+            label: type + ' ' + mimes[key][0],
+            type: type
+        };
+    })
+    .sort((a, b) => {
+        if (a.label === b.label) {
+            return 0;
+        }
+        return a.label < b.label ? -1 : 0;
+    });
+
 
 /**
  * @class
@@ -43,6 +64,7 @@ class Gallery extends Emitter {
     constructor(options) {
         super();
         this.options = options;
+        this.options.mimes = mime;
         this._locked = null;
         let self = this;
         this.promise = new Promise((resolve, reject) => {
@@ -70,15 +92,13 @@ class Gallery extends Emitter {
                     self.node.setAttribute('data-lky-edit', 'gallery');
                     self.node.setAttribute('data-lky-has-media', 'false');
                 } else {
-                    self.node.removeAttribute('data-lky-has-media');
+                    self.node.setAttribute('data-lky-has-media', 'true');
                     self.node.setAttribute('data-lky-edit', 'meta');
                 }
 
                 lackey
                     .select([
                         '[data-lky-hook="settings.open.meta"]',
-                        '[data-lky-hook="settings.open.upload"]',
-                        '[data-lky-hook="settings.open.url"]',
                         '[data-lky-hook="settings.open.gallery"]'
                     ], self.node)
                     .forEach((element) => {
@@ -91,6 +111,24 @@ class Gallery extends Emitter {
                         element.addEventListener('click', () => self.resolve(-1), true);
                     });
 
+                lackey
+                    .select('[data-lky-hook="settings.open.url"]', self.node)
+                    .forEach((element) => {
+                        element.addEventListener('click', () => {
+                            let value = prompt('Please enter URL');
+                            if (!value) {
+                                return;
+                            }
+                            api
+                                .create('/cms/media', {
+                                    source: value
+                                })
+                                .then((media) => {
+                                    self.resolve(media);
+                                });
+                        }, true);
+                    });
+
                 self.zone = new Upload(lackey.hook('settings.open.upload', self.node), true);
                 self.zone.on('done', (uploader, images) => {
                     if (images && images.length) {
@@ -100,9 +138,93 @@ class Gallery extends Emitter {
 
                 self.query();
 
+                lackey.bind('input[data-lky-hook="alt"]', 'keyup', lackey.as(self.altChange, self), self.node);
+                lackey.bind('select[data-lky-hook="mime"]', 'change', lackey.as(self.mimeChange, self), self.node);
+
                 lackey.bind('input[type="search"]', 'keyup', lackey.as(self.keyup, self), self.node);
 
+                if (self.options.media && self.options.media.type === 'video') {
+                    self.alternative();
+                }
+
                 return self.node;
+            });
+    }
+
+    alternative() {
+        let self = this;
+        return template
+            .redraw(lackey.hook('sources', this.node), this.options)
+            .then(() => {
+                lackey.bind('lky:add', 'click', () => {
+                    let
+                        sourceNode = lackey.hook('new-source', this.node),
+                        mimeNode = lackey.hook('new-mime', this.node),
+                        mediaNode = lackey.hook('new-media', this.node);
+                    return self.addAlternative(sourceNode.value, mimeNode.value, mediaNode.value);
+                });
+
+                lackey.bind('lky:remove', 'click', (event, hook) => {
+                    let index = hook.getAttribute('data-lky-idx')
+                    return top.Lackey.manager
+                        .getMedia(self.options.media.id)
+                        .then((media) => {
+                            media.alternatives = media.alternatives || [];
+                            media.alternatives.splice(index, 1);
+                            return top.Lackey.manager.setMedia(media.id, media);
+                        })
+                        .then((media) => {
+                            self.options.media = media;
+                            return self.alternative();
+                        });
+                });
+
+                let zone = new Upload(lackey.hook('source-upload', self.node), true, true);
+                zone.on('done', (uploader, images) => {
+                    if (images && images.length) {
+                        let
+                            mimeNode = lackey.hook('new-mime', this.node),
+                            mediaNode = lackey.hook('new-media', this.node);
+                        return self.addAlternative(images[0].data, mimeNode.value, mediaNode.value);
+                    }
+                });
+            });
+    }
+
+    addAlternative(source, mime, mediaQuery) {
+        let self = this;
+        return top.Lackey.manager
+            .getMedia(this.options.media.id)
+            .then((media) => {
+                media.alternatives = media.alternatives || [];
+                media.alternatives.push({
+                    source: source,
+                    mime: mime,
+                    media: mediaQuery
+                });
+                return top.Lackey.manager.setMedia(media.id, media);
+            })
+            .then((media) => {
+                self.options.media = media;
+                return self.alternative();
+            });
+    }
+
+    altChange(event, hook) {
+        top.Lackey.manager
+            .getMedia(this.options.media.id)
+            .then((media) => {
+                media.attributes.alt = hook.value;
+                top.Lackey.manager.setMedia(media.id, media);
+            });
+    }
+
+    mimeChange(event, hook) {
+        top.Lackey.manager
+            .getMedia(this.options.media.id)
+            .then((media) => {
+                media.mime = hook.value;
+                top.Lackey.manager.setMedia(media.id, media);
             });
     }
 
