@@ -68,6 +68,9 @@ class Media {
             if (this.media && this.media.mime && this.media.mime.match(/^video\//)) {
                   return this.renderVideo();
             }
+            if(this.media && this.media.mime && !this.media.mime.match(/^image\//)) {
+                  return this.renderFile();
+            }
             this.renderImage();
       }
       replace(newTag) {
@@ -124,6 +127,11 @@ class Media {
             });
 
             this.replace(videoTag);
+      }
+      renderFile() {
+            let img = document.createElement('IMG');
+            img.src = '/img/cms/cms/svg/file.svg';
+            this.replace(img);
       }
       renderImage() {
             let img = document.createElement('IMG');

@@ -103,7 +103,7 @@ function print(chunk, data, type, editMode) {
         });
 
         chunk.write('</video>');
-      } else {
+      } else if(data.content.type === 'image') {
         chunk.write('<img src="' + source + '"');
         if (data.attrs) {
           Object.keys(data.attrs).forEach((key) => {
@@ -111,6 +111,8 @@ function print(chunk, data, type, editMode) {
           });
         }
         chunk.write('/>');
+      } else {
+        chunk.write('<a target="_blank" href="' + source + '"><img src="/img/cms/cms/svg/file.svg"/></a>');
       }
     }
   } catch (e) {

@@ -34,13 +34,6 @@
     <section data-lky-hook="settings.meta">
         <div>
             <ul>
-
-                <li>
-                    <label>
-                        <span>URL</span>
-                        <input type="text" value="{media.source}" name="source" disabled/>
-                    </label>
-                </li>
                 <li>
                     <label>
                         <span>Alternative Text</span>

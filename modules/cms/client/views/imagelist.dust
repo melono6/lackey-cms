@@ -3,10 +3,13 @@
         <td>
             {@eq key=type value="video"}
                 <video><source src="{source}"/></video>
+            {:else}
+                {@eq key=type value="image"}
+                    <img src="{source}"/>
+                {:else}
+                    <img src="/img/cms/cms/svg/file.svg"/>
+                {/eq}
             {/eq}
-            {@ne key=type value="video"}
-                <img src="{source}"/>
-            {/ne}
         </td>
         <td>{alt}</td>
         <td>{type}</td>
