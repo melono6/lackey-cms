@@ -21,7 +21,7 @@ const passport = require('passport');
 module.exports = Promise.resolve({
 
     index: (req, res) => {
-        res.print('cms/users/login', {});
+        res.print(['~/core/login','cms/users/login'], {});
     },
 
     logout: (req, res) => {
