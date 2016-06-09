@@ -25,8 +25,9 @@ if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
     return;
 }
 
-function Upload(HTMLElement, onClick) {
+function Upload(HTMLElement, onClick, justUpload) {
     this._listeners = {};
+    this._ju = !!justUpload;
     this.input(HTMLElement, onClick);
 }
 
@@ -168,7 +169,8 @@ Upload.prototype.choice = function (event) {
                         socket.emit('media.start-upload', {
                             name: name,
                             guid: GUID,
-                            size: file.size
+                            size: file.size,
+                            ju : self._ju
                         });
 
                     })

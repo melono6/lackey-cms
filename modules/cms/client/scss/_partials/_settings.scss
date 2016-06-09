@@ -150,6 +150,14 @@
                     }
                 }
             }
+            &[data-lky-has-media="true"] {
+                [data-lky-hook="settings.meta"] {
+                    > div {
+                        width: #{$settings-edit-width*2};
+                    }
+                }
+            }
+
             [data-lky-hook="settings.dimensions"] {
                 > div {
                     width: #{$settings-edit-width * 2};
@@ -173,6 +181,9 @@
                                 td {
                                     padding: 5px;
                                     border: 1px solid $color-light-gray;
+                                    input {
+                                        width: 100%;
+                                    }
                                 }
                                 thead {
                                     background-color: $color-lightest-gray;
@@ -263,27 +274,28 @@
                     }
                 }
             }
-
             &[data-lky-has-media="false"] {
                 [data-lky-hook="settings.open.meta"],
-                [data-lky-hook="settings.open.clear"]
-                {
+                [data-lky-hook="settings.open.clear"] {
                     background-color: $color-lackey-light-gray;
                     pointer-events: none;
                     a {
                         color: $color-lackey-dark-gray;
                         cursor: none;
-
                     }
                 }
             }
-
             &[data-lky-edit="meta"] {
                 [data-lky-hook="settings.open.meta"] {
                     background-color: $color-background-accent;
                 }
                 [data-lky-hook="settings.meta"] {
                     width: $settings-edit-width;
+                }
+                &[data-lky-has-media="true"] {
+                    [data-lky-hook="settings.meta"] {
+                        width: #{$settings-edit-width * 2};
+                    }
                 }
             }
             &[data-lky-edit="dimensions"] {

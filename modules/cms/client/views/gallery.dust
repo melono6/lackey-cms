@@ -37,16 +37,18 @@
                 <li>
                     <label>
                         <span>Alternative Text</span>
-                        <input type="text" value="{media.alt}" name="alt"/>
+                        <input data-lky-hook="alt" type="text" value="{media.attributes.alt}" name="alt"/>
                     </label>
                 </li>
                 <li>
                     <label>
                         <span>Treat as</span>
-                        <select name="type">
-                            <option value="image" {@eq key=media.type value="image"}selected{/eq}>Image</option>
-                            <option value="video" {@eq key=media.type value="video"}selected{/eq}>Video</option>
-                            <option value="application" {@eq key=media.type value="application"}selected{/eq}>Attachment</option>
+                        <select data-lky-hook="mime">
+                            {#mimes}
+                                <option value="{mime}" {@eq key=media.mime value=mime}selected{/eq}>
+                                    {label}
+                                </option>
+                            {/mimes}
                         </select>
                     </label>
                 </li>
@@ -60,9 +62,11 @@
                                         <th>URL</th>
                                         <th>Media</th>
                                         <th>Mime</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody data-lky-hook="sources" data-lky-template="cms/cms/sources">
+                                    {>"cms/cms/sources"/}
                                 </tbody>
                             </table>
                         </label>
