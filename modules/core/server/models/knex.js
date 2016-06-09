@@ -474,8 +474,19 @@ module.exports = Schema
                 });
 
             })
+            //
+            // TABLE Translations
+            //
+            //
+            .then(() => {
+                return Schema.table(knex, 'translations', (table) => {
+                    table.string('id');
+                    table.string('origionalValue');
+                    table.string('language');
+                    table.string('value');
+                });
+            })
             .then(() => {
                 SCli.debug(__MODULE_NAME, 'Schema applied');
             });
-
     });
