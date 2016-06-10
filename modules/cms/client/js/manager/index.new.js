@@ -361,10 +361,40 @@ Manager.prototype.updateCurrent = function (handler) {
 
 Manager.prototype.setupUI = function () {
 
+    let self = this;
+
     lackey
         .hook('header.settings')
         .addEventListener('click', lackey.as(this.onViewStructure, this), true);
     this._changeUI = new ChangeUI(this.repository);
+    lackey.select([
+        '[data-lky-hook="header.settings"]',
+        '[data-lky-hook="header.publish"]'
+    ]).forEach((element) => element.style.display = 'block');
+
+    this
+        .current
+        .then((current) => {
+            let publishDiv = lackey.hook('header.publish'),
+                publishControl = lackey.select('input[type="checkbox"]', publishDiv)[0];
+
+            publishControl.checked = current.state === 'published';
+
+            publishDiv.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                publishControl.checked = !publishControl.checked;
+                self.updateCurrent((current) => {
+                    current.state = publishControl.checked ? 'published' : null;
+                });
+            }, true);
+
+            publishControl.addEventListener('click', () => {
+                self.updateCurrent((current) => {
+                    current.state = publishControl.checked ? 'published' : null;
+                });
+            }, true);
+        });
 };
 
 

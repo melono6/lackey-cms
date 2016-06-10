@@ -186,7 +186,6 @@ class Wysiwyg {
                 //return MediaModalController
                 //    .open(mediaObject.media, mediaObject.node)
                     .then((result) => {
-                    console.log(result);
                         if (result || result === -1) {
                             mediaObject.set(result !== -1 ? result : null);
                             mediaObject.notify();

@@ -54,7 +54,6 @@ module.exports =  SUtils
             }
 
             static list(req, res) {
-                console.log('test');
                 let restParams = req.getRESTQuery(true);
                 restParams.options.sort = {
                     sid: 1

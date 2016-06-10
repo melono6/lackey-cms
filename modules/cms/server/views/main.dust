@@ -18,6 +18,9 @@
             </section>
             <ul data-lky-hook="menu.items">
                 <li>
+                    <a href="/">Homepage</a>
+                </li>
+                <li>
                     <a href="/cms/user">Users</a>
                 </li>
                 <li>
@@ -36,6 +39,9 @@
                 <li>
                     <a href="/cms/terms">Terms</a>
                 </li>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
             </ul>
             <section data-lky-hook="menu.footer">
             </section>
@@ -48,7 +54,12 @@
                     </div>
                 </button>
                 <button data-lky-hook="header.settings">Settings</button>
-                <button data-lky-hook="header.publish">Publish</button>
+                <button data-lky-hook="header.publish">
+                    <label data-lky-switch>
+                        <input type="checkbox" name="published"/>
+                        <span></span>
+                    </label>
+                </button>
                 <div data-lky-hook="header.user">
                     <img src="{admin.image.source}"/>
                     <span data-lky-hook="header.user.name">{admin.name}</span>

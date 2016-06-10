@@ -106,7 +106,6 @@ class Table {
     }
 
     page(pageNumber) {
-        console.log(pageNumber);
         this.query(lackey.merge(this.filters(lackey.form(lackey.hook('filters', this._root))), {
             page: pageNumber
         }));
