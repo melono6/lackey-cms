@@ -24,11 +24,15 @@ module.exports = (dust) => {
       type = params.type,
       many = !!params.many,
       newContext,
-      output = chunk;
+      output = chunk,
+      taxonomies = [];
 
     if (type) {
       let found = false;
-      (data.content.taxonomies || []).forEach((taxonomy) => {
+      if(data.content ) {
+        taxonomies = data.content.taxonomies || [];
+      }
+      (taxonomies).forEach((taxonomy) => {
         if (name) {
           if (taxonomy.name === name && taxonomy.type.name === type) {
             chunk.render(bodies.block, context);
