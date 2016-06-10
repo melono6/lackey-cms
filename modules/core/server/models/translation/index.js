@@ -62,7 +62,7 @@ module.exports = SUtils
                 return this.findOneBy('id', id);
             }
 
-            static getTranslation(ref, locale) {
+            static getTranslation(ref, locale, content) {
                 let Self = this;
                 SCli.debug(__MODULE_NAME, 'findTranslation', this.model.tableName, ref, locale);
                 if (!ref) {
@@ -76,7 +76,11 @@ module.exports = SUtils
                     )
                     .then((result) => {
                         if (!result || !result.length) {
-                            return null;
+                            return Self.create({
+                                reference: ref,
+                                language: locale,
+                                originalValue: content
+                            });
                         }
                         return Self.factory(result[0]);
                     }, (err) => {
