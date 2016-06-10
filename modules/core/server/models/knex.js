@@ -480,8 +480,8 @@ module.exports = Schema
             //
             .then(() => {
                 return Schema.table(knex, 'translations', (table) => {
-                    table.string('id');
-                    table.string('origionalValue');
+                    table.string('id').primary();
+                    table.string('originalValue');
                     table.string('language');
                     table.string('value');
                 });
