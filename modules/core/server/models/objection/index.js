@@ -438,8 +438,6 @@ module.exports = Database
                             .model
                             .query();
 
-                        console.log('Query', cursor.toString());
-
                         if (options) {
                             if (options.sort) {
                                 Object.keys(options.sort).forEach((key) => {
@@ -534,8 +532,6 @@ module.exports = Database
                                 return this.count(inputQuery);
                             })
                             .then((count) => {
-
-                                console.log('COUNT', count);
 
                                 if (options) {
                                     if (options.limit) {

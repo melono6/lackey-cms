@@ -200,8 +200,6 @@ module.exports = SUtils
             static _postQuery(data, query, options) {
                 if (!data) return data;
 
-                console.log(query);
-
                 if (query.route) {
                     let pathParts = query.route.split('/');
 

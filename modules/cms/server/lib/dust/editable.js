@@ -44,7 +44,12 @@ function fromLayout(root, path, variant, locale, type, route, toFormat) {
   }
 
   try {
-    output = treeParser.walk(parseFrom(schema(type), output, 'json'));
+    if(typeof output === 'string') {
+      output = parseFrom(schema(type), output, 'markdown');
+    } else {
+      output = parseFrom(schema(type), output, 'json');
+    }
+    output = treeParser.walk(output);
     output = (toFormat === 'text' ? toText : toHTML)(output, {
       serverSide: true,
       uri: route

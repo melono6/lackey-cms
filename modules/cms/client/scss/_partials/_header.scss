@@ -26,7 +26,29 @@
     }
     [data-lky-hook="header.settings"],
     [data-lky-hook="header.publish"] {
+        display: none;
         padding: 0px 30px;
+    }
+    [data-lky-hook="header.publish"] {
+        [data-lky-switch] {
+            span {
+                width: #{$switch-width * 3};
+            }
+            span:before {
+                color: $color-lackey-gray;
+                font-size: 11px;
+                padding: 5px 0px 0px 18px;
+                content: 'draft';
+            }
+            input:checked + span:before {
+                content: 'live';
+                padding: 5px 16px 0px 0px;
+                color: $color-lackey-ligher-blue;
+            }
+            input:checked + span:after {
+                margin-left: #{$switch-width * 2 + 4};
+            }
+        }
     }
     [data-lky-hook="header.hamburger"],
     [data-lky-hook="header.settings"],
@@ -45,7 +67,6 @@
         float: right;
         width: 370px;
         height: $header-height;
-
         > span {
             display: none;
         }
