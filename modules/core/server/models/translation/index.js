@@ -51,7 +51,38 @@ module.exports = SUtils
             }
 
             static get model() {
-                return Translation;
+                return TranslationModel;
+            }
+
+            static findById(id) {
+                SCli.debug(__MODULE_NAME, 'findById', this.model.tableName, id);
+                if (!id) {
+                    return Promise.resolve(null);
+                }
+                return this.findOneBy('id', id);
+            }
+
+            static getTranslation(ref, locale) {
+                let Self = this;
+                SCli.debug(__MODULE_NAME, 'findTranslation', this.model.tableName, ref, locale);
+                if (!ref) {
+                    return Promise.resolve(null);
+                }
+                return SCli
+                    .sql(this.model
+                        .query()
+                        .where('reference', ref)
+                        .where('language', locale)
+                    )
+                    .then((result) => {
+                        if (!result || !result.length) {
+                            return null;
+                        }
+                        return Self.factory(result[0]);
+                    }, (err) => {
+                        //handleError(hook)(err, true);
+                        return null;
+                    });
             }
 
             toJSON() {

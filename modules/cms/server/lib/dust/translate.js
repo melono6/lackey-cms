@@ -17,18 +17,35 @@
     limitations under the License.
 */
 
-//const
-//   Translation = require('../../../server/controllers/translation');
+const SUtils = require(LACKEY_PATH).utils;
+   //Translation = require('../../controllers/translation');
 
 
 module.exports = (dust) => {
 
     dust.helpers.translate = function (chunk, context, bodies, params) {
         let string = params.content,
+            ref = params.ref,
             locale = context.stack.head.locale;
 
+        return chunk.map((injected) => {
+            return SUtils.cmsMod('core').model('translation')
+                .then((Translation) => {
+                    return Translation.getTranslation(ref, locale);
+                }).then((model) => {
+                    if (model) {
+                        injected.write(model._doc.value);
+                        injected.end();
+                    } else {
+                        injected.end();
+                    }
+                }, (error) => {
+                    console.log(error);
+                });
+        });
+
         // search db for string, check if translation for current locale exists, if not return chunk, else write found translation
-        return chunk;
+        //return chunk;
     };
 
 };
