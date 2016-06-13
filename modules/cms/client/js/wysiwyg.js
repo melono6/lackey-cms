@@ -21,7 +21,6 @@ const
     InlineSchema = require('cms/shared/inline'),
     edit = require('prosemirror/dist/edit'),
     Media = require('cms/client/js/media'),
-    MediaModalController = require('cms/client/js/manager/media'),
     ProseMirror = edit.ProseMirror;
 
 require('prosemirror/dist/menu/tooltipmenu');
@@ -183,8 +182,6 @@ class Wysiwyg {
                 top.Lackey.manager.stack
                     .inspectMedia(mediaObject.media, mediaObject.node)
 
-                //return MediaModalController
-                //    .open(mediaObject.media, mediaObject.node)
                     .then((result) => {
                         if (result || result === -1) {
                             mediaObject.set(result !== -1 ? result : null);

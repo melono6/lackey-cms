@@ -174,4 +174,6 @@ class Media {
       }
 }
 
+lackey.Media = Media;
+
 module.exports = Media;
