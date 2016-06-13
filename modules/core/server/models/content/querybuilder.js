@@ -66,7 +66,15 @@ const SCli = require(LACKEY_PATH).cli,
         SELECT taxonomy.id FROM "taxonomyType"
             JOIN taxonomy ON "taxonomyTypeId" = "taxonomyType".id
             WHERE restrictive = true
-        `;
+        `,
+      TEXT_SEARCH = `
+        (
+            layout::TEXT like '%$1%'
+            OR
+            name like '%$1%'
+            OR
+            route like '%$1%'
+        )`;
 
 module.exports = require(LACKEY_PATH)
     .datasources.get('knex', 'default')
@@ -123,6 +131,10 @@ module.exports = require(LACKEY_PATH)
 
             withId(id) {
                 this._wheres.push('"id" = ' + id);
+            }
+
+            withTextSearch(text) {
+                this._wheres.push(TEXT_SEARCH.replace('$1', text.replace(/[^a-zA-Z0-9\s+]/g,'')));
             }
 
 

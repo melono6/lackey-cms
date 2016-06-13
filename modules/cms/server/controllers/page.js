@@ -258,7 +258,8 @@ module.exports = SUtils
                         let taxes = includeTaxonomies.filter((tax) => !!tax),
                             exTaxes = excludeTaxonomies.filter((tax) => !!tax),
                             pageNumber = item.page ? PageController.parse(item.page, req) : 0,
-                            author = (item.author && PageController.parse(item.author.if, req, page)) ? page.author : null;
+                            author = (item.author && PageController.parse(item.author.if, req, page)) ? page.author : null,
+                            textSearch = item.textSearch ? PageController.parse(item.textSearch, req, page) : null;
                         return ContentModel
                             .complexQuery({
                                 includeTaxonomies: taxes,
@@ -268,7 +269,8 @@ module.exports = SUtils
                                 page: pageNumber || 0,
                                 order: item.order,
                                 excludeIds: item.excludeContentId ? page.id : null,
-                                requestor: req.user
+                                requestor: req.user,
+                                textSearch: textSearch
                             });
 
                     })
