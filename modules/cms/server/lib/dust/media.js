@@ -44,6 +44,11 @@ function print(chunk, data, type, editMode) {
         return;
       }
 
+      if (type === 'id') {
+        chunk.write(data.content? data.content.id : '');
+        return;
+      }
+
       if (editMode) {
         if (type !== 'hook') {
           chunk.write('<lackey-media ');
@@ -91,7 +96,7 @@ function print(chunk, data, type, editMode) {
         }
 
         alternatives.forEach((_source) => {
-          if(!_source.src) return;
+          if (!_source.src) return;
           chunk.write('<source src="' + _source.src + '"');
           if (_source.media) {
             chunk.write(' media="' + _source.media + '"');
@@ -103,7 +108,7 @@ function print(chunk, data, type, editMode) {
         });
 
         chunk.write('</video>');
-      } else if(data.content.type === 'image') {
+      } else if (data.content.type === 'image') {
         chunk.write('<img src="' + source + '"');
         if (data.attrs) {
           Object.keys(data.attrs).forEach((key) => {
@@ -130,16 +135,19 @@ module.exports = (dust) => {
       type = params.type,
       parent = params.parent,
       path = parent ? (parent + '.' + params.path) : params.path,
-      attrNames = Object.keys(params).map((name) => {
+      attrNames = Object.keys(params)
+      .map((name) => {
         if (name.match(/^attr-/)) {
           return name;
         }
         return null;
-      }).filter((output) => {
+      })
+      .filter((output) => {
         return output !== null;
       }),
       //attrs = {},
       data = treeParser.get(content ? content.layout : {}, path, params.variant, null, context.get('locale')),
+
       dataObject = {
         path: path,
         variant: params.variant,
@@ -164,10 +172,12 @@ module.exports = (dust) => {
 
       return chunk.map((injected) => {
 
-        return SUtils.cmsMod('core').model('media')
+        return SUtils.cmsMod('core')
+          .model('media')
           .then((Media) => {
             return Media.findById(data.id);
-          }).then((model) => {
+          })
+          .then((model) => {
 
             SCli.debug('lackey-cms/modules/cms/server/lib/dust/media', 'Model', model);
             if (model) {

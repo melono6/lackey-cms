@@ -84,7 +84,7 @@ module.exports = (gulp, projectDIR) => {
         });
     });
 
-     gulp.task('lackey.server', function () {
+    gulp.task('lackey.server', function () {
         return nodemon({
             script: lackeyDIR + '/lib/server/start.js',
             exec: 'node --harmony',
@@ -165,7 +165,8 @@ module.exports = (gulp, projectDIR) => {
                 paths: [
                     from + '/modules/',
                     'node_modules/',
-                    'node_modules/core/client/js/node_modules/'
+                    'node_modules/lackey-cms/modules',
+                    'node_modules/lackey-cms/node_modules'
                 ],
                 debug: true
             }))
@@ -206,7 +207,7 @@ module.exports = (gulp, projectDIR) => {
                     let filePath = file.path;
                     filePath = path.relative(from, filePath);
                     filePath = filePath.replace(/^modules\/([^\/]+)\/(client|shared)\/views/, '$1');
-                    filePath = to.replace(/^\/dust\//, '') + '/' + filePath;
+                    filePath = path.join(to.replace(/^\/dust\//, ''), filePath);
                     filePath = filePath.replace(/\.dust$/, '');
                     return filePath;
                 }
@@ -220,6 +221,6 @@ module.exports = (gulp, projectDIR) => {
     }
 
     gulp.task('lackey.dust.cms', () => dustTask(lackeyDIR, '/dust/cms'));
-    gulp.task('lackey.dust.project', () => dustTask(projectDIR, '/dust'));
+    gulp.task('lackey.dust.project', () => dustTask(projectDIR, '/dust/'));
 
 };
