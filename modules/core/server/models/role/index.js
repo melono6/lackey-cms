@@ -132,7 +132,8 @@ module.exports = SUtils
                 return {
                     name: this.name,
                     label: this.label,
-                    acl: this.acl
+                    acl: this.acl,
+                    taxonomies: this.taxonomies
                 };
             }
 

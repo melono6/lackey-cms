@@ -751,7 +751,8 @@ module.exports = SUtils
                     roles: this.roles,
                     route: this.route,
                     image: this.image ? this.image.toJSON() : null,
-                    id: this.id
+                    id: this.id,
+                    taxonomies: this.taxonomies
                 };
             }
 
