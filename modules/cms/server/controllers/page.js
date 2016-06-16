@@ -18,7 +18,8 @@
 */
 
 const SCli = require(LACKEY_PATH).cli,
-    SUtils = require(LACKEY_PATH).utils;
+    SUtils = require(LACKEY_PATH).utils,
+    configuration = require(LACKEY_PATH).configuration;
 
 module.exports = SUtils
     .waitForAs('pageCtrl',
@@ -53,6 +54,16 @@ module.exports = SUtils
 
             }
 
+            static pageAccess(user) {
+                 return configuration()
+                    .then((cfg) => {
+                        if (cfg.get('pagePermissions')) {
+                            return cfg.get('pagePermissions');
+                        }
+                        return false;
+                    });
+            }
+
             static print(page, fullPath, res, req, preview) {
 
                 let
@@ -66,6 +77,8 @@ module.exports = SUtils
                         content: pageJson
                     },
                     javascripts,
+                    self = this,
+                    pagePermissions,
                     promise = (user ? user.isAllowed('/admin*', 'get') : Promise.resolve(false));
 
                 return promise
@@ -116,6 +129,29 @@ module.exports = SUtils
                             }
                         }
                         return [path, result];
+                    })
+                    .then((result) => {
+                        return self.pageAccess()
+                            .then((perm) => {
+                                pagePermissions = perm;
+                                return result;
+                            });
+                    })
+                    .then((result) => {
+                        if (pagePermissions) {
+                            if (user) {
+                                return user.isAllowed(pagePermissions.perm, pagePermissions.method)
+                                    .then((allowed) => {
+                                        if(allowed) {
+                                            return result;
+                                        } else {
+                                            Promise.reject('403');
+                                        }
+                                    })
+                            }
+                            return Promise.reject('403');
+                        }
+                        return result;
                     })
                     .then((result) => {
                         res.edit(isAllowed);
