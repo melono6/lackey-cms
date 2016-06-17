@@ -84,8 +84,30 @@ module.exports = SUtils
                 return promise
                     .then((allowed) => {
                         isAllowed = allowed;
-
-                        javascripts = allowed ? [
+                        return;
+                    })
+                    .then(() => {
+                        return self.pageAccess()
+                            .then((perm) => {
+                                pagePermissions = perm;
+                                if (pagePermissions) {
+                                    if (user) {
+                                        return user.isAllowed(pagePermissions.perm, pagePermissions.method)
+                                            .then((allowed) => {
+                                                if(allowed) {
+                                                    return;
+                                                } else {
+                                                    Promise.reject('403');
+                                                }
+                                            })
+                                    }
+                                    return Promise.reject('403');
+                                }
+                                return;
+                            });
+                    })
+                    .then(() => {
+                        javascripts = isAllowed ? [
                             preview ? 'js/cms/cms/preview.js' : 'js/cms/cms/page.js'
                         ] : [];
 
