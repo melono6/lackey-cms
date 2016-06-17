@@ -30,6 +30,9 @@ module.exports = Promise.resolve({
     },
 
     login: (req, res, next) => {
+        if (req.body.remember) {
+            req.session.cookie.maxAge = req.body.remember * 86400000;
+        }
         passport.authenticate('local', (err, user, info) => {
             if (err) {
                 /* istanbul ignore next */
