@@ -35,7 +35,7 @@ module.exports = (dust) => {
     dust.helpers.translate = function (chunk, context, bodies, params) {
         let content = renderBlock(bodies.block, chunk, context),
             ref = params.ref,
-            locale = context.stack.head.locale;
+            locale = context.stack.head.locale();
 
         return chunk.map((injected) => {
             return SUtils.cmsMod('core').model('translation')
