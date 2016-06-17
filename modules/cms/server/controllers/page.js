@@ -153,29 +153,6 @@ module.exports = SUtils
                         return [path, result];
                     })
                     .then((result) => {
-                        return self.pageAccess()
-                            .then((perm) => {
-                                pagePermissions = perm;
-                                return result;
-                            });
-                    })
-                    .then((result) => {
-                        if (pagePermissions) {
-                            if (user) {
-                                return user.isAllowed(pagePermissions.perm, pagePermissions.method)
-                                    .then((allowed) => {
-                                        if(allowed) {
-                                            return result;
-                                        } else {
-                                            Promise.reject('403');
-                                        }
-                                    })
-                            }
-                            return Promise.reject('403');
-                        }
-                        return result;
-                    })
-                    .then((result) => {
                         res.edit(isAllowed);
                         res.print(result[0], result[1]);
                     }, (error) => {
