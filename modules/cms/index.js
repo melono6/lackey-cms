@@ -28,6 +28,7 @@ const
     attr = require('./server/lib/dust/attr'),
     block = require('./server/lib/dust/block'),
     list = require('./server/lib/dust/list'),
+    acronym = require('./server/lib/dust/acronym'),
     is = require('./../core/shared/dust/is'),
     taxonomy = require('./server/lib/dust/taxonomy'),
     hasContent = require('./server/lib/dust/has-content'),
@@ -52,6 +53,7 @@ module.exports = (instance) => {
     instance.addDustHelper(tweet);
     instance.addDustHelper(is);
     instance.addDustHelper(translate);
+    instance.addDustHelper(acronym);
 
     sitemap.addSource(() => {
         return require('./server/controllers/content')
