@@ -24,13 +24,15 @@ module.exports = (dust) => {
       type = params.type,
       many = !!params.many,
       newContext,
-      output = chunk,
       taxonomies = [];
 
     if (type) {
       let found = false;
-      if(data.content ) {
+      if (data.content) {
         taxonomies = data.content.taxonomies || [];
+      }
+      if (data.content.template && data.content.template.taxonomies) {
+        taxonomies = taxonomies.concat(data.content.template.taxonomies);
       }
       (taxonomies).forEach((taxonomy) => {
         if (name) {

@@ -99,7 +99,7 @@ module.exports = SUtils
                                                 } else {
                                                     Promise.reject('403');
                                                 }
-                                            })
+                                            });
                                     }
                                     return Promise.reject('403');
                                 }
