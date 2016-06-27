@@ -31,7 +31,7 @@ module.exports = (dust) => {
       if (data.content) {
         taxonomies = data.content.taxonomies || [];
       }
-      if (data.content.template && data.content.template.taxonomies) {
+      if (data && data.content && data.content.template && data.content.template.taxonomies) {
         taxonomies = taxonomies.concat(data.content.template.taxonomies);
       }
       (taxonomies).forEach((taxonomy) => {

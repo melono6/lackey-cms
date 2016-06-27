@@ -197,8 +197,10 @@ module.exports = SUtils
                 return super._preQuery(query, options);
             }
 
-            static _postQuery(data, query, options) {
-                if (!data) return data;
+            static _postQuery(data, query) {
+                if (!data) {
+                    return data;
+                }
 
                 if (query.route) {
                     let pathParts = query.route.split('/');
@@ -221,7 +223,9 @@ module.exports = SUtils
                             return Template.generator(this._doc.template);
                         })
                         .then((template) => {
-                            if (template) self._doc.templateId = template.id;
+                            if (template) {
+                                self._doc.templateId = template.id;
+                            }
                         });
                 }
 
@@ -293,7 +297,9 @@ module.exports = SUtils
                         if (self._user) {
                             promise = self._user.getIdentity('email')
                                 .then((email) => {
-                                    if (email) return email.accountId;
+                                    if (email) {
+                                        return email.accountId;
+                                    }
                                     return null;
                                 });
                         }
@@ -359,7 +365,9 @@ module.exports = SUtils
             }
 
             get uri() {
-                if (!this._doc || !this._doc.id) return null;
+                if (!this._doc || !this._doc.id) {
+                    return null;
+                }
                 return '/api/cms/content/' + this._doc.id.toString();
             }
 
@@ -379,10 +387,10 @@ module.exports = SUtils
 
             static getTypes() {
                 return [
-                'page',
-                'block',
-                'quote'
-            ];
+                    'page',
+                    'block',
+                    'quote'
+                ];
             }
 
             static getByTypeAndRoute(type, route) {
@@ -404,15 +412,14 @@ module.exports = SUtils
 
             static complexQuery(options) {
 
-                let requestor = options.requestor,
-                    builder = new QueryBuilder();
+                let builder = new QueryBuilder();
 
                 builder.withTaxonomies(options.includeTaxonomies);
                 builder.withoutTaxonomies(options.excludeTaxonomies);
                 builder.withAuthor(options.requireAuthor);
                 builder.withoutIds(options.exlcudeIds);
 
-                if(options.textSearch && options.textSearch.length > 3) {
+                if (options.textSearch && options.textSearch.length > 3) {
                     builder.withTextSearch(options.textSearch);
                 }
 

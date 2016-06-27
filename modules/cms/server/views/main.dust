@@ -32,6 +32,14 @@
                 <li>
                     <a href="/cms/content">Content</a>
                 </li>
+                {?data.cms.items}
+                    <li data-class="divider"></li>
+                    {#data.cms.items}
+                        <li>
+                            <a href="{uri}">{label}</a>
+                        </li>
+                    {/data.cms.items}
+                {/data.cms.items}
                 <li data-class="divider"></li>
                 <li>
                     <a href="http://lackey.io">Updates</a>
