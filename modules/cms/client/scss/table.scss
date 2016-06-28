@@ -31,6 +31,10 @@
             display: block;
             width: 100%;
         }
+        input[type="checkbox"] {
+            display: inline-block;
+            width: auto;
+        }
     }
     table {
         &[data-lky-table-hover] {
