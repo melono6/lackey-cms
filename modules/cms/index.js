@@ -33,6 +33,7 @@ const
     taxonomy = require('./server/lib/dust/taxonomy'),
     hasContent = require('./server/lib/dust/has-content'),
     tweet = require('./server/lib/dust/tweet'),
+    config = require('./server/lib/dust/config'),
     socket = SUtils.cmsMod('core').path('server/models/media/sockets'),
     sitemap = require(LACKEY_PATH).sitemap;
 
@@ -54,6 +55,7 @@ module.exports = (instance) => {
     instance.addDustHelper(is);
     instance.addDustHelper(translate);
     instance.addDustHelper(acronym);
+    instance.addDustHelper(config);
 
     sitemap.addSource(() => {
         return require('./server/controllers/content')

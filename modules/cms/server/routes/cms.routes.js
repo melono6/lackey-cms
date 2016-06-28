@@ -106,5 +106,7 @@ module.exports = (server, config) => {
             cmsResourceRoutes(server, 'template', 'template', TemplateController);
             cmsResourceRoutes(server, 'session', 'session', SessionController);
 
+            server.route('/cms/user/:user_id').get(server.aclAdmin, UserController.preview);
+
         });
 };

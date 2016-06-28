@@ -624,7 +624,7 @@ module.exports = Database
                                             if (columnsList[column].parse) {
                                                 try {
                                                     parse = new Function('val', columnsList[column].parse); //eslint-disable-line no-new-func
-                                                    value = parse(value);
+                                                    value = parse(value, row);
 
                                                 } catch (ex) {
                                                     console.error(ex);
@@ -645,6 +645,11 @@ module.exports = Database
                                             }
 
                                             if (value !== undefined) {
+
+                                                if (Array.isArray(value)) {
+                                                    value = value.join(', ');
+                                                }
+
                                                 formatted.columns.push({
                                                     value: value
                                                 });

@@ -36,6 +36,13 @@ module.exports = SUtils
                 return 'user';
             }
 
+            static get actions() {
+                return [{
+                    label: 'View',
+                    href: '/cms/user/{id}'
+                }];
+            }
+
             static get tableConfig() {
                 return {
                     name: {
@@ -44,16 +51,19 @@ module.exports = SUtils
                     },
                     roles: {
                         label: 'Roles',
-                        parse: 'return arguments[0] ? arguments[0].map(function(r) { return r.label;}) : \'\''
+                        parse: 'return arguments[0] ? arguments[0].map(function(r) { return r.label || r.name;}) : \'\''
                     },
-                    route: {
-                        label: 'Profile Page',
-                        link: true,
-                        linkText: 'View'
-                    }
+                    taxonomies: {
+                        label: 'Classification',
+                        parse: 'return arguments[0] ? arguments[0].map(function(r) { return r.label || r.name;}) : \'\''
+                    },
                 };
             }
 
+            static preview(req, res) {
+                res.css('css/cms/cms/table.css');
+                res.print('cms/users/preview', req.user);
+            }
 
         }
 

@@ -150,6 +150,10 @@ class Table {
                                 };
                             }
 
+                            if(Array.isArray(value)) {
+                                value = value.join(', ');
+                            }
+
                             columns.push({
                                 value: value
                             });
