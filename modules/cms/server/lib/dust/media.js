@@ -189,10 +189,16 @@ module.exports = (dust) => {
                 _.merge(dataObject.attrs, model._doc.attributes);
               }
             }
-
-            print(injected, dataObject, type, editMode, dust);
-            injected.end();
+            if (bodies.block) {
+              injected.render(bodies.block, context.push(dataObject));
+            } else {
+              print(injected, dataObject, type, editMode, dust);
+            }
+            return injected.end();
           }, (error) => {
+            injected.end(error.toString());
+          })
+          .catch((error) => {
             injected.end(error.toString());
           });
       });

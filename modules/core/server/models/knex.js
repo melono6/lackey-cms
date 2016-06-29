@@ -355,7 +355,6 @@ module.exports = Schema
                         .onDelete('CASCADE');
                     table.timestamp('createdAt').notNullable().defaultTo(knex.raw('now()'));
                     table.timestamp('updatedAt').notNullable().defaultTo(knex.raw('now()'));
-                    table.unique(['name', 'taxonomyTypeId']);
                 });
             })
             //

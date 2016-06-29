@@ -17,7 +17,15 @@
     limitations under the License.
 */
 
-var isYoutube = require('cms/shared/youtube');
+var isYoutube;
+
+if (typeof window === 'undefined') {
+    isYoutube = require('../../../cms/shared/youtube');
+
+} else {
+    isYoutube = require('cms/shared/youtube');
+}
+
 
 module.exports = (dust) => {
 

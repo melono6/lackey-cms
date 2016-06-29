@@ -34,6 +34,7 @@ const
     hasContent = require('./server/lib/dust/has-content'),
     tweet = require('./server/lib/dust/tweet'),
     config = require('./server/lib/dust/config'),
+    youtube = require('./shared/youtube'),
     socket = SUtils.cmsMod('core').path('server/models/media/sockets'),
     sitemap = require(LACKEY_PATH).sitemap;
 

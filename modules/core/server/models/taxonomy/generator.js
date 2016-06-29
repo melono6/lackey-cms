@@ -34,12 +34,17 @@ module.exports = (data) => {
 
             if (typeof data === 'string') {
                 SCli.debug('lackey/modules/cms/server/models/taxonomy/generator', 'Gets taxonomy ' + data + ' by name');
+                throw new Error('no way!');
                 return Taxonomy.getByName(data);
             }
 
             function next() {
                 SCli.debug('lackey/modules/cms/server/models/taxonomy/generator', 'Ensure that taxonomy  ' + data.name + ' exists');
-                return Taxonomy.getByName(data.name).then((tax) => {
+                return Taxonomy
+                    .byTypeAndName(data.type, data.name)
+                    .then((tax) => {
+                        delete data.type;
+
                         if (!tax) {
                             return Taxonomy.create(data);
                         }
@@ -58,7 +63,6 @@ module.exports = (data) => {
                 return taxonomyType(data.type)
                     .then((type) => {
                         data.taxonomyTypeId = type.id;
-                        delete data.type;
                         return next();
                     });
 
@@ -68,6 +72,8 @@ module.exports = (data) => {
 };
 
 module.exports.parse = (data) => {
+
+
 
     if (!data.taxonomy && !data.taxonomies) {
         return Promise.resolve(null);
