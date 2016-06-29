@@ -155,6 +155,8 @@ module.exports = require(LACKEY_PATH)
                 let q;
                 if (values && Array.isArray(values) && values.length) {
                     q = template.replace(/\$1/g, values.join(', '));
+                } else {
+                    q = template;
                 }
                 if (values2 && Array.isArray(values2) && values2.length) {
                     q = q.replace(/\$2/g, values2.join(', '));
