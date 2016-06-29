@@ -31,7 +31,7 @@ const SCli = require(LACKEY_PATH).cli,
                     JOIN "templateToTaxonomy" AS ttt
                         ON ttt."templateId" = c."templateId"
                         AND c.id = con.id
-                UNION ALL
+                UNION
                 SELECT ctt."taxonomyId" FROM "contentToTaxonomy" AS ctt
                     WHERE ctt."contentId" = con.id
                 ) AS FOO
@@ -42,8 +42,22 @@ const SCli = require(LACKEY_PATH).cli,
             SELECT id FROM content WHERE "templateId" IN (
                 SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
             )
-            UNION ALL
+            UNION
             SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+        )`,
+    EXCLUDE_QUERY_BUT = `
+        id NOT IN (
+            SELECT id FROM content WHERE "templateId" IN (
+                SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($1)
+            )
+            UNION
+            SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($1)
+            EXCEPT
+            SELECT id FROM content WHERE "templateId" IN (
+                SELECT "templateId" FROM "templateToTaxonomy" where "taxonomyId" IN ($2)
+            )
+            EXCEPT
+            SELECT "contentId" FROM "contentToTaxonomy" WHERE "taxonomyId" IN ($2)
         )`,
     EXCLUDE_IDS_QUERY = `
             id NOT IN ($1)
@@ -58,7 +72,18 @@ const SCli = require(LACKEY_PATH).cli,
             AND taxonomy.id NOT IN (
                 /* TAXONOMIES */
                 SELECT "taxonomyId" FROM "userToTaxonomy" WHERE "taxonomyUserId" = $1
-                UNION ALL
+                UNION
+                SELECT "taxonomyId" FROM "roleToTaxonomy" JOIN "acl" ON "roleToTaxonomy"."roleId" = "acl"."roleId" AND "acl"."userId" = $1
+            )
+        `,
+    UNRESTRICT_FOR_USER = `
+        SELECT taxonomy.id FROM "taxonomyType"
+            JOIN taxonomy ON "taxonomyTypeId" = "taxonomyType".id
+            WHERE restrictive = true
+            AND taxonomy.id IN (
+                /* TAXONOMIES */
+                SELECT "taxonomyId" FROM "userToTaxonomy" WHERE "taxonomyUserId" = $1
+                UNION
                 SELECT "taxonomyId" FROM "roleToTaxonomy" JOIN "acl" ON "roleToTaxonomy"."roleId" = "acl"."roleId" AND "acl"."userId" = $1
             )
         `,
@@ -67,7 +92,7 @@ const SCli = require(LACKEY_PATH).cli,
             JOIN taxonomy ON "taxonomyTypeId" = "taxonomyType".id
             WHERE restrictive = true
         `,
-      TEXT_SEARCH = `
+    TEXT_SEARCH = `
         (
             layout::TEXT like '%$1%'
             OR
@@ -92,12 +117,12 @@ module.exports = require(LACKEY_PATH)
                     let output = [];
 
                     taxonomies.forEach((group) => {
-                        if(group && Array.isArray(group) && group.length) {
-                         output.push(INCLUDE_SUB.replace(/\$1/g, group.join(', ')));
+                        if (group && Array.isArray(group) && group.length) {
+                            output.push(INCLUDE_SUB.replace(/\$1/g, group.join(', ')));
                         }
                     });
 
-                    if(output.length) {
+                    if (output.length) {
                         this._wheres.push(INCLUDE_QUERY.replace(/\$1/g, output.join(' AND ')));
                     } else {
                         this._wheres.push(INCLUDE_QUERY.replace(/\$1/g, 'TRUE'));
@@ -105,7 +130,10 @@ module.exports = require(LACKEY_PATH)
                 }
             }
 
-            withoutTaxonomies(taxonomies) {
+            withoutTaxonomies(taxonomies, butExceptThose) {
+                if (butExceptThose && butExceptThose.length) {
+                    return this.whereIn(EXCLUDE_QUERY_BUT, taxonomies, butExceptThose);
+                }
                 this.whereIn(EXCLUDE_QUERY, taxonomies);
             }
 
@@ -123,9 +151,16 @@ module.exports = require(LACKEY_PATH)
                 this.whereIn(REQUIRE_AUTHOR_QUERY, (Array.isArray(ids) ? ids : [ids]).map((object) => object.id ? object.id : object));
             }
 
-            whereIn(template, values) {
+            whereIn(template, values, values2) {
+                let q;
                 if (values && Array.isArray(values) && values.length) {
-                    this._wheres.push(template.replace(/\$1/g, values.join(', ')));
+                    q = template.replace(/\$1/g, values.join(', '));
+                }
+                if (values2 && Array.isArray(values2) && values2.length) {
+                    q = q.replace(/\$2/g, values2.join(', '));
+                }
+                if (q) {
+                    this._wheres.push(q);
                 }
             }
 
@@ -134,20 +169,25 @@ module.exports = require(LACKEY_PATH)
             }
 
             withTextSearch(text) {
-                this._wheres.push(TEXT_SEARCH.replace('$1', text.replace(/[^a-zA-Z0-9\s+]/g,'')));
+                this._wheres.push(TEXT_SEARCH.replace('$1', text.replace(/[^a-zA-Z0-9\s+]/g, '')));
             }
 
 
             run(user, page, limit, order) {
 
                 let self = this,
-                    num_limit = limit || 10;
+                    num_limit = limit || 10,
+                    excludeRestrictives;
 
                 return this
                     .getRestrictives(user ? (user.id ? user.id : user) : null)
-                    .then((excludeRestrictives) => {
+                    .then((restrictives) => {
+                        excludeRestrictives = restrictives;
+                        return self.getUnrestrictives(user ? (user.id ? user.id : user) : null);
+                    })
+                    .then((restrictives) => {
 
-                        self.withoutTaxonomies(excludeRestrictives);
+                        self.withoutTaxonomies(excludeRestrictives, restrictives);
 
                         let countQuery = 'SELECT count(*) as "count" FROM content ',
                             query = 'SELECT route FROM content ';
@@ -164,6 +204,9 @@ module.exports = require(LACKEY_PATH)
                         }
 
                         query += ' LIMIT ' + num_limit;
+
+                        console.log(countQuery);
+                        console.log(query);
 
                         return Promise.all([
                             SCli.sql(knex.raw(countQuery)).then((r) => r.rows),
@@ -193,6 +236,19 @@ module.exports = require(LACKEY_PATH)
             getRestrictives(userId) {
 
                 let query = userId ? RESTRICT_FOR_USER.replace(/\$1/g, userId) : RESTRICT_FOR_ALL;
+
+                return knex
+                    .raw(query)
+                    .then((results) => results.rows.map((row) => row.id));
+            }
+
+            getUnrestrictives(userId) {
+
+                if (!userId) {
+                    return Promise.resolve([]);
+                }
+
+                let query = UNRESTRICT_FOR_USER.replace(/\$1/g, userId);
 
                 return knex
                     .raw(query)
