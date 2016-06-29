@@ -38,10 +38,7 @@ module.exports = Promise.resolve({
                 /* istanbul ignore next */
                 res.status(400).error(err);
             } else if (!user) {
-                res.status(400).error({
-                    info: info,
-                    message: 'Invalid credentials'
-                });
+                res.status(400).error(new Error('Invalid credentials: ' + JSON.stringify(info,null,4)));
             } else {
                 // Remove sensitive data before login
                 req.login(user, (error) => {
