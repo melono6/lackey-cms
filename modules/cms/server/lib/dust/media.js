@@ -20,7 +20,7 @@
 const SUtils = require(LACKEY_PATH).utils,
   _ = require('lodash'),
   SCli = require(LACKEY_PATH).cli,
-
+  isYoutube = require('../../../shared/youtube'),
   treeParser = require('../../../shared/treeparser');
 
 
@@ -45,7 +45,7 @@ function print(chunk, data, type, editMode) {
       }
 
       if (type === 'id') {
-        chunk.write(data.content? data.content.id : '');
+        chunk.write(data.content ? data.content.id : '');
         return;
       }
 
@@ -108,7 +108,10 @@ function print(chunk, data, type, editMode) {
         });
 
         chunk.write('</video>');
+      } else if (isYoutube(data.content.source)) {
+        chunk.write('<iframe type="text/html" src="https://www.youtube.com/embed/' + isYoutube(data.content.source) + '" frameborder="0"></iframe>');
       } else if (data.content.type === 'image') {
+
         chunk.write('<img src="' + source + '"');
         if (data.attrs) {
           Object.keys(data.attrs).forEach((key) => {

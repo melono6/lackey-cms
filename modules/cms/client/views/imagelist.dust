@@ -5,7 +5,11 @@
                 <video><source src="{source}"/></video>
             {:else}
                 {@eq key=type value="image"}
-                    <img src="{source}"/>
+                    {@youtube path=source}
+                        <img src="https://img.youtube.com/vi/{.}/default.jpg"/>
+                    {:else}
+                        <img src="{source}"/>
+                    {/youtube}
                 {:else}
                     <img src="/img/cms/cms/svg/file.svg"/>
                 {/eq}

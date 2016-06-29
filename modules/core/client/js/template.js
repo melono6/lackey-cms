@@ -27,6 +27,7 @@ var
     is = require('core/shared/dust/is'),
     snippet = require('cms/client/js/snippet'),
     caseSwitch = require('core/shared/dust/switch'),
+    youtube = require('core/shared/dust/youtube'),
     DustIntl = require('dust-intl');
 
 //require('dustjs-linkedin/lib/compiler');
@@ -40,6 +41,7 @@ is(engine);
 snippet(engine);
 caseSwitch(engine);
 DustIntl.registerWith(engine);
+youtube(engine);
 
 function load(name) {
     return xhr.get('dust/' + name + '.js').then((template) => {

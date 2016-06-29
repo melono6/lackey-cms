@@ -16,7 +16,8 @@
     See the License for the specific language governing permissions and
 */
 const lackey = require('core/client/js'),
-      Upload = require('core/client/js/upload');
+      Upload = require('core/client/js/upload'),
+      youtube = require('cms/shared/youtube');
 
 
 class Media {
@@ -68,7 +69,7 @@ class Media {
             if (this.media && this.media.mime && this.media.mime.match(/^video\//)) {
                   return this.renderVideo();
             }
-            if(this.media && this.media.mime && !this.media.mime.match(/^image\//)) {
+            if (this.media && this.media.mime && !this.media.mime.match(/^image\//)) {
                   return this.renderFile();
             }
             this.renderImage();
@@ -91,7 +92,7 @@ class Media {
             this.node.addEventListener('click', this.onClick, true);
             this.upload = new Upload(this.node);
             this.upload.on('done', function (uploader, data) {
-                  if(data && data.length && data[0].data) {
+                  if (data && data.length && data[0].data) {
                         self.set(data[0].data);
                         self.notify();
                   }
@@ -134,8 +135,13 @@ class Media {
             this.replace(img);
       }
       renderImage() {
-            let img = document.createElement('IMG');
-            img.src = this.media ? this.media.source : '';
+            let img = document.createElement('IMG'),
+                  src = this.media ? this.media.source : '',
+                  yt = youtube(src);
+            if (yt) {
+                  src = 'https://img.youtube.com/vi/' + yt + '/default.jpg';
+            }
+            img.src = src;
             this.replace(img);
       }
       field(node, path, value) {
