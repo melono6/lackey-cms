@@ -23,7 +23,7 @@
   "dependencies": {
     "acl": "^0.4.9",
     "adaro": "^1.0.1",
-    "atomus": "git@github.com:enigmamarketing/atomus.git",
+    "atomus": "2.0.0",
     "aws-sdk": "^2.3.8",
     "bestmatch": "^1.1.0",
     "body-parser": "^1.14.2",
@@ -70,7 +70,7 @@
     "http-status": "^0.2.2",
     "humanize": "0.0.9",
     "js-yaml": "^3.5.5",
-    "json2yaml": "git://github.com/sielay/json2yaml.git#a6fbbc45a981134a0857add085a20dd832514a6f",
+    "json2yaml": "https://github.com/sielay/json2yaml.git#a6fbbc45a981134a0857add085a20dd832514a6f",
     "jsondiffpatch": "^0.1.41",
     "knex": "^0.10.0",
     "language-tags": "^1.0.5",
