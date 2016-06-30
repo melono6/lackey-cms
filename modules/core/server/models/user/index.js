@@ -752,8 +752,7 @@ module.exports = SUtils
                     route: this.route,
                     image: this.image ? this.image.toJSON() : null,
                     id: this.id,
-                    taxonomies: this.taxonomies,
-                    initials: this.name.match(/\b([A-Z])/g).join('')
+                    taxonomies: this.taxonomies
                 };
             }
 

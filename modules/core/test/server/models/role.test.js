@@ -32,14 +32,15 @@ describe('modules/users/server/models/role', () => {
                 .then((role) => {
                     Role = role;
                 })
-                .then((role) => {
+                .then(() => {
                     RoleGenerator = require('../../../server/models/role/generator');
-                    Role.removeAll().then(() => {
-                        done();
-                    }, (error) => {
-                        /* istanbul ignore next */
-                        done(error);
-                    });
+                    return Role.removeAll();
+                })
+                .then(() => {
+                    done();
+                }, (error) => {
+                    /* istanbul ignore next */
+                    done(error);
                 });
         });
     });
@@ -67,28 +68,5 @@ describe('modules/users/server/models/role', () => {
             })
             .should.finally.be.eql(true);
     });
-    /*
-        it('Should finish previous test first', () => {
-            lock.should.be.eql(true);
-        });
-
-        it('Updates init data', () => {
-            return Generator.load(__dirname + '/../../../../../test/mockup/update.yml', true).then(() => {
-                return Role.roleNames();
-            }).then((roles) => {
-                roles.sort().should.be.eql([
-                    'admin',
-                    'developer',
-                    'gold',
-                    'guest',
-                    'silver'
-                ]);
-                Role.getByName('developer').acl.cms.should.be.eql('*');
-                Role.getByName('developer').acl.debug.should.be.eql('*');
-                Role.getByName('developer').acl.viewas.should.be.eql('*');
-                Role.getByName('developer').acl.easteregg.should.be.eql('death star');
-                return true;
-            }).should.finally.be.eql(true);
-        });*/
 
 });

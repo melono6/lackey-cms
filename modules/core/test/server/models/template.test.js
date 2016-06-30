@@ -38,7 +38,8 @@ describe('models/cms/server/models/template', () => {
     });
 
     it('Should begin with no content', function () {
-        return TemplateModel.removeAll()
+        return TemplateModel
+            .removeAll()
             .then(() => {
                 return TemplateModel.count();
             })
@@ -50,44 +51,54 @@ describe('models/cms/server/models/template', () => {
     });
 
     it('Creates', () => {
-        return TemplateModel.create({
-            name: 'my page',
-            path: 'page/template',
-            javascripts: ['js1', 'js2'],
-            stylesheets: ['css1', 'css2']
-        }).then((result) => {
-            let json = result.toJSON();
-            json.should.be.eql({
-                expose: [],
-                populate: [],
-                id: json.id,
+        return TemplateModel
+            .create({
                 name: 'my page',
                 path: 'page/template',
-                javascripts: ["js1", "js2"],
-                stylesheets: ["css1", "css2"],
-                props: {},
-                selectable: false,
-                thumb: null,
-                type: 'template'
-            });
-            result.name.should.be.eql('my page');
-            result.path.should.be.eql('page/template');
+                javascripts: ['js1', 'js2'],
+                stylesheets: ['css1', 'css2']
+            })
+            .then((result) => {
+                let json = result.toJSON();
+                json.should.be.eql({
+                    expose: [],
+                    populate: [],
+                    id: json.id,
+                    name: 'my page',
+                    path: 'page/template',
+                    javascripts: ["js1", "js2"],
+                    stylesheets: ["css1", "css2"],
+                    props: {},
+                    selectable: false,
+                    thumb: null,
+                    type: 'template',
+                    prefix: '',
+                    taxonomies: [],
+                    variants: []
+                });
+                result.name.should.be.eql('my page');
+                result.path.should.be.eql('page/template');
 
-            return true;
-        });
+                return true;
+            });
     });
 
     it('Queries', () => {
-        return TemplateModel.list({}).then(() => {
-            return true; //TODO: improve
-        }).should.finally.be.True;
+        return TemplateModel
+            .list({})
+            .then(() => {
+                return true; //TODO: improve
+            }).should.finally.be.True;
     });
 
     it('Generates init data', () => {
         Generator.registerMapper('Template', TemplateGenerator);
-        return Generator.load(__dirname + '/../../../module.yml', true).then(() => {
-            return true;
-        }).should.finally.be.eql(true);
+        return Generator
+            .load(__dirname + '/../../../module.yml', true)
+            .then(() => {
+                return true;
+            })
+            .should.finally.be.eql(true);
     });
 
 });

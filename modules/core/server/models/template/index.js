@@ -136,7 +136,7 @@ module.exports = SUtils
                     expose: this._doc.expose || [],
                     thumb: this._doc.thumb || null,
                     prefix: this._doc.prefix || '',
-                    variants: this.variants,
+                    variants: this.variants || [],
                     taxonomies: this.taxonomies || []
                 };
             }

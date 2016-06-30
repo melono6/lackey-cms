@@ -1,4 +1,4 @@
-/* jslint node:true, esnext:true */
+/* jslint node:true, esnext:true, mocha:true */
 'use strict';
 /*
     Copyright 2016 Enigma Marketing Services Limited
@@ -16,8 +16,9 @@
     limitations under the License.
 */
 
-const should = require('should'),
-    middleware = require('../../../../lib/server/init/format');
+const middleware = require('../../../../lib/server/init/format');
+
+require('should');
 
 describe('lib/server/init/format', () => {
     it('Setup', () => {
@@ -52,7 +53,7 @@ describe('lib/server/init/format', () => {
                 'Access-Control-Allow-Headers': 'Content-Type'
             });
             callback();
-        })
+        });
 
     });
 
@@ -66,8 +67,7 @@ describe('lib/server/init/format', () => {
                 _headers: {},
                 header: (name, value) => res._headers[name] = value,
                 send: function (output) {
-                    //console.error(output);
-                    callback(new Error('Shouldn\'t be here'));
+                    throw output;
                 },
                 render: function (template, data) {
                     template.should.be.eql('adsaf');
