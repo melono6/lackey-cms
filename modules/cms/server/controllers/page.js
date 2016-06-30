@@ -55,7 +55,7 @@ module.exports = SUtils
             }
 
             static pageAccess(user) {
-                 return configuration()
+                return configuration()
                     .then((cfg) => {
                         if (cfg.get('pagePermissions')) {
                             return cfg.get('pagePermissions');
@@ -94,7 +94,7 @@ module.exports = SUtils
                                     if (user) {
                                         return user.isAllowed(pagePermissions.perm, pagePermissions.method)
                                             .then((allowed) => {
-                                                if(allowed) {
+                                                if (allowed) {
                                                     return;
                                                 } else {
                                                     Promise.reject('403');
@@ -224,6 +224,9 @@ module.exports = SUtils
                         }
 
                         let queryValue = PageController.parse(taxonomy, req, page);
+                        if (typeof queryValue === 'string') {
+                            queryValue = queryValue.split(',');
+                        }
                         if (!queryValue || !queryValue.length) return Promise.resolve(null);
                         return PageController
                             .taxonomyType(taxonomy.type)
@@ -233,12 +236,19 @@ module.exports = SUtils
                                         .where('taxonomyTypeId', taxonomyTypeId)
                                         .whereIn('name', queryValue))
                                     .then((tax) => {
-                                        return tax[0] ? tax[0] : null;
+                                        return tax || [];
                                     });
                             });
                     }))
                     .then((list) => {
-                        return list.filter((t) => !!t);
+                        return list.filter((t) => !!t && t.length);
+                    })
+                    .then((list) => {
+                        let sum = [];
+                        list.forEach((t) => {
+                            sum = sum.concat(t);
+                        });
+                        return sum;
                     });
             }
 
@@ -308,7 +318,6 @@ module.exports = SUtils
                                 }
                                 return res;
                             });
-
                     });
             }
 
