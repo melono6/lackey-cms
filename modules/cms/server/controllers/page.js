@@ -54,7 +54,7 @@ module.exports = SUtils
 
             }
 
-            static pageAccess(user) {
+            static pageAccess() {
                 return configuration()
                     .then((cfg) => {
                         if (cfg.get('pagePermissions')) {
@@ -91,6 +91,13 @@ module.exports = SUtils
                             .then((perm) => {
                                 pagePermissions = perm;
                                 if (pagePermissions) {
+
+                                    if(Array.isArray(pagePermissions.public)) {
+                                        if(pagePermissions.public.indexOf(page.route) !== -1) {
+                                            return;
+                                        }
+                                    }
+
                                     if (user) {
                                         return user.isAllowed(pagePermissions.perm, pagePermissions.method)
                                             .then((allowed) => {
