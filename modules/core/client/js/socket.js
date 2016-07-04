@@ -16,5 +16,7 @@
     limitations under the License.
 */
 
-const socket = require('socket.io-client').connect('ws://' + document.location.host + '/');
+const socket = require('socket.io-client').connect('ws://' + document.location.host + '/', {
+    secure: document.location.protocol === 'https:'
+});
 module.exports = socket;

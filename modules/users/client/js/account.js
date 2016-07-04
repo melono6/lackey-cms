@@ -95,10 +95,11 @@ lackey.bind('.sess-rmAll', 'click', (event, hook) => {
 });
 
 lackey.bind('lky:password', 'submit', (event, hook) => {
+    debugger;
     event.preventDefault();
     event.cancelBubble = true;
     let data = lackey.form(hook);
-    if (data.newPassword !== data.newPassword2) {
+    if (data.newPassword !== data.newPassword2 && data.newPassword2 !== undefined) {
         alert('Passwords doesn\'t match');
         return false;
     }
