@@ -91,7 +91,7 @@ module.exports = SUtils.waitForAs(__MODULE_NAME,
             },
             forgotIndex: (req, res) => {
                 res.js('js/cms/users/forgot.js');
-                res.print('cms/users/forgot-password');
+                res.print(['~/core//forgot-password', 'cms/users/forgot-password']);
             },
             forgot: (req, res) => {
                 let userId;
@@ -109,7 +109,7 @@ module.exports = SUtils.waitForAs(__MODULE_NAME,
                     .then((token) => {
                         return mailer({
                             to: req.body.username,
-                            template: ['cms/users/emails/forgot-password'],
+                            template: ['~/core//emails/forgot-password', 'cms/users/emails/forgot-password'],
                             token: token,
                             id: userId,
                             subject: 'Remind me my pass'
