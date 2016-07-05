@@ -30,7 +30,9 @@ describe('lib/server/init/format', () => {
             }
         };
 
-        middleware(server);
+        middleware(server, {
+            get: (field) => field
+        });
 
         server._middlewares.should.be.eql([
             middleware.cors,
@@ -90,7 +92,9 @@ describe('lib/server/init/format', () => {
                         admin: undefined,
                         edit: false,
                         route: '/hakuna/matata',
-                        query: {}
+                        query: {},
+                        env: 'development',
+                        host: 'host'
                     });
                     callback();
                 },
@@ -136,7 +140,9 @@ describe('lib/server/init/format', () => {
                         defaultLocale: undefined,
                         edit: false,
                         route: '/hakuna/matata.json',
-                        query: {}
+                        query: {},
+                        env: 'development',
+                        host: 'host'
                     });
                     callback();
                 },
@@ -188,7 +194,9 @@ describe('lib/server/init/format', () => {
                         defaultLocale: undefined,
                         edit: false,
                         route: '/hakuna/matata.json',
-                        query: {}
+                        query: {},
+                        env: 'development',
+                        host: 'host'
                     });
                     callback();
                 },
@@ -234,7 +242,9 @@ describe('lib/server/init/format', () => {
                         "edit": false,
                         fragment: false,
                         "route": "/hakuna/matata.json",
-                        query: {}
+                        query: {},
+                        env: 'development',
+                        host: 'host'
                     });
                     res.__doc.should.be.eql({
                         stylesheets: ['my/css', 'my/css2'],
@@ -247,7 +257,9 @@ describe('lib/server/init/format', () => {
                         defaultLocale: undefined,
                         edit: false,
                         route: '/hakuna/matata.json',
-                        query: {}
+                        query: {},
+                        env: 'development',
+                        host: 'host'
                     });
                     callback();
                 },
