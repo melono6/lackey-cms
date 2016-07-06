@@ -30,7 +30,8 @@ let base = document.querySelector('head base'),
     loc = document.location,
     basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '' ) + '/'),
     pathPrefix = basePath.replace(/.+?:\/\/.+?\/(.*)$/,'$1'),
-    pathNameWithNoPrefix = (pathPrefix && pathPrefix.length) ? document.location.pathname.replace(new RegExp('^' + pathPrefix)) : document.location.pathname,
+    pathName = document.location.pathname.replace(/([^\/]{1})$/,'/'),
+    pathNameWithNoPrefix = (pathPrefix && pathPrefix.length) ? pathName.replace(new RegExp('^' + pathPrefix)) : document.location.pathname,
     adminPath = basePath.replace(/\/$/,'') + '/admin' + pathNameWithNoPrefix;
 
 if (top === window) {
