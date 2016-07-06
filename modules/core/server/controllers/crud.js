@@ -138,7 +138,7 @@ class CRUDController {
                 row.actions = actions.map((_action) => {
                     let action = JSON.parse(JSON.stringify(_action));
 
-                    if(!_action.condition || _action.condition(row.data)) {
+                    if (!_action.condition || _action.condition(row.data)) {
                         if (action.href) {
                             action.href = self.populateAction(action.href, row, columns);
                         } else if (action.api) {
@@ -156,11 +156,19 @@ class CRUDController {
     static table(req, res) {
 
         let restParams = req.getRESTQuery(true),
-            self = this;
+            self = this,
+            config;
 
-        this.model
-            .table(restParams.query, this.tableConfig, {
-                format: 'table'
+        require(LACKEY_PATH)
+            .configuration()
+            .then((_config) => {
+                config = _config;
+
+                return this
+                    .model
+                    .table(restParams.query, this.tableConfig, {
+                        format: 'table'
+                    });
             })
             .then((data) => {
                 try {
@@ -169,7 +177,7 @@ class CRUDController {
                     res.error(e);
                 }
 
-                res.print({
+                res.send({
                     title: self.title || self.field,
                     create: self.model.createLink,
                     tableActions: this.tableActions,
@@ -180,6 +188,7 @@ class CRUDController {
                     stylesheets: [
                         'css/cms/cms/table.css'
                     ],
+                    host: config.get('host'), // this is so stupid, but fast fix
                     data: {
                         table: data
                     }
