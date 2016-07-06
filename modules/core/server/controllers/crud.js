@@ -169,7 +169,7 @@ class CRUDController {
                     res.error(e);
                 }
 
-                res.send({
+                res.print({
                     title: self.title || self.field,
                     create: self.model.createLink,
                     tableActions: this.tableActions,
