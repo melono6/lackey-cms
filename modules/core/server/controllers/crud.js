@@ -163,9 +163,11 @@ class CRUDController {
                 } catch (e) {
                     res.error(e);
                 }
+
                 res.send({
                     title: self.title || self.field,
                     create: self.model.createLink,
+                    tableActions: this.tableActions,
                     template: 'cms/cms/tableview',
                     javascripts: [
                         'js/cms/cms/table.js'

@@ -41,6 +41,7 @@
                     {/icon}
                         </button>
             {/href}
+            {@sep}&nbsp;&nbsp;{/sep}
         {/actions}
     </td>
     <td></td>
