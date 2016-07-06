@@ -16,7 +16,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const url = require('url');
+const url = require('url'),
+      resolve = require('cms/client/js/iframe.resolve.js');
 
 window.addEventListener('unload', () => {
     if (document.activeElement.href) {
@@ -25,14 +26,10 @@ window.addEventListener('unload', () => {
     }
 }, true);
 
-debugger;
 let base = document.querySelector('head base'),
     loc = document.location,
     basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '' ) + '/'),
-    pathPrefix = basePath.replace(/.+?:\/\/.+?\/(.*)$/,'$1'),
-    pathName = document.location.pathname.replace(/([^\/]{1})$/,'$1'),
-    pathNameWithNoPrefix = (pathPrefix && pathPrefix.length) ? pathName.replace(new RegExp('^' + pathPrefix)) : document.location.pathname,
-    adminPath = basePath.replace(/\/$/,'') + '/admin' + pathNameWithNoPrefix;
+    adminPath = resolve(basePath, document.location.pathname);
 
 if (top === window) {
     document.location.href = adminPath;
