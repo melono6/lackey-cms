@@ -25,17 +25,25 @@ window.addEventListener('unload', () => {
     }
 }, true);
 
+debugger;
+let base = document.querySelector('head base'),
+    loc = document.location,
+    basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '' ) + '/'),
+    pathPrefix = basePath.replace(/.+?:\/\/.+?\/(.*)$/,'$1'),
+    pathNameWithNoPrefix = (pathPrefix && pathPrefix.length) ? document.location.pathname.relace(new RegExp('^' + pathPrefix)) : document.location.pathname,
+    adminPath = basePath + '/admin' + pathNameWithNoPrefix;
+
 if (top === window) {
-    document.location.pathname = '/admin' + document.location.pathname;
+    document.location.pathname = adminPath;
 } else {
-    let left = top.location.pathname.replace(/\/$/, ''),
-        right = '/admin' + document.location.pathname.replace(/\/$/, '');
+    let left = top.location.href.replace(/\/$/, ''),
+        right = adminPath.replace(/\/$/, '');
 
     if(right === '/admin/cms/preview') {
         return;
     }
 
     if (left !== right) {
-        top.location.href = right + document.location.search;
+        top.location.href = adminPath + document.location.search;
     }
 }
