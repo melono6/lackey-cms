@@ -31,10 +31,10 @@ let base = document.querySelector('head base'),
     basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '' ) + '/'),
     pathPrefix = basePath.replace(/.+?:\/\/.+?\/(.*)$/,'$1'),
     pathNameWithNoPrefix = (pathPrefix && pathPrefix.length) ? document.location.pathname.replace(new RegExp('^' + pathPrefix)) : document.location.pathname,
-    adminPath = basePath + '/admin' + pathNameWithNoPrefix;
+    adminPath = basePath.replace(/\/$/,'') + '/admin' + pathNameWithNoPrefix;
 
 if (top === window) {
-    document.location.pathname = adminPath;
+    document.location.href = adminPath;
 } else {
     let left = top.location.href.replace(/\/$/, ''),
         right = adminPath.replace(/\/$/, '');
