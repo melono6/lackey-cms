@@ -137,10 +137,15 @@ class CRUDController {
             rows.map((row) => {
                 row.actions = actions.map((_action) => {
                     let action = JSON.parse(JSON.stringify(_action));
-                    if (action.href) {
-                        action.href = self.populateAction(action.href, row, columns);
-                    } else if (action.api) {
-                        action.api = self.populateAction(action.api, row, columns);
+
+                    if(!_action.condition || _action.condition(row.data)) {
+                        if (action.href) {
+                            action.href = self.populateAction(action.href, row, columns);
+                        } else if (action.api) {
+                            action.api = self.populateAction(action.api, row, columns);
+                        }
+                    } else {
+                        action = {};
                     }
                     return action;
                 });

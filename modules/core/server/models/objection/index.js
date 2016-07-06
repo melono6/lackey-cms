@@ -612,7 +612,8 @@ module.exports = Database
                                 });
 
                                 rows = rows.map((row) => {
-                                    let formatted;
+                                    let formatted,
+                                        data = row;
                                     if (options && options.format === 'table') {
                                         formatted = {
                                             id: row.id,
@@ -663,6 +664,7 @@ module.exports = Database
                                         formatted = row;
                                     }
 
+                                    formatted.data = data;
                                     return formatted;
                                 });
 
