@@ -18,19 +18,19 @@
             </section>
             <ul data-lky-hook="menu.items">
                 <li>
-                    <a href="/">Homepage</a>
+                    <a href="">Homepage</a>
                 </li>
                 <li>
-                    <a href="/cms/user">Users</a>
+                    <a href="cms/user">Users</a>
                 </li>
                 <li>
-                    <a href="/cms/media">Media</a>
+                    <a href="cms/media">Media</a>
                 </li>
                 <li>
-                    <a href="/cms/taxonomy">Tags</a>
+                    <a href="cms/taxonomy">Tags</a>
                 </li>
                 <li>
-                    <a href="/cms/content">Content</a>
+                    <a href="cms/content">Content</a>
                 </li>
                 {@config}
                     {@path root=. path="cms.items"}
@@ -47,10 +47,10 @@
                     <a href="http://lackey.io">Updates</a>
                 </li>
                 <li>
-                    <a href="/cms/terms">Terms</a>
+                    <a href="cms/terms">Terms</a>
                 </li>
                 <li>
-                    <a href="/logout">Logout</a>
+                    <a href="logout">Logout</a>
                 </li>
             </ul>
             <section data-lky-hook="menu.footer">

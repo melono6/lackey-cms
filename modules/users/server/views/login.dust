@@ -35,7 +35,7 @@
                     </dl>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
-                <a href="/cms/account/forgot-password">Forgot Password</a>
+                <a href="cms/account/forgot-password">Forgot Password</a>
             </section>
         </div>
     </div>
