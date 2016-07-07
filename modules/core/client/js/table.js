@@ -20,7 +20,7 @@
 const template = require('core/client/js/template'),
     lackey = require('core/client/js'),
     qs = require('query-string'),
-    xhr = require('core/client/js/api'),
+    xhr = require('core/client/js/xhr'),
     api = require('core/client/js/api');
 
 class Table {
