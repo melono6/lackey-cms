@@ -89,11 +89,11 @@ module.exports = SUtils.waitForAs('contentCtrl',
             static get actions() {
                 return [{
                     label: 'View',
-                    icon: '/img/cms/cms/svg/preview.svg',
+                    icon: 'img/cms/cms/svg/preview.svg',
                     href: '/admin{route}'
                 }, {
                     label: 'Remove',
-                    icon: '/img/cms/cms/svg/close.svg',
+                    icon: 'img/cms/cms/svg/close.svg',
                     api: 'DELETE:/cms/content/{id}'
                 }];
             }
@@ -107,8 +107,8 @@ module.exports = SUtils.waitForAs('contentCtrl',
                         res.send({
                             template: 'cms/cms/pages',
                             javascripts: [
-                'js/cms/pages.js'
-            ],
+                                'js/cms/pages.js'
+                            ],
                             data: {
 
                                 list: data.map((content) => {
@@ -131,8 +131,8 @@ module.exports = SUtils.waitForAs('contentCtrl',
                             res.send({
                                 template: 'cms/cms/contentedit',
                                 javascripts: [
-                    'js/cms/pages.js'
-                ],
+                                    'js/cms/pages.js'
+                                ],
                                 data: {
                                     content: req.content.toJSON(),
                                     types: Model.getTypes(),
