@@ -20,7 +20,8 @@
 const template = require('core/client/js/template'),
     lackey = require('core/client/js'),
     qs = require('query-string'),
-    api = require('core/client/js/api'); // Todo: should move to core
+    xhr = require('core/client/js/api'),
+    api = require('core/client/js/api');
 
 class Table {
 
@@ -150,7 +151,7 @@ class Table {
                                 };
                             }
 
-                            if(Array.isArray(value)) {
+                            if (Array.isArray(value)) {
                                 value = value.join(', ');
                             }
 
@@ -164,7 +165,8 @@ class Table {
                     });
 
                     context = {
-                        table: response
+                        table: response,
+                        root: xhr.base
                     };
                     return self.drawRows(context);
                 })
