@@ -20,7 +20,7 @@
 const template = require('core/client/js/template'),
     lackey = require('core/client/js'),
     qs = require('query-string'),
-    api = require('cms/client/js/api'); // Todo: should move to core
+    api = require('core/client/js/api'); // Todo: should move to core
 
 class Table {
 

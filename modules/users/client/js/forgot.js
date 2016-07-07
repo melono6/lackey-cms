@@ -16,7 +16,7 @@
     limitations under the License.
 */
 var lackey = require('core/client/js'),
-    api = require('cms/client/js/api');
+    api = require('core/client/js/api');
 
 lackey.bind('lky:cms.account.forgot', 'submit', function (event, hook) {
 
