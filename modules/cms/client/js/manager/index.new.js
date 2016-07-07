@@ -253,7 +253,7 @@ Manager.prototype.preview = function (variant, language) {
             let data = JSON.stringify({
                     location: ((a) => {
                         return a === '' ? '/' : a;
-                    })(top.location.pathname.replace(/^\/admin/, '')),
+                    })(top.location.href.replace(new RegExp('^' + xhr.base + 'admin'), '')),
                     contents: contents
                 }),
                 form = top.document.createElement('form'),
