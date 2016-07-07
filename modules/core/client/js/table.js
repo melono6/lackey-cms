@@ -166,7 +166,7 @@ class Table {
 
                     context = {
                         table: response,
-                        root: xhr.base
+                        host: xhr.base
                     };
                     return self.drawRows(context);
                 })
