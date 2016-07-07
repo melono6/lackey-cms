@@ -17,11 +17,6 @@
 */
 const
     xhr = require('core/client/js/xhr'),
-    base = xhr.base.replace(/^([^:]+):\/\/([^\/]+).*/, '$1://$2'),
-    prefix = require('cms/client/js/iframe.resolve')(xhr.base, '', true),
-    socket = require('socket.io-client').connect(base, {
-        secure: document.location.protocol === 'https:',
-        path: '/' + (prefix ? prefix + '/' : '') + 'socket.io'
-    });
+    socket = require('socket.io-client').connect(xhr.base + 'socket.io');
 
 module.exports = socket;
