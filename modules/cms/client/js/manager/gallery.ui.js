@@ -19,7 +19,7 @@
 const Emitter = require('cms/client/js/emitter').Emitter,
     lackey = require('core/client/js'),
     template = require('core/client/js/template'),
-    api = require('ccorems/client/js/api'),
+    api = require('core/client/js/api'),
     Upload = require('core/client/js/upload'),
     mimes = require('mime/types.json'),
     mime = Object
