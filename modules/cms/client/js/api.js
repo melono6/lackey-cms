@@ -16,48 +16,4 @@
     limitations under the License.
 */
 
-const xhr = require('core/client/js/xhr'),
-      growl = require('cms/client/js/growl');
-
-function parse(data, readAs) {
-  let format = readAs || 'json';
-  if (data === null || data === undefined) {
-    return null;
-  }
-  switch (format) {
-    default: {
-      return JSON.parse(data);
-    }
-  }
-}
-
-function handleError(error) {
-  let message = typeof error === 'string' ? error : (error.message ? error.message : error.error);
-  growl({
-    status: 'error',
-    message: message
-  });
-}
-
-module.exports = {
-  read: function (path, readAs) {
-    return xhr
-      .get('/api' + path)
-      .then((response) => parse(response, readAs), handleError);
-  },
-  create: function (path, data, readAs) {
-    return xhr
-      .post('/api' + path, data)
-      .then((response) => parse(response, readAs), handleError);
-  },
-  update: function (path, data, readAs) {
-    return xhr
-      .put('/api' + path, data)
-      .then((response) => parse(response, readAs), handleError);
-  },
-  delete: function (path, readAs) {
-    return xhr
-      .delete('/api' + path)
-      .then((response) => parse(response, readAs), handleError);
-  }
-};
+return require('core/client/js/api');
