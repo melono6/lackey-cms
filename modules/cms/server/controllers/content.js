@@ -90,7 +90,7 @@ module.exports = SUtils.waitForAs('contentCtrl',
                 return [{
                     label: 'View',
                     icon: 'img/cms/cms/svg/preview.svg',
-                    href: '/admin{route}'
+                    href: 'admin{route}'
                 }, {
                     label: 'Remove',
                     icon: 'img/cms/cms/svg/close.svg',

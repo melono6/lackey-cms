@@ -39,7 +39,7 @@ module.exports = SUtils
             static get actions() {
                 return [{
                     label: 'View',
-                    href: '/cms/user/{id}'
+                    href: 'cms/user/{id}'
                 }];
             }
 
