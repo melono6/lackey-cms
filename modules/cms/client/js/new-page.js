@@ -16,7 +16,7 @@
     limitations under the License.
 */
 var lackey = require('core/client/js'),
-    api = require('cms/client/js/api'),
+    api = require('core/client/js/api'),
     slugLib = require('slug'),
     growl = require('cms/client/js/growl'),
     name = lackey.select('input[name="title"]')[0],

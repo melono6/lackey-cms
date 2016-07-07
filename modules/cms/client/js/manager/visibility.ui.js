@@ -19,7 +19,7 @@
 const emit = require('cms/client/js/emit'),
     lackey = require('core/client/js'),
     Autocomplete = require('cms/client/js/controls/autocomplete'),
-    api = require('cms/client/js/api');
+    api = require('core/client/js/api');
 
 
 /**

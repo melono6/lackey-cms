@@ -4,7 +4,7 @@
 
 const lackey = require('core/client/js'),
     treeParser = require('cms/shared/treeparser'),
-    api = require('cms/client/js/api');
+    api = require('core/client/js/api');
 
 let picker = lackey.select('[data-lky-author-picker]')[0],
     toUpdate = lackey.select('[data-lky-author]'),

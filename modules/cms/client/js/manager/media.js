@@ -18,7 +18,7 @@
 const template = require('core/client/js/template'),
       lackey = require('core/client/js'),
       DummyImage = require('cms/client/js/manager/dummy'),
-      api = require('cms/client/js/api'),
+      api = require('core/client/js/api'),
       modal = require('core/client/js/modal'),
       Upload = require('core/client/js/upload');
 

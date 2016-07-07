@@ -16,7 +16,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-const api = require('cms/client/js/api'),
+const api = require('core/client/js/api'),
     diff = require('jsondiffpatch'),
     emit = require('cms/client/js/emit');
 

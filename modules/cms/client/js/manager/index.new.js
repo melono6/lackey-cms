@@ -18,7 +18,7 @@
 */
 const
     lackey = require('core/client/js'),
-    api = require('cms/client/js/api'),
+    api = require('core/client/js/api'),
     emit = require('cms/client/js/emit'),
     treeParser = require('cms/shared/treeparser'),
     Repository = require('cms/client/js/manager/repository'),

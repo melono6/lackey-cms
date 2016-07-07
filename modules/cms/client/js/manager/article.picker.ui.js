@@ -19,7 +19,7 @@
 const Emitter = require('cms/client/js/emitter').Emitter,
     lackey = require('core/client/js'),
     template = require('core/client/js/template'),
-    api = require('cms/client/js/api');
+    api = require('core/client/js/api');
 
 /**
  * @class

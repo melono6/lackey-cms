@@ -17,7 +17,7 @@
     limitations under the License.
 */
 const lackey = require('core/client/js'),
-    api = require('cms/client/js/api'),
+    api = require('core/client/js/api'),
     Media = require('cms/client/js/media'),
     modal = require('core/client/js/modal'),
     MediaModalController = require('cms/client/js/manager/media');
