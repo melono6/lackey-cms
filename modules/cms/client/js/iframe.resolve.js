@@ -1,12 +1,11 @@
 /* jslint node:true */
 module.exports = function (basePath, origPathName, givePrefix) {
     var
-        cleanBase = basePath.replace(/([^\/]{1})\/$/, '$1'),
-        pathPrefix = cleanBase.replace(/.+?:\/\/.+?\/(.*)$/, '$1'),
+        pathPrefix = basePath.replace(/.+?:\/\/.+?\/(.*)$/, '$1'),
         cleanPrefix = (pathPrefix && pathPrefix.length) ? (pathPrefix.replace(/([^\/]{1})\/$/, '$1')) : pathPrefix,
         pathName = origPathName.replace(/([^\/]{1})\/$/, '$1'),
         pathNameWithNoPrefix = (cleanPrefix && cleanPrefix.length) ? pathName.replace(new RegExp('^\/' + cleanPrefix),'') : pathName,
-        adminPath = cleanBase.replace(/\/$/, '') + '/admin' + pathNameWithNoPrefix;
+        adminPath = basePath.replace(/\/$/, '') + '/admin' + pathNameWithNoPrefix;
 
     if(givePrefix) {
         return cleanPrefix;
