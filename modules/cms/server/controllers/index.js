@@ -69,7 +69,7 @@ module.exports = SUtils
                     })
                     .then((languages) => {
                         res.edit(req.user && req.user.getACL('edit').length > 0);
-                        res.js('/js/cms/cms/header.js');
+                        res.js('js/cms/cms/header.js');
                         res.print('cms/cms/iframe', {
                             page: iframePath,
                             variants: variants.map((variant) => {
