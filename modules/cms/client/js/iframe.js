@@ -18,7 +18,7 @@
 */
 const url = require('url'),
     resolve = require('cms/client/js/iframe.resolve.js');
-
+debugger;
 window.addEventListener('unload', () => {
     if (document.activeElement.href) {
         let location = url.parse(document.activeElement.href);
