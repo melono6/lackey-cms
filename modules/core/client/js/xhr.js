@@ -65,7 +65,7 @@ var XHR = {
     return XHR.ajax(path, 'delete', null, raw);
   },
   joinWithBase: function(path) {
-      return base + path.replace(/^\//,'');
+      return basePath + path.replace(/^\//,'');
   },
   basedGet: function(path, raw) {
       return XHR.get(XHR.joinWithBase(path), raw);
