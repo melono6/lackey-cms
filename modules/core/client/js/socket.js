@@ -21,7 +21,7 @@ const
     prefix = require('cms/client/js/iframe.resolve')(xhr.base, '', true),
     socket = require('socket.io-client').connect(base, {
         secure: document.location.protocol === 'https:',
-        path: (prefix ? prefix + '/' : '') + 'socket.io'
+        path: '/' + (prefix ? prefix + '/' : '') + 'socket.io'
     });
 
 module.exports = socket;
