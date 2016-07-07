@@ -19,11 +19,13 @@
 const
     lackey = require('core/client/js'),
     api = require('core/client/js/api'),
+    xhr = require('core/client/js/xhr'),
     emit = require('cms/client/js/emit'),
     treeParser = require('cms/shared/treeparser'),
     Repository = require('cms/client/js/manager/repository'),
     ChangeUI = require('cms/client/js/manager/change.ui.js'),
     StructureUI = require('cms/client/js/manager/structure.ui.js'),
+    prefix = require('cms/client/js/iframe.resolve')(xhr.base, '', true),
     Stack = require('cms/client/js/manager/stack');
 
 let locale = 'en',
@@ -104,6 +106,10 @@ Manager.prototype._loadCurrent = function () {
 
     if (loc === '') {
         loc = '/';
+    }
+
+    if (prefix) {
+        loc = loc.replace(new RegExp('^/' + prefix), '');
     }
 
     this._current = api
