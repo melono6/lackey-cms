@@ -15,8 +15,14 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+debugger;
+const
+    xhr = require('core/client/js/xhr'),
+    prefix = require('cms/client/js/iframe.resolve', '', true),
+    base = xhr.base.replace(/^([^:]+):\/\/([^\/]+).*/, '$1://$2'),
+    socket = require('socket.io-client').connect(base, {
+        secure: document.location.protocol === 'https:',
+        resource: (prefix ? prefix + '/' : '') + 'socket.io'
+    });
 
-const socket = require('socket.io-client').connect('ws://' + document.location.host + '/', {
-    secure: document.location.protocol === 'https:'
-});
 module.exports = socket;

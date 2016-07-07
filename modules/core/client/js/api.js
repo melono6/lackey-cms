@@ -32,15 +32,15 @@ function parse(data, readAs) {
 
 module.exports = {
   read: function (path, readAs) {
-    return xhr.get('/api' + path).then((response) => parse(response, readAs));
+    return xhr.basedGet('/api' + path).then((response) => parse(response, readAs));
   },
   create: function (path, data, readAs) {
-    return xhr.post('/api' + path, data).then((response) => parse(response, readAs));
+    return xhr.basedPost('/api' + path, data).then((response) => parse(response, readAs));
   },
   update: function (path, data, readAs) {
-    return xhr.put('/api' + path, data).then((response) => parse(response, readAs));
+    return xhr.basedPut('/api' + path, data).then((response) => parse(response, readAs));
   },
   delete: function (path, readAs) {
-    return xhr.delete('/api' + path).then((response) => parse(response, readAs));
+    return xhr.basedDelete('/api' + path).then((response) => parse(response, readAs));
   }
 };

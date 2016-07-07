@@ -44,7 +44,7 @@ DustIntl.registerWith(engine);
 youtube(engine);
 
 function load(name) {
-    return xhr.get('dust/' + name + '.js').then((template) => {
+    return xhr.basedGet('dust/' + name + '.js').then((template) => {
         // need to do that so we don't have to expose dust compile
         /*jslint evil: true */
         let loadTemplate = new Function('dust', template); //eslint-disable-line no-new-func
