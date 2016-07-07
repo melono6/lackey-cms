@@ -17,7 +17,7 @@
     limitations under the License.
 */
 const url = require('url'),
-      resolve = require('cms/client/js/iframe.resolve.js');
+    resolve = require('cms/client/js/iframe.resolve.js');
 
 window.addEventListener('unload', () => {
     if (document.activeElement.href) {
@@ -28,8 +28,9 @@ window.addEventListener('unload', () => {
 
 let base = document.querySelector('head base'),
     loc = document.location,
-    basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '' ) + '/'),
-    adminPath = resolve(basePath, document.location.pathname);
+    basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '') + '/'),
+    adminPath = resolve(basePath, document.location.pathname),
+    previewPath = resolve(basePath, '/cms/preview');
 
 if (top === window) {
     document.location.href = adminPath;
@@ -37,7 +38,7 @@ if (top === window) {
     let left = top.location.href.replace(/\/$/, ''),
         right = adminPath.replace(/\/$/, '');
 
-    if(right === '/admin/cms/preview') {
+    if (right === previewPath) {
         return;
     }
 

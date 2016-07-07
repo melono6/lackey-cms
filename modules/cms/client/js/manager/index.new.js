@@ -261,7 +261,7 @@ Manager.prototype.preview = function (variant, language) {
                 inputVariant = top.document.createElement('input'),
                 inputLanguage = top.document.createElement('input');
             form.method = 'post';
-            form.action = '/cms/preview';
+            form.action = xhr.base + 'cms/preview';
             form.target = '_preview';
             input.type = inputVariant.type = inputLanguage.type = 'hidden';
             input.name = 'preview';
