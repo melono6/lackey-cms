@@ -102,15 +102,18 @@ emit(Manager.prototype);
  */
 Manager.prototype._loadCurrent = function () {
 
-    let loc = top.location.pathname.replace(/^\/admin/, '');
+    let loc = top.location.pathname;
+
+    if (prefix && prefix.length) {
+        loc = loc.replace(new RegExp('^/' + prefix), '');
+    }
+
+    loc = loc.replace(/^\/admin/, '');
 
     if (loc === '') {
         loc = '/';
     }
 
-    if (prefix) {
-        loc = loc.replace(new RegExp('^/' + prefix), '');
-    }
 
     this._current = api
         .read('/cms/content?route=' + loc)
