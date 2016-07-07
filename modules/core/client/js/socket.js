@@ -17,6 +17,9 @@
 */
 const
     xhr = require('core/client/js/xhr'),
-    socket = require('socket.io-client').connect(xhr.base + 'socket.io');
+    prefix = require('cms/client/js/iframe.resolve')(xhr.base, '', true),
+    socket = require('socket.io-client').connect(xhr.base, {
+        path: '/' + (prefix ? prefix : '')
+    });
 
 module.exports = socket;
