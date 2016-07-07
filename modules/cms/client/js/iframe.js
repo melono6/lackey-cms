@@ -18,19 +18,20 @@
 */
 const url = require('url'),
     resolve = require('cms/client/js/iframe.resolve.js');
-debugger;
-window.addEventListener('unload', () => {
-    if (document.activeElement.href) {
-        let location = url.parse(document.activeElement.href);
-        top.document.location = '/admin' + location.path;
-    }
-}, true);
 
 let base = document.querySelector('head base'),
     loc = document.location,
     basePath = base ? base.getAttribute('href') : (loc.protocol + '//' + loc.host + (loc.port && loc.port.length ? (':' + loc.port) : '') + '/'),
     adminPath = resolve(basePath, document.location.pathname),
     previewPath = resolve(basePath, '/cms/preview');
+
+window.addEventListener('unload', () => {
+    debugger;
+    if (document.activeElement.href) {
+        let location = url.parse(document.activeElement.href);
+        top.document.location = resolve(basePath, location.path);
+    }
+}, true);
 
 if (top === window) {
     document.location.href = adminPath;
