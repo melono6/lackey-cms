@@ -67,7 +67,9 @@ function Manager() {
             }
             return this
                 ._current
-                .then((id) => self.repository.get('content', id));
+                .then((id) => self.repository.get('content', id)).catch((error) => {
+                    console.error(error);
+                });
         },
         enumerable: false
     });
@@ -125,6 +127,9 @@ Manager.prototype._loadCurrent = function () {
                 top.history.pushState('', top.document.title, '/admin' + data.data[0].route);
             }
             return data.data[0].id;
+        })
+        .catch((error) => {
+            console.error(error);
         });
 };
 
@@ -331,6 +336,9 @@ Manager.prototype.onViewStructure = function () {
     promise
         .then(() => {
             lackey.hook('header.settings').removeAttribute('disabled', '');
+        })
+        .catch((error) => {
+            console.error(error);
         });
 
 

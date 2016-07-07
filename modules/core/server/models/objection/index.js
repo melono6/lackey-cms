@@ -664,7 +664,9 @@ module.exports = Database
                                         formatted = row;
                                     }
 
-                                    formatted.data = data;
+                                    if (options.keepReference) {
+                                        formatted.___origial = data;
+                                    }
                                     return formatted;
                                 });
 

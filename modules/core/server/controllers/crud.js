@@ -16,6 +16,8 @@
     limitations under the License.
 */
 
+const _ = require('lodash');
+
 class CRUDController {
 
     static get model() {
@@ -91,7 +93,9 @@ class CRUDController {
         return this.model
             .table(options.query, this.tableConfig, options.options)
             .then((data) => {
-                self.mapActions(this.actions, data.columns, data.rows);
+                if(options.options.format === 'table') {
+                    self.mapActions(this.actions, data.columns, data.rows);
+                }
                 return data;
             });
     }
@@ -134,7 +138,7 @@ class CRUDController {
     static mapActions(actions, columns, rows) {
         let self = this;
         if (actions && rows) {
-            rows.map((row) => {
+            rows.forEach((row) => {
                 row.actions = actions.map((_action) => {
                     let action = JSON.parse(JSON.stringify(_action));
 
@@ -149,6 +153,12 @@ class CRUDController {
                     }
                     return action;
                 });
+
+            });
+        }
+        if (rows) {
+            rows.forEach((row) => {
+                delete row.___origial;
             });
         }
     }
@@ -167,7 +177,8 @@ class CRUDController {
                 return this
                     .model
                     .table(restParams.query, this.tableConfig, {
-                        format: 'table'
+                        format: 'table',
+                        keepReference: true
                     });
             })
             .then((data) => {
@@ -176,6 +187,10 @@ class CRUDController {
                 } catch (e) {
                     res.error(e);
                 }
+
+                data.rows.forEach((row) => { // remove circural
+                    delete row.data;
+                });
 
                 res.send({
                     title: self.title || self.field,

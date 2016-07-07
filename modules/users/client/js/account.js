@@ -95,7 +95,6 @@ lackey.bind('.sess-rmAll', 'click', (event, hook) => {
 });
 
 lackey.bind('lky:password', 'submit', (event, hook) => {
-    debugger;
     event.preventDefault();
     event.cancelBubble = true;
     let data = lackey.form(hook);
